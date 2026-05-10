@@ -1,0 +1,159 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Profit Margin Calculator — Free | FoxMargin"
+  description="Calculate gross profit margin, net margin, and profit instantly. Enter revenue and cost to see your margin percentage. Free, no signup."
+>
+  <div class="card">
+    <h1>Profit Margin Calculator</h1>
+    <p>Enter your revenue and costs to calculate gross profit margin and net profit. Results update instantly.</p>
+  </div>
+
+  <div class="ad-slot ad-slot-banner">Ad</div>
+
+  <div class="card">
+    <h2>Calculate Your Margin</h2>
+    <div class="calc-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="revenue">Revenue ($)</label>
+          <input type="number" id="revenue" placeholder="e.g. 10000" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="cost">Cost of Goods ($)</label>
+          <input type="number" id="cost" placeholder="e.g. 6000" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="operating">Operating Expenses ($) <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <input type="number" id="operating" placeholder="e.g. 1500" min="0" step="0.01" />
+      </div>
+      <button class="btn" onclick="calculate()">Calculate Margin</button>
+    </div>
+
+    <div class="results" id="results">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="gross-margin">—</span>
+          <span class="result-label">Gross Margin %</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="gross-profit">—</span>
+          <span class="result-label">Gross Profit</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="net-margin">—</span>
+          <span class="result-label">Net Margin %</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="net-profit">—</span>
+          <span class="result-label">Net Profit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot ad-slot-banner">Ad</div>
+
+  <div class="card">
+    <h2>What is Profit Margin?</h2>
+    <p>Profit margin measures how much of every dollar of revenue your business keeps as profit after expenses. There are two types most businesses track:</p>
+    <ul style="margin:0.75rem 0 0.75rem 1.2rem;color:var(--muted);font-size:0.95rem;line-height:1.8;">
+      <li><strong>Gross margin</strong> — Revenue minus cost of goods sold (COGS), before operating expenses.</li>
+      <li><strong>Net margin</strong> — What's left after all expenses including operating costs.</li>
+    </ul>
+    <p>A 20% gross margin means you keep $0.20 of every $1.00 in revenue before operating costs.</p>
+
+    <h2 style="margin-top:1.5rem;">Profit Margin Formula</h2>
+    <div class="formula-box">
+      <p><strong>Gross Margin %</strong> = (Revenue − COGS) ÷ Revenue × 100</p>
+      <p><strong>Net Margin %</strong> = (Revenue − COGS − Operating Expenses) ÷ Revenue × 100</p>
+    </div>
+
+    <h2 style="margin-top:1.5rem;">What is a Good Profit Margin?</h2>
+    <table class="bench-table">
+      <thead><tr><th>Industry</th><th>Typical Gross Margin</th></tr></thead>
+      <tbody>
+        <tr><td>Software / SaaS</td><td>70–85%</td></tr>
+        <tr><td>Professional Services</td><td>30–50%</td></tr>
+        <tr><td>Retail</td><td>20–40%</td></tr>
+        <tr><td>Restaurant</td><td>60–70% gross / 3–9% net</td></tr>
+        <tr><td>Manufacturing</td><td>20–35%</td></tr>
+        <tr><td>Construction</td><td>15–25%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>What's the difference between margin and markup?</summary>
+      <p>Margin is calculated from revenue (what you sell for). Markup is calculated from cost (what you paid). A 50% markup on a $10 cost = $15 price = 33% margin. Use our <a href="/markup-calculator/">Markup Calculator</a> to convert between them.</p>
+    </details>
+    <details>
+      <summary>Is 30% profit margin good?</summary>
+      <p>30% gross margin is average for retail and reasonable for most product businesses. For services, you should aim higher — 40–60% gross margin gives you enough to cover operating costs and still profit. Net margin of 10% or more is generally considered healthy.</p>
+    </details>
+    <details>
+      <summary>How do I improve my profit margin?</summary>
+      <p>Two levers: raise prices (hardest psychologically but highest impact) or reduce COGS through better supplier terms, bulk purchasing, or more efficient production. Cutting operating expenses helps net margin but won't move gross margin.</p>
+    </details>
+    <details>
+      <summary>Does this calculator include tax?</summary>
+      <p>No — this calculates pre-tax margin. To get after-tax net margin, subtract your tax rate from the net profit figure before dividing by revenue.</p>
+    </details>
+  </div>
+</Layout>
+
+<style>
+  .formula-box {
+    background: #f0f7ff;
+    border-left: 3px solid var(--fox);
+    padding: 0.85rem 1rem;
+    border-radius: 0 6px 6px 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .bench-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.75rem; }
+  .bench-table th { background: var(--navy); color: #fff; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.8rem; }
+  .bench-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+  .bench-table tr:last-child td { border-bottom: none; }
+</style>
+
+<script is:inline>
+function fmt(n) {
+  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+}
+function fmtPct(n) {
+  return n.toFixed(1) + '%';
+}
+function calculate() {
+  const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+  const cost = parseFloat(document.getElementById('cost').value) || 0;
+  const operating = parseFloat(document.getElementById('operating').value) || 0;
+
+  if (revenue <= 0) {
+    alert('Please enter a revenue amount.');
+    return;
+  }
+
+  const grossProfit = revenue - cost;
+  const grossMargin = (grossProfit / revenue) * 100;
+  const netProfit = grossProfit - operating;
+  const netMargin = (netProfit / revenue) * 100;
+
+  document.getElementById('gross-margin').textContent = fmtPct(grossMargin);
+  document.getElementById('gross-profit').textContent = fmt(grossProfit);
+  document.getElementById('net-margin').textContent = fmtPct(netMargin);
+  document.getElementById('net-profit').textContent = fmt(netProfit);
+  document.getElementById('results').classList.add('show');
+}
+
+// Calculate on Enter
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+</script>

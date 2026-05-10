@@ -1,0 +1,298 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+}
+const { title, description, canonical } = Astro.props;
+const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <!-- Google AdSense — swap ca-pub-XXXXXXXXXXXXXXXX once approved -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f2d52;
+      --fox: #d4500a;
+      --fox-light: #f0884a;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --border: #e1e8ed;
+      --text: #1a2332;
+      --muted: #6b7c93;
+      --radius: 10px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: var(--fox); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    header {
+      background: var(--navy);
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 56px;
+    }
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+    .logo span { color: var(--fox-light); }
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+    nav ul a {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.85rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    nav ul a:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
+    nav ul a.active { color: var(--fox-light); font-weight: 600; }
+
+    /* Layout */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+    main { min-width: 0; }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h1 { font-size: 1.6rem; color: var(--navy); margin-bottom: 0.5rem; }
+    .card h2 { font-size: 1.15rem; color: var(--navy); margin-bottom: 1rem; }
+    .card p { color: var(--muted); margin-bottom: 1rem; }
+
+    /* Calculator form */
+    .calc-form { display: flex; flex-direction: column; gap: 1rem; }
+    .field label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.4rem;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: var(--fox);
+    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+    .btn {
+      background: var(--fox);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 7px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      align-self: flex-start;
+    }
+    .btn:hover { background: var(--fox-light); }
+    .btn-outline {
+      background: transparent;
+      color: var(--fox);
+      border: 1.5px solid var(--fox);
+    }
+    .btn-outline:hover { background: var(--fox); color: #fff; }
+
+    /* Results */
+    .results {
+      display: none;
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      background: #f0f7ff;
+      border: 1.5px solid #c3daf9;
+      border-radius: var(--radius);
+    }
+    .results.show { display: block; }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+    .result-item { text-align: center; }
+    .result-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--navy);
+      display: block;
+    }
+    .result-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .result-highlight .result-value { color: var(--fox); }
+
+    /* Ad slots */
+    .ad-slot {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .ad-slot-banner { height: 90px; }
+    .ad-slot-sidebar { height: 250px; margin-bottom: 1rem; }
+    .ad-slot-sidebar-tall { height: 600px; }
+
+    /* Sidebar */
+    .sidebar { position: sticky; top: 72px; }
+    .sidebar-links { list-style: none; }
+    .sidebar-links li { border-bottom: 1px solid var(--border); }
+    .sidebar-links a {
+      display: block;
+      padding: 0.65rem 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .sidebar-links a:hover { color: var(--fox); text-decoration: none; }
+
+    /* FAQ */
+    details {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+    }
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--navy);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    details summary::after { content: '+'; font-size: 1.2rem; color: var(--fox); }
+    details[open] summary::after { content: '−'; }
+    details p { margin-top: 0.6rem; font-size: 0.9rem; color: var(--muted); }
+
+    /* Footer */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.82rem;
+      margin-top: 2rem;
+    }
+    footer a { color: rgba(255,255,255,0.7); }
+    footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/" class="logo">🦊 Fox<span>Margin</span></a>
+      <ul>
+        <li><a href="/profit-margin-calculator/">Profit Margin</a></li>
+        <li><a href="/break-even-calculator/">Break-Even</a></li>
+        <li><a href="/markup-calculator/">Markup</a></li>
+        <li><a href="/invoice-generator/">Invoice</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="page-wrap">
+    <main>
+      <slot />
+    </main>
+    <aside class="sidebar">
+      <div class="ad-slot ad-slot-sidebar">Ad</div>
+      <div class="card" style="padding:1rem;">
+        <p style="font-size:0.8rem;font-weight:700;color:var(--navy);margin-bottom:0.6rem;">ALL CALCULATORS</p>
+        <ul class="sidebar-links">
+          <li><a href="/profit-margin-calculator/">Profit Margin Calculator</a></li>
+          <li><a href="/break-even-calculator/">Break-Even Calculator</a></li>
+          <li><a href="/markup-calculator/">Markup Calculator</a></li>
+          <li><a href="/invoice-generator/">Invoice Generator</a></li>
+        </ul>
+      </div>
+      <div class="ad-slot ad-slot-sidebar-tall" style="margin-top:1rem;">Ad</div>
+    </aside>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/profit-margin-calculator/">Profit Margin</a>
+      <a href="/break-even-calculator/">Break-Even</a>
+      <a href="/markup-calculator/">Markup</a>
+      <a href="/invoice-generator/">Invoice</a>
+    </div>
+    <p>© {new Date().getFullYear()} FoxMargin.com — Free Business Calculators</p>
+    <p style="margin-top:0.4rem;font-size:0.75rem;">Results are for informational purposes only. Always verify with a qualified accountant.</p>
+  </footer>
+</body>
+</html>

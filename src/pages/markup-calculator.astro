@@ -1,0 +1,188 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Markup Calculator — Free | FoxMargin"
+  description="Calculate markup percentage, selling price, and profit margin. Convert between markup and margin instantly. Free business pricing calculator."
+>
+  <div class="card">
+    <h1>Markup Calculator</h1>
+    <p>Calculate selling price from cost and markup percentage — or find your markup from cost and price. Includes automatic margin conversion.</p>
+  </div>
+
+  <div class="ad-slot ad-slot-banner">Ad</div>
+
+  <div class="card">
+    <div class="mode-tabs">
+      <button class="tab active" onclick="setMode('markup')">Cost + Markup %</button>
+      <button class="tab" onclick="setMode('reverse')">Cost + Selling Price</button>
+    </div>
+
+    <!-- Mode 1: Cost + Markup -->
+    <div id="mode-markup" class="calc-form" style="margin-top:1rem;">
+      <div class="field-row">
+        <div class="field">
+          <label for="cost1">Cost ($)</label>
+          <input type="number" id="cost1" placeholder="e.g. 25.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="markup-pct">Markup (%)</label>
+          <input type="number" id="markup-pct" placeholder="e.g. 50" min="0" step="0.1" />
+        </div>
+      </div>
+      <button class="btn" onclick="calcFromMarkup()">Calculate Price</button>
+    </div>
+
+    <!-- Mode 2: Cost + Price (reverse) -->
+    <div id="mode-reverse" class="calc-form" style="margin-top:1rem;display:none;">
+      <div class="field-row">
+        <div class="field">
+          <label for="cost2">Cost ($)</label>
+          <input type="number" id="cost2" placeholder="e.g. 25.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="sell-price">Selling Price ($)</label>
+          <input type="number" id="sell-price" placeholder="e.g. 40.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <button class="btn" onclick="calcReverse()">Calculate Markup</button>
+    </div>
+
+    <div class="results" id="results">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="res-price">—</span>
+          <span class="result-label">Selling Price</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="res-profit">—</span>
+          <span class="result-label">Profit</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="res-markup">—</span>
+          <span class="result-label">Markup %</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="res-margin">—</span>
+          <span class="result-label">Margin %</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot ad-slot-banner">Ad</div>
+
+  <div class="card">
+    <h2>Markup vs Margin — What's the Difference?</h2>
+    <p>This is one of the most common pricing mistakes in small business. Markup and margin are calculated from different bases:</p>
+    <div class="formula-box">
+      <p><strong>Markup %</strong> = (Selling Price − Cost) ÷ Cost × 100</p>
+      <p><strong>Margin %</strong> = (Selling Price − Cost) ÷ Selling Price × 100</p>
+    </div>
+    <p style="margin-top:0.85rem;">Example: You buy for $10 and sell for $15.</p>
+    <ul style="margin:0.5rem 0 0 1.2rem;color:var(--muted);font-size:0.9rem;line-height:1.8;">
+      <li>Markup = $5 ÷ $10 = <strong>50%</strong></li>
+      <li>Margin = $5 ÷ $15 = <strong>33.3%</strong></li>
+    </ul>
+    <p style="margin-top:0.75rem;font-size:0.9rem;color:var(--muted);">If you think in margin terms but price in markup terms, you'll underprice every product.</p>
+
+    <h2 style="margin-top:1.5rem;">Common Markup to Margin Reference</h2>
+    <table class="bench-table">
+      <thead><tr><th>Markup %</th><th>Margin %</th></tr></thead>
+      <tbody>
+        <tr><td>25%</td><td>20.0%</td></tr>
+        <tr><td>33%</td><td>24.8%</td></tr>
+        <tr><td>50%</td><td>33.3%</td></tr>
+        <tr><td>100%</td><td>50.0%</td></tr>
+        <tr><td>200%</td><td>66.7%</td></tr>
+        <tr><td>400%</td><td>80.0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>What markup should I use for retail?</summary>
+      <p>Retail markup varies widely by product category. Fashion and apparel typically use 100–200% (keystone pricing and above). Electronics are much lower at 10–30% due to thin margins. Specialty goods and handmade products can support 200–400% markup. Use your industry benchmarks as a starting point, then test price sensitivity.</p>
+    </details>
+    <details>
+      <summary>What is keystone pricing?</summary>
+      <p>Keystone pricing is doubling the wholesale cost — a 100% markup, which gives you a 50% margin. It was a traditional retail standard. Many modern retailers use it as a floor rather than a target, especially for premium or low-competition products.</p>
+    </details>
+    <details>
+      <summary>How do I convert a target margin to a markup?</summary>
+      <p>Use this formula: Markup % = Margin % ÷ (1 − Margin %). So a 40% target margin = 40 ÷ 0.60 = 66.7% markup. The reverse: Margin % = Markup % ÷ (1 + Markup %).</p>
+    </details>
+  </div>
+</Layout>
+
+<style>
+  .mode-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+  .tab {
+    background: none;
+    border: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-weight: 500;
+  }
+  .tab.active { color: var(--fox); border-bottom-color: var(--fox); font-weight: 600; }
+  .formula-box {
+    background: #f0f7ff;
+    border-left: 3px solid var(--fox);
+    padding: 0.85rem 1rem;
+    border-radius: 0 6px 6px 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+  .bench-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.75rem; }
+  .bench-table th { background: var(--navy); color: #fff; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.8rem; }
+  .bench-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+  .bench-table tr:last-child td { border-bottom: none; }
+</style>
+
+<script is:inline>
+function fmt(n) {
+  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+function setMode(mode) {
+  document.getElementById('mode-markup').style.display = mode === 'markup' ? 'flex' : 'none';
+  document.getElementById('mode-reverse').style.display = mode === 'reverse' ? 'flex' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (mode === 'markup') === (i === 0)));
+  document.getElementById('results').classList.remove('show');
+}
+function showResults(price, profit, markup, margin) {
+  document.getElementById('res-price').textContent = fmt(price);
+  document.getElementById('res-profit').textContent = fmt(profit);
+  document.getElementById('res-markup').textContent = markup.toFixed(1) + '%';
+  document.getElementById('res-margin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('results').classList.add('show');
+}
+function calcFromMarkup() {
+  const cost = parseFloat(document.getElementById('cost1').value) || 0;
+  const markupPct = parseFloat(document.getElementById('markup-pct').value) || 0;
+  if (cost <= 0) { alert('Please enter a cost.'); return; }
+  const price = cost * (1 + markupPct / 100);
+  const profit = price - cost;
+  const margin = (profit / price) * 100;
+  showResults(price, profit, markupPct, margin);
+}
+function calcReverse() {
+  const cost = parseFloat(document.getElementById('cost2').value) || 0;
+  const price = parseFloat(document.getElementById('sell-price').value) || 0;
+  if (cost <= 0 || price <= cost) { alert('Selling price must be greater than cost.'); return; }
+  const profit = price - cost;
+  const markup = (profit / cost) * 100;
+  const margin = (profit / price) * 100;
+  showResults(price, profit, markup, margin);
+}
+</script>

@@ -1,0 +1,178 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Break-Even Calculator — Free | FoxMargin"
+  description="Calculate your break-even point in units and revenue instantly. Enter fixed costs, variable costs, and price per unit. Free business calculator."
+>
+  <div class="card">
+    <h1>Break-Even Calculator</h1>
+    <p>Find exactly how many units you need to sell — or how much revenue you need to generate — to cover all your costs.</p>
+  </div>
+
+  <div class="ad-slot ad-slot-banner">Ad</div>
+
+  <div class="card">
+    <h2>Calculate Your Break-Even Point</h2>
+    <div class="calc-form">
+      <div class="field">
+        <label for="fixed">Fixed Costs per Month ($)</label>
+        <input type="number" id="fixed" placeholder="e.g. 5000 (rent, salaries, insurance)" min="0" step="0.01" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="variable">Variable Cost per Unit ($)</label>
+          <input type="number" id="variable" placeholder="e.g. 12.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="price">Selling Price per Unit ($)</label>
+          <input type="number" id="price" placeholder="e.g. 30.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <button class="btn" onclick="calculate()">Calculate Break-Even</button>
+    </div>
+
+    <div class="results" id="results">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="be-units">—</span>
+          <span class="result-label">Units to Break Even</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="be-revenue">—</span>
+          <span class="result-label">Revenue to Break Even</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="contribution">—</span>
+          <span class="result-label">Contribution Margin</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="contrib-ratio">—</span>
+          <span class="result-label">Contribution Ratio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot ad-slot-banner">Ad</div>
+
+  <div class="card">
+    <h2>What is a Break-Even Point?</h2>
+    <p>The break-even point is when total revenue equals total costs — you're making zero profit but covering all expenses. Every unit sold beyond break-even is pure profit.</p>
+
+    <h2 style="margin-top:1.5rem;">Break-Even Formula</h2>
+    <div class="formula-box">
+      <p><strong>Contribution Margin</strong> = Selling Price − Variable Cost per Unit</p>
+      <p><strong>Break-Even Units</strong> = Fixed Costs ÷ Contribution Margin</p>
+      <p><strong>Break-Even Revenue</strong> = Break-Even Units × Selling Price</p>
+    </div>
+
+    <h2 style="margin-top:1.5rem;">Fixed vs Variable Costs</h2>
+    <div class="cost-grid">
+      <div class="cost-box">
+        <h3>Fixed Costs</h3>
+        <p>Don't change with sales volume</p>
+        <ul>
+          <li>Rent / lease</li>
+          <li>Salaries</li>
+          <li>Insurance</li>
+          <li>Software subscriptions</li>
+          <li>Loan payments</li>
+        </ul>
+      </div>
+      <div class="cost-box">
+        <h3>Variable Costs</h3>
+        <p>Increase with each unit sold</p>
+        <ul>
+          <li>Raw materials</li>
+          <li>Packaging</li>
+          <li>Payment processing fees</li>
+          <li>Shipping per order</li>
+          <li>Sales commissions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>What if my contribution margin is zero or negative?</summary>
+      <p>If your selling price is at or below your variable cost per unit, you lose money on every sale regardless of volume — there is no break-even point. You must either raise your price or reduce variable costs.</p>
+    </details>
+    <details>
+      <summary>How do I use break-even analysis for a new product?</summary>
+      <p>Before launching, estimate your fixed costs (what you'll pay regardless of sales) and variable costs per unit. Set a target price and run this calculator. If the break-even unit count is higher than realistic sales volume, the product won't be profitable at that price.</p>
+    </details>
+    <details>
+      <summary>Should I include my own salary in fixed costs?</summary>
+      <p>Yes — if you're a business owner who draws a salary, include it as a fixed cost. This gives you a more realistic picture of what it takes to truly break even, not just cover operational costs.</p>
+    </details>
+    <details>
+      <summary>What is contribution margin ratio?</summary>
+      <p>Contribution margin ratio = contribution margin ÷ selling price. It tells you what percentage of each dollar of revenue contributes to covering fixed costs. A 60% ratio means $0.60 of every $1 goes toward fixed costs and profit.</p>
+    </details>
+  </div>
+</Layout>
+
+<style>
+  .formula-box {
+    background: #f0f7ff;
+    border-left: 3px solid var(--fox);
+    padding: 0.85rem 1rem;
+    border-radius: 0 6px 6px 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem; }
+  @media (max-width: 500px) { .cost-grid { grid-template-columns: 1fr; } }
+  .cost-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .cost-box h3 { font-size: 0.9rem; color: var(--navy); margin-bottom: 0.25rem; }
+  .cost-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .cost-box ul { list-style: none; }
+  .cost-box ul li { font-size: 0.85rem; color: var(--muted); padding: 0.2rem 0; border-bottom: 1px solid var(--border); }
+  .cost-box ul li:last-child { border-bottom: none; }
+  .cost-box ul li::before { content: '· '; color: var(--fox); font-weight: 700; }
+</style>
+
+<script is:inline>
+function fmt(n) {
+  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+}
+function calculate() {
+  const fixed = parseFloat(document.getElementById('fixed').value) || 0;
+  const variable = parseFloat(document.getElementById('variable').value) || 0;
+  const price = parseFloat(document.getElementById('price').value) || 0;
+
+  if (fixed <= 0 || price <= 0) {
+    alert('Please enter fixed costs and selling price.');
+    return;
+  }
+
+  const contribution = price - variable;
+  if (contribution <= 0) {
+    alert('Selling price must be greater than variable cost per unit.');
+    return;
+  }
+
+  const beUnits = Math.ceil(fixed / contribution);
+  const beRevenue = beUnits * price;
+  const contribRatio = (contribution / price) * 100;
+
+  document.getElementById('be-units').textContent = beUnits.toLocaleString() + ' units';
+  document.getElementById('be-revenue').textContent = fmt(beRevenue);
+  document.getElementById('contribution').textContent = fmt(contribution) + '/unit';
+  document.getElementById('contrib-ratio').textContent = contribRatio.toFixed(1) + '%';
+  document.getElementById('results').classList.add('show');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+</script>
