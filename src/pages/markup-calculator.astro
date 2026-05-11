@@ -151,8 +151,9 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script is:inline>
-function fmt(n) {
-  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+function fmt(n, d = 2) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
 }
 function setMode(mode) {
   document.getElementById('mode-markup').style.display = mode === 'markup' ? 'flex' : 'none';
@@ -185,4 +186,9 @@ function calcReverse() {
   const margin = (profit / price) * 100;
   showResults(price, profit, markup, margin);
 }
+document.addEventListener('currencychange', () => {
+  if (document.getElementById('results').classList.contains('show')) {
+    document.getElementById('mode-markup').style.display !== 'none' ? calcFromMarkup() : calcReverse();
+  }
+});
 </script>

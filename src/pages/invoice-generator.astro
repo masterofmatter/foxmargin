@@ -29,7 +29,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
       <div class="field">
         <label for="from-address">Address</label>
-        <input type="text" id="from-address" placeholder="123 Main St, Toronto, ON M1A 1A1" />
+        <input type="text" id="from-address" placeholder="123 Main St, Austin, TX 78701" />
       </div>
 
       <div class="section-label" style="margin-top:0.5rem;">Bill To</div>
@@ -66,7 +66,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="field">
           <label for="tax-rate">Tax Rate (%)</label>
-          <input type="number" id="tax-rate" placeholder="13" min="0" max="100" step="0.01" value="13" />
+          <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" />
         </div>
       </div>
 
@@ -118,7 +118,7 @@ import Layout from '../layouts/Layout.astro';
     </details>
     <details>
       <summary>What tax rate should I use?</summary>
-      <p>In Canada, most businesses charge HST (13% in Ontario), GST (5% federal only), or HST at provincial rates. If you're a small supplier under $30,000 annual revenue, you may not need to collect GST/HST. Consult a tax professional if unsure.</p>
+      <p>In the US there is no federal sales tax — rates are set by state and locality. Common rates range from 0% (Oregon, Montana, New Hampshire) to over 10% in some cities. Enter your applicable state/local rate, or leave at 0% if you're exempt or selling to another business with a resale certificate.</p>
     </details>
     <details>
       <summary>Can I add my logo?</summary>
@@ -227,7 +227,7 @@ function updateLineTotals() {
     const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
     const total = qty * rate;
     const el = row.querySelector('.li-total-val');
-    if (el) el.textContent = total > 0 ? '$' + total.toFixed(2) : '—';
+    if (el) el.textContent = total > 0 ? fmt(total) : '—';
   });
 }
 
@@ -242,7 +242,8 @@ function getLineItems() {
 }
 
 function fmt(n) {
-  return '$' + n.toFixed(2);
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 }
 
 function generateInvoice() {

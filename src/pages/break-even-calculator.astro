@@ -145,8 +145,9 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script is:inline>
-function fmt(n) {
-  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+function fmt(n, d = 0) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
 }
 function calculate() {
   const fixed = parseFloat(document.getElementById('fixed').value) || 0;
@@ -175,4 +176,5 @@ function calculate() {
   document.getElementById('results').classList.add('show');
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+document.addEventListener('currencychange', () => { if (document.getElementById('results').classList.contains('show')) calculate(); });
 </script>

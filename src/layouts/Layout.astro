@@ -85,6 +85,19 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
     nav ul a:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
     nav ul a.active { color: var(--fox-light); font-weight: 600; }
+    .currency-select {
+      margin-left: auto;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.82rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .currency-select:focus { outline: none; border-color: var(--fox-light); }
+    .currency-select option { background: var(--navy); color: #fff; }
 
     /* Layout */
     .page-wrap {
@@ -261,6 +274,14 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
         <li><a href="/markup-calculator/">Markup</a></li>
         <li><a href="/invoice-generator/">Invoice</a></li>
       </ul>
+      <select id="currency-select" class="currency-select" onchange="setCurrency(this.value)" aria-label="Currency">
+        <option value="USD">$ USD</option>
+        <option value="GBP">£ GBP</option>
+        <option value="EUR">€ EUR</option>
+        <option value="AUD">A$ AUD</option>
+        <option value="CAD">C$ CAD</option>
+        <option value="INR">₹ INR</option>
+      </select>
     </nav>
   </header>
 
@@ -283,6 +304,27 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     </aside>
   </div>
 
+  <script is:inline>
+    window.__CURRENCIES = [
+      { code: 'USD', locale: 'en-US', symbol: '$'  },
+      { code: 'GBP', locale: 'en-GB', symbol: '£'  },
+      { code: 'EUR', locale: 'de-DE', symbol: '€'  },
+      { code: 'AUD', locale: 'en-AU', symbol: 'A$' },
+      { code: 'CAD', locale: 'en-CA', symbol: 'C$' },
+      { code: 'INR', locale: 'en-IN', symbol: '₹'  },
+    ];
+    function setCurrency(code) {
+      localStorage.setItem('preferred_currency', code);
+      window.__currency = window.__CURRENCIES.find(c => c.code === code) || window.__CURRENCIES[0];
+      document.dispatchEvent(new Event('currencychange'));
+    }
+    (function initCurrency() {
+      const saved = localStorage.getItem('preferred_currency') || 'USD';
+      window.__currency = window.__CURRENCIES.find(c => c.code === saved) || window.__CURRENCIES[0];
+      const sel = document.getElementById('currency-select');
+      if (sel) sel.value = window.__currency.code;
+    })();
+  </script>
   <footer>
     <div class="footer-links">
       <a href="/">Home</a>
