@@ -41,12 +41,12 @@ import Layout from '../layouts/Layout.astro';
         <div class="calc-form" style="gap:0.75rem;">
           <div class="field-row">
             <div class="field">
-              <label for="inv-number">Invoice #</label>
-              <input type="text" id="inv-number" placeholder="INV-001" oninput="renderPreview()" />
-            </div>
-            <div class="field">
               <label for="inv-date">Date</label>
               <input type="text" id="inv-date" placeholder="YYYY-MM-DD" oninput="renderPreview()" />
+            </div>
+            <div class="field">
+              <label for="inv-number">Invoice #</label>
+              <input type="text" id="inv-number" placeholder="INV-001" oninput="renderPreview()" />
             </div>
           </div>
           <div class="field-row">
@@ -54,12 +54,22 @@ import Layout from '../layouts/Layout.astro';
               <label for="due-date">Due Date</label>
               <input type="text" id="due-date" placeholder="YYYY-MM-DD" oninput="renderPreview()" />
             </div>
-            <div class="field">
-              <label for="tax-rate">Tax Rate (%)</label>
-              <input type="text" inputmode="decimal" id="tax-rate" placeholder="0" value="0" oninput="renderPreview()" />
-            </div>
           </div>
         </div>
+        <div id="tax-lines" style="margin-top:0.75rem;">
+          <div class="tax-row">
+            <div class="field">
+              <label>Tax Label</label>
+              <input type="text" class="tax-name" placeholder="Sales Tax" oninput="renderPreview()" />
+            </div>
+            <div class="field">
+              <label>Rate (%)</label>
+              <input type="text" inputmode="decimal" class="tax-pct" placeholder="0" oninput="renderPreview()" />
+            </div>
+            <div class="tax-remove-placeholder"></div>
+          </div>
+        </div>
+        <button class="ws-add-line-btn" onclick="addTax()" type="button">+ Add Tax</button>
       </div>
 
       <!-- Bill To -->
@@ -77,13 +87,75 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           <div class="field">
+            <label for="to-country">Country</label>
+            <select id="to-country" onchange="updateToAddrLabels();renderPreview()">
+              <optgroup label="Popular">
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="GB">United Kingdom</option>
+                <option value="AU">Australia</option>
+                <option value="NZ">New Zealand</option>
+                <option value="IE">Ireland</option>
+                <option value="IN">India</option>
+                <option value="SG">Singapore</option>
+                <option value="ZA">South Africa</option>
+                <option value="NG">Nigeria</option>
+              </optgroup>
+              <optgroup label="Europe">
+                <option value="AT">Austria</option>
+                <option value="BE">Belgium</option>
+                <option value="CH">Switzerland</option>
+                <option value="CZ">Czech Republic</option>
+                <option value="DE">Germany</option>
+                <option value="DK">Denmark</option>
+                <option value="ES">Spain</option>
+                <option value="FI">Finland</option>
+                <option value="FR">France</option>
+                <option value="GR">Greece</option>
+                <option value="HU">Hungary</option>
+                <option value="IT">Italy</option>
+                <option value="NL">Netherlands</option>
+                <option value="NO">Norway</option>
+                <option value="PL">Poland</option>
+                <option value="PT">Portugal</option>
+                <option value="SE">Sweden</option>
+              </optgroup>
+              <optgroup label="Americas">
+                <option value="AR">Argentina</option>
+                <option value="BR">Brazil</option>
+                <option value="CL">Chile</option>
+                <option value="CO">Colombia</option>
+                <option value="MX">Mexico</option>
+              </optgroup>
+              <optgroup label="Asia &amp; Pacific">
+                <option value="AE">United Arab Emirates</option>
+                <option value="CN">China</option>
+                <option value="HK">Hong Kong</option>
+                <option value="ID">Indonesia</option>
+                <option value="JP">Japan</option>
+                <option value="KR">South Korea</option>
+                <option value="MY">Malaysia</option>
+                <option value="PH">Philippines</option>
+                <option value="TH">Thailand</option>
+                <option value="TR">Turkey</option>
+              </optgroup>
+              <optgroup label="Africa &amp; Middle East">
+                <option value="EG">Egypt</option>
+                <option value="GH">Ghana</option>
+                <option value="IL">Israel</option>
+                <option value="KE">Kenya</option>
+                <option value="SA">Saudi Arabia</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field">
             <label for="to-street">Street Address</label>
             <input type="text" id="to-street" placeholder="456 Client Ave" autocomplete="off" oninput="renderPreview()" />
           </div>
           <div class="addr-grid">
             <div class="field"><label for="to-city">City</label><input type="text" id="to-city" placeholder="City" autocomplete="off" oninput="renderPreview()" /></div>
-            <div class="field"><label for="to-state">Region</label><input type="text" id="to-state" placeholder="ST" autocomplete="off" oninput="renderPreview()" /></div>
-            <div class="field"><label for="to-zip">Postal</label><input type="text" id="to-zip" placeholder="00000" autocomplete="off" oninput="renderPreview()" /></div>
+            <div class="field" id="field-to-state"><label id="lbl-to-state" for="to-state">State</label><input type="text" id="to-state" placeholder="TX" autocomplete="off" oninput="renderPreview()" /></div>
+            <div class="field" id="field-to-zip"><label id="lbl-to-zip" for="to-zip">ZIP Code</label><input type="text" id="to-zip" placeholder="10001" autocomplete="off" oninput="renderPreview()" /></div>
           </div>
         </div>
       </div>
@@ -121,7 +193,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="ws-card">
         <div class="ws-card-label">Notes / Payment Terms</div>
         <div class="field">
-          <textarea id="notes" placeholder="e.g. Payment due within 30 days. Bank transfer to: BSB 000-000, Acct 12345678. Thank you for your business." rows="4" oninput="renderPreview()"></textarea>
+          <textarea id="notes" placeholder="Payment due within 30 days. Bank transfer to: BSB 000-000, Acct 12345678. Thank you for your business." rows="4" oninput="renderPreview()"></textarea>
         </div>
       </div>
 
@@ -138,8 +210,9 @@ import Layout from '../layouts/Layout.astro';
 
   </div>
 
-  <div class="card print-hide" style="margin-top:2rem;">
-    <h2>Frequently Asked Questions</h2>
+  <div class="ws-card print-hide" style="margin-top:2rem;">
+    <div class="ws-card-label">Frequently Asked Questions</div>
+    <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.55;">Common questions about creating, customizing, and saving invoices with FoxMargin.</p>
     <details>
       <summary>Is this invoice generator really free?</summary>
       <p>Yes — completely free, no account required, no watermark. Print or use your browser's "Save as PDF" to get a PDF copy.</p>
@@ -162,9 +235,9 @@ import Layout from '../layouts/Layout.astro';
     </details>
   </div>
 
-  <div class="card print-hide">
-    <h2>Embed This Invoice Generator</h2>
-    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+  <div class="ws-card print-hide">
+    <div class="ws-card-label">Embed This Invoice Generator</div>
+    <p style="font-size:0.88rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.55;">Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
     <pre id="embed-code" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
     <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
   </div>
@@ -197,7 +270,8 @@ import Layout from '../layouts/Layout.astro';
       set('from-street', q.fromStreet); set('from-city', q.fromCity); set('from-state', q.fromState); set('from-zip', q.fromZip);
       set('to-name', q.toName); set('to-email', q.toEmail);
       set('to-street', q.toStreet); set('to-city', q.toCity); set('to-state', q.toState); set('to-zip', q.toZip);
-      set('tax-rate', q.taxRate); set('notes', q.notes);
+      if (q.taxRate) { const tp = document.querySelector('#tax-lines .tax-pct'); if (tp) tp.value = q.taxRate; }
+      set('notes', q.notes);
       if (q.items && q.items.length) {
         const container = document.getElementById('line-items');
         container.innerHTML = '';
@@ -262,6 +336,33 @@ function fillDocFromBiz() {
   renderPreview();
 }
 
+function updateToAddrLabels() {
+  var code = (document.getElementById('to-country')?.value || 'US');
+  var cfg  = (typeof ADDR_CONFIG !== 'undefined' ? ADDR_CONFIG[code] : null) || { regionLabel: 'State / Region', regionPh: '', postalLabel: 'Postal Code', postalPh: '' };
+  var lblState = document.getElementById('lbl-to-state');
+  var lblZip   = document.getElementById('lbl-to-zip');
+  var fldState = document.getElementById('field-to-state');
+  var fldZip   = document.getElementById('field-to-zip');
+  var inpState = document.getElementById('to-state');
+  var inpZip   = document.getElementById('to-zip');
+  if (cfg.regionLabel) {
+    if (fldState) fldState.style.display = '';
+    if (lblState) lblState.textContent = cfg.regionLabel;
+    if (inpState) inpState.placeholder  = cfg.regionPh;
+  } else {
+    if (fldState) fldState.style.display = 'none';
+    if (inpState) inpState.value = '';
+  }
+  if (cfg.postalLabel) {
+    if (fldZip) fldZip.style.display = '';
+    if (lblZip) lblZip.textContent = cfg.postalLabel;
+    if (inpZip) inpZip.placeholder  = cfg.postalPh;
+  } else {
+    if (fldZip) fldZip.style.display = 'none';
+    if (inpZip) inpZip.value = '';
+  }
+}
+
 function buildLineRow(desc, qty, rate, removable) {
   const card = document.createElement('div');
   card.className = 'li-card';
@@ -299,14 +400,46 @@ function addLine() {
   card.querySelector('.li-description').focus();
 }
 
+function getTaxLines() {
+  return Array.from(document.querySelectorAll('#tax-lines .tax-row')).map(row => {
+    const label = (row.querySelector('.tax-name')?.value || '').trim();
+    const rate  = parseFloat(row.querySelector('.tax-pct')?.value) || 0;
+    return { label: label || 'Tax', rate };
+  });
+}
+
+function buildTaxRow(label, rate) {
+  const row = document.createElement('div');
+  row.className = 'tax-row';
+  row.innerHTML = `
+    <div class="field">
+      <label>Tax Label</label>
+      <input type="text" class="tax-name" value="${esc(label)}" placeholder="Sales Tax" oninput="renderPreview()" />
+    </div>
+    <div class="field">
+      <label>Rate (%)</label>
+      <input type="text" inputmode="decimal" class="tax-pct" placeholder="0" value="${esc(String(rate))}" oninput="renderPreview()" />
+    </div>
+    <button class="li-remove-btn" onclick="this.closest('.tax-row').remove();renderPreview();" type="button" title="Remove tax">×</button>
+  `;
+  return row;
+}
+
+function addTax() {
+  const container = document.getElementById('tax-lines');
+  const row = buildTaxRow('', 0);
+  container.appendChild(row);
+  row.querySelector('.tax-name').focus();
+}
+
 function renderPreview() {
   updateLineTotals();
 
   const items    = getLineItems();
   const subtotal = items.reduce((s, r) => s + r.total, 0);
-  const taxRate  = parseFloat(document.getElementById('tax-rate').value) || 0;
-  const tax      = subtotal * (taxRate / 100);
-  const total    = subtotal + tax;
+  const taxes    = getTaxLines().filter(t => t.rate > 0);
+  const taxTotal = taxes.reduce((s, t) => s + subtotal * (t.rate / 100), 0);
+  const total    = subtotal + taxTotal;
 
   const fromName   = (document.getElementById('from-name')?.value   || '').trim();
   const fromEmail  = (document.getElementById('from-email')?.value  || '').trim();
@@ -395,7 +528,7 @@ function renderPreview() {
     <div style="display:flex;justify-content:flex-end;">
       <div style="width:220px;">
         <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.87em;color:${muted};border-bottom:1px solid ${border};"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
-        ${taxRate > 0 ? `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.87em;color:${muted};border-bottom:1px solid ${border};"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}
+        ${taxes.map(t => `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.87em;color:${muted};border-bottom:1px solid ${border};"><span>${esc(t.label)} (${t.rate}%)</span><span>${fmt(subtotal * t.rate / 100)}</span></div>`).join('')}
         <div style="display:flex;justify-content:space-between;padding:.55rem 0 .35rem;font-size:1.05em;font-weight:700;color:${navy};margin-top:.1rem;"><span>Total</span><span>${fmt(total)}</span></div>
       </div>
     </div>

@@ -146,6 +146,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       margin-bottom: 0.4rem;
     }
     :global(.field input), :global(.field select), :global(.field textarea) {
+      box-sizing: border-box;
       width: 100%;
       padding: 0.6rem 0.85rem;
       border: 1.5px solid var(--border);
@@ -564,6 +565,17 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       margin-bottom: 1rem;
     }
 
+    :global(.tax-row) {
+      display: grid;
+      grid-template-columns: 1fr 80px 24px;
+      gap: 0.5rem;
+      align-items: end;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    :global(.tax-row:last-child) { border-bottom: none; }
+    :global(.tax-remove-placeholder) { width: 24px; }
+
     /* Compact inputs inside ws-card — smaller than modal, fits the narrower column */
     :global(.ws-card .field label) {
       font-size: 0.78rem;
@@ -754,10 +766,11 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
 
     @media print {
-      header, footer, .ad-slot, .doc-builder, #ad-below, .card:has(.embed-code-block),
-      .biz-overlay, .print-hide { display: none !important; }
+      header, footer, .ad-slot, .doc-builder, #ad-below,
+      .biz-overlay { display: none !important; }
+      :global(.print-hide) { display: none !important; }
       .doc-preview-card { display: block !important; border: none !important; box-shadow: none !important; }
-      .page-wrap { padding: 0; }
+      .page-wrap { padding: 0; max-width: none; }
     }
   </style>
 </head>
