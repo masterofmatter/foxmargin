@@ -593,17 +593,16 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
     :global(.ws-edit-btn:hover) { border-color: var(--fox); background: #fff8f5; }
 
-    /* Line item cards */
+    /* Line item rows — no nested card, just clean dividers */
     :global(.li-card) {
-      background: #f8fafc;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 0.9rem 1rem 0.75rem;
-      margin-bottom: 0.6rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0.55rem;
     }
+    :global(.li-card:first-child) { padding-top: 0; }
+    :global(.li-card:last-child) { border-bottom: none; padding-bottom: 0.25rem; }
     :global(.li-card .field label) {
       font-size: 0.75rem;
       font-weight: 600;
@@ -624,7 +623,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     :global(.li-card .field input:focus) { outline: none; border-color: var(--fox); }
     :global(.li-bottom-row) {
       display: grid;
-      grid-template-columns: 68px 1fr 88px 24px;
+      grid-template-columns: 68px 1fr 80px 24px;
       gap: 0.5rem;
       align-items: end;
     }
