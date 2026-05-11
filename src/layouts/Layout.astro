@@ -564,6 +564,25 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       margin-bottom: 1rem;
     }
 
+    /* Compact inputs inside ws-card — smaller than modal, fits the narrower column */
+    :global(.ws-card .field label) {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.28rem;
+    }
+    :global(.ws-card .field input),
+    :global(.ws-card .field select) {
+      padding: 0.45rem 0.7rem;
+      font-size: 0.9rem;
+      border-radius: 6px;
+    }
+    :global(.ws-card .calc-form) { gap: 0.7rem; }
+    /* Hide number spinners on inputs inside ws-card */
+    :global(.ws-card .field input[type="number"]) { -moz-appearance: textfield; }
+    :global(.ws-card .field input[type="number"]::-webkit-inner-spin-button),
+    :global(.ws-card .field input[type="number"]::-webkit-outer-spin-button) { -webkit-appearance: none; margin: 0; }
+
     /* My Business bar */
     :global(.inv-biz-bar) { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
     :global(.inv-biz-bar-left) { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
