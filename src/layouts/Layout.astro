@@ -50,7 +50,6 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     nav {
       max-width: 1100px;
@@ -288,7 +287,6 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       <slot />
     </main>
     <aside class="sidebar">
-      <div class="ad-slot ad-slot-sidebar">Ad</div>
       <div class="card" style="padding:1rem;">
         <p style="font-size:0.8rem;font-weight:700;color:var(--navy);margin-bottom:0.6rem;">ALL CALCULATORS</p>
         <ul class="sidebar-links">
@@ -298,7 +296,6 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
           <li><a href="/invoice-generator/">Invoice Generator</a></li>
         </ul>
       </div>
-      <div class="ad-slot ad-slot-sidebar-tall" style="margin-top:1rem;">Ad</div>
     </aside>
   </div>
 
