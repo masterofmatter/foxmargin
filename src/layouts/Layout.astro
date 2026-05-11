@@ -551,7 +551,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       background: #fff;
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 1.5rem 1.5rem 1.25rem;
+      padding: 1.75rem 2rem;
     }
     :global(.ws-card-label) {
       font-size: 0.67rem;
@@ -718,11 +718,11 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     :global(.inv-paper-label) { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
     :global(.inv-paper) {
       background: #fff;
-      border: 1px solid #d0d7e2;
+      border: 1px solid var(--border);
       box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 12px 40px rgba(0,0,0,0.10);
-      border-radius: 2px;
+      border-radius: 14px;
       aspect-ratio: 8.5 / 11;
-      padding: 8.5% 9%;
+      padding: 8% 9%;
       font-size: 13px;
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
