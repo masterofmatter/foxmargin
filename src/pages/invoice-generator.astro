@@ -270,7 +270,14 @@ import Layout from '../layouts/Layout.astro';
       set('from-street', q.fromStreet); set('from-city', q.fromCity); set('from-state', q.fromState); set('from-zip', q.fromZip);
       set('to-name', q.toName); set('to-email', q.toEmail);
       set('to-street', q.toStreet); set('to-city', q.toCity); set('to-state', q.toState); set('to-zip', q.toZip);
-      if (q.taxRate) { const tp = document.querySelector('#tax-lines .tax-pct'); if (tp) tp.value = q.taxRate; }
+      if (q.toCountry) { const cs = document.getElementById('to-country'); if (cs) { cs.value = q.toCountry; updateToAddrLabels(); } }
+      if (q.taxes && Array.isArray(q.taxes) && q.taxes.length) {
+        const tc = document.getElementById('tax-lines');
+        tc.innerHTML = '';
+        q.taxes.forEach(t => tc.appendChild(buildTaxRow(t.label || '', t.rate || 0)));
+      } else if (q.taxRate) {
+        const tp = document.querySelector('#tax-lines .tax-pct'); if (tp) tp.value = q.taxRate;
+      }
       set('notes', q.notes);
       if (q.items && q.items.length) {
         const container = document.getElementById('line-items');
