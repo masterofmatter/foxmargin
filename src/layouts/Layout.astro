@@ -64,11 +64,9 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       font-size: 1.2rem;
       font-weight: 700;
       color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
       white-space: nowrap;
     }
+    .logo-icon { margin-right: 0.35rem; }
     .logo span { color: var(--fox-light); }
     nav ul {
       display: flex;
@@ -267,7 +265,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 <body>
   <header>
     <nav>
-      <a href="/" class="logo">🦊 Fox<span>Margin</span></a>
+      <a href="/" class="logo"><span class="logo-icon">🦊</span>Fox<span>Margin</span></a>
       <ul>
         <li><a href="/profit-margin-calculator/">Profit Margin</a></li>
         <li><a href="/break-even-calculator/">Break-Even</a></li>
