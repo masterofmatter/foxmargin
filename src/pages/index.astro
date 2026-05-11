@@ -26,7 +26,7 @@ import Layout from '../layouts/Layout.astro';
       <div class="hero-mock">
         <div class="mock-header">
           <div class="mock-biz">
-            <div class="mock-logo">🦊</div>
+            <img class="mock-logo" src="/foxmargin-logo.png" alt="" />
             <div class="mock-name">Acme Co.</div>
           </div>
           <div class="mock-doc-type">INVOICE</div>
@@ -206,7 +206,7 @@ import Layout from '../layouts/Layout.astro';
   }
   .mock-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6%; }
   .mock-biz { display: flex; align-items: center; gap: 0.4em; }
-  .mock-logo { font-size: 2.2em; line-height: 1; }
+  .mock-logo { width: 2.5em; height: 2.5em; object-fit: contain; display: block; }
   .mock-name { font-size: 1.15em; font-weight: 700; color: var(--text); }
   .mock-doc-type { font-size: 2em; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; line-height: 1; }
   .mock-divider { border-top: 1.5px solid var(--navy); margin: 4% 0; }

@@ -457,6 +457,8 @@ function renderPreview() {
     (document.getElementById('from-state')?.value  || '').trim(),
     (document.getElementById('from-zip')?.value    || '').trim()
   );
+  const bizCountryName = localStorage.getItem('biz_country_name') || '';
+  if (localStorage.getItem('biz_show_country') === '1' && bizCountryName) fromAddr.push(bizCountryName);
   const toName  = (document.getElementById('to-name')?.value  || '').trim();
   const toEmail = (document.getElementById('to-email')?.value || '').trim();
   const toAddr  = addrLines(
@@ -471,8 +473,8 @@ function renderPreview() {
   const notes   = (document.getElementById('notes')?.value     || '').trim();
   const logo    = localStorage.getItem('biz_logo');
 
-  const navy   = '#0f2d52';
-  const fox    = '#d4500a';
+  const navy   = localStorage.getItem('biz_primary_color') || '#0f2d52';
+  const fox    = localStorage.getItem('biz_accent_color')  || '#d4500a';
   const muted  = '#6b7c93';
   const border = '#e8ecf2';
   const bg     = '#f5f7fa';

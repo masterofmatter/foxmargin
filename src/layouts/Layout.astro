@@ -65,7 +65,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       color: #fff;
       white-space: nowrap;
     }
-    .logo-icon { margin-right: 0.35rem; }
+    .logo-icon { width: 26px; height: 26px; margin-right: 0.45rem; vertical-align: middle; object-fit: contain; }
     .logo span { color: var(--fox-light); }
     .logo:hover { text-decoration: none; }
     nav ul {
@@ -205,6 +205,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
     :global(.field-row) { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 480px) { :global(.field-row) { grid-template-columns: 1fr; } }
+    :global(.field input[type="color"]) { padding: 0.2rem 0.25rem; height: 2.55rem; cursor: pointer; }
     .btn {
       background: var(--fox);
       color: #fff;
@@ -457,6 +458,9 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     .biz-logo-upload:hover { border-color: var(--fox); background: #fff8f5; }
     .biz-logo-upload span { font-size: 0.82rem; color: var(--muted); }
     .biz-logo-upload img { max-height: 48px; max-width: 160px; object-fit: contain; }
+    .biz-country-flag { display:flex; align-items:center; gap:.4rem; margin-top:.45rem; cursor:pointer; }
+    .biz-country-flag input[type="checkbox"] { width:auto; margin:0; accent-color:var(--fox); flex-shrink:0; }
+    .biz-country-flag span { font-size:.8rem; color:var(--muted); user-select:none; }
     .biz-modal-actions {
       display: flex;
       justify-content: space-between;
@@ -783,6 +787,41 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       line-height: 1.55;
       overflow: visible;
     }
+    /* Mobile nav */
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.85);
+      font-size: 1.45rem;
+      line-height: 1;
+      padding: 0.3rem 0.4rem;
+      border-radius: 5px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .nav-hamburger:hover { background: rgba(255,255,255,0.12); }
+    @media (max-width: 640px) {
+      nav { flex-wrap: wrap; height: auto; min-height: 56px; padding: 0.5rem 0; gap: 0.5rem; align-items: center; }
+      nav ul {
+        display: none; order: 10; flex-direction: column; width: 100%;
+        gap: 0; flex-wrap: nowrap;
+        border-top: 1px solid rgba(255,255,255,0.12); padding: 0.3rem 0;
+      }
+      nav ul.nav-open { display: flex; }
+      nav ul li { width: 100%; }
+      nav ul a { padding: 0.6rem 0.6rem; font-size: 0.9rem; width: 100%; }
+      .nav-divider { display: none !important; }
+      .nav-dd-item { width: 100%; }
+      .nav-dropdown { width: 100%; display: block; }
+      .nav-dropdown summary { padding: 0.6rem 0.6rem; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+      .nav-dropdown-panel { position: static; box-shadow: none; border: none; border-radius: 0; background: rgba(0,0,0,0.18); padding: 0.2rem 0 0.2rem 1rem; min-width: 0; }
+      nav .nav-dropdown-panel a { color: rgba(255,255,255,0.75) !important; padding: 0.45rem 0.6rem; font-size: 0.85rem; }
+      nav .nav-dropdown-panel a:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
+      .nav-hamburger { display: flex; }
+      .page-wrap { padding: 1rem; }
+    }
     @media (max-width: 900px) {
       :global(.inv-workspace) { grid-template-columns: 1fr; }
       :global(.inv-paper-col) { position: static; order: -1; }
@@ -819,7 +858,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 <body>
   <header>
     <nav>
-      <a href="/" class="logo"><span class="logo-icon">🦊</span>Fox<span>Margin</span></a>
+      <a href="/" class="logo"><img class="logo-icon" src="/foxmargin-logo.png" alt="FoxMargin" width="24" height="24" />Fox<span>Margin</span></a>
       <ul>
         <li><a href="/invoice-generator/">Invoice</a></li>
         <li><a href="/receipt-generator/">Receipt</a></li>
@@ -839,6 +878,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       </ul>
       <div class="nav-right">
         <button class="biz-nav-btn" onclick="openBizModal()">👤 My Business</button>
+        <button class="nav-hamburger" id="nav-toggle" aria-label="Menu">&#9776;</button>
       </div>
     </nav>
   </header>
@@ -885,7 +925,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
             <div class="field-row">
               <div class="field">
                 <label for="biz-modal-country">Country</label>
-                <select id="biz-modal-country" autocomplete="country" onchange="updateAddrLabels();updateBizPreview()">
+                <select id="biz-modal-country" autocomplete="country" onchange="updateAddrLabels();autoSetCountryFlag();updateBizPreview()">
                   <optgroup label="Popular">
                     <option value="US">United States</option>
                     <option value="CA">Canada</option>
@@ -973,6 +1013,10 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
                   <option value="ZW">Zimbabwe</option>
                 </optgroup>
               </select>
+              <label class="biz-country-flag">
+                <input type="checkbox" id="biz-show-country" onchange="updateBizPreview()" />
+                <span>Show on documents</span>
+              </label>
             </div>
             <div class="field">
               <label for="biz-modal-currency">Currency</label>
@@ -1002,6 +1046,16 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
               <div class="field" id="field-biz-zip">
                 <label id="lbl-biz-zip" for="biz-modal-zip">ZIP Code</label>
                 <input type="text" id="biz-modal-zip" placeholder="78701" autocomplete="postal-code" oninput="updateBizPreview()" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="biz-modal-primary">Header Color</label>
+                <input type="color" id="biz-modal-primary" value="#0f2d52" oninput="updateBizPreview()" />
+              </div>
+              <div class="field">
+                <label for="biz-modal-accent">Accent Color</label>
+                <input type="color" id="biz-modal-accent" value="#d4500a" oninput="updateBizPreview()" />
               </div>
             </div>
           </div>
@@ -1071,11 +1125,30 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       if (sel) sel.value = window.__currency.code;
     })();
 
+    // Mobile nav toggle
+    (function() {
+      var toggle = document.getElementById('nav-toggle');
+      var navList = document.querySelector('nav ul');
+      if (toggle && navList) {
+        toggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          navList.classList.toggle('nav-open');
+        });
+        navList.querySelectorAll('a').forEach(function(a) {
+          a.addEventListener('click', function() { navList.classList.remove('nav-open'); });
+        });
+      }
+    })();
+
     // Close nav dropdowns when clicking outside
     document.addEventListener('click', function(e) {
       document.querySelectorAll('.nav-dropdown[open]').forEach(function(d) {
         if (!d.contains(e.target)) d.removeAttribute('open');
       });
+      // Also close mobile nav when clicking outside header
+      if (!e.target.closest('header')) {
+        document.querySelector('nav ul')?.classList.remove('nav-open');
+      }
     });
 
     // ── Business Profile Modal ──
@@ -1177,9 +1250,19 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       document.getElementById('biz-modal').style.display = 'none';
       localStorage.setItem('biz_setup_done', '1');
     }
+    function autoSetCountryFlag() {
+      var sel = document.getElementById('biz-modal-country');
+      var cb  = document.getElementById('biz-show-country');
+      if (cb && sel) cb.checked = (sel.value !== 'US');
+    }
     function _loadBizToModal() {
       var countrySel = document.getElementById('biz-modal-country');
       if (countrySel) countrySel.value = localStorage.getItem('biz_country') || 'US';
+      var showCb = document.getElementById('biz-show-country');
+      if (showCb) {
+        var savedFlag = localStorage.getItem('biz_show_country');
+        showCb.checked = savedFlag !== null ? (savedFlag === '1') : ((localStorage.getItem('biz_country') || 'US') !== 'US');
+      }
       var currencySel = document.getElementById('biz-modal-currency');
       if (currencySel) currencySel.value = localStorage.getItem('preferred_currency') || 'USD';
       document.getElementById('biz-modal-name').value   = localStorage.getItem('biz_name')   || '';
@@ -1194,11 +1277,22 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       const ph   = document.getElementById('biz-logo-placeholder');
       if (logo) { prev.src = logo; prev.style.display = 'block'; ph.style.display = 'none'; }
       else       { prev.style.display = 'none'; ph.style.display = 'block'; }
+      var primaryEl = document.getElementById('biz-modal-primary');
+      var accentEl  = document.getElementById('biz-modal-accent');
+      if (primaryEl) primaryEl.value = localStorage.getItem('biz_primary_color') || '#0f2d52';
+      if (accentEl)  accentEl.value  = localStorage.getItem('biz_accent_color')  || '#d4500a';
       updateAddrLabels();
       updateBizPreview();
     }
     function saveBizProfile() {
-      localStorage.setItem('biz_country', document.getElementById('biz-modal-country').value);
+      var cSel2 = document.getElementById('biz-modal-country');
+      if (cSel2) {
+        localStorage.setItem('biz_country', cSel2.value);
+        var idx2 = cSel2.selectedIndex;
+        localStorage.setItem('biz_country_name', idx2 >= 0 ? cSel2.options[idx2].text : '');
+      }
+      var showCb2 = document.getElementById('biz-show-country');
+      if (showCb2) localStorage.setItem('biz_show_country', showCb2.checked ? '1' : '0');
       localStorage.setItem('biz_name',    document.getElementById('biz-modal-name').value.trim());
       localStorage.setItem('biz_email',   document.getElementById('biz-modal-email').value.trim());
       localStorage.setItem('biz_phone',   document.getElementById('biz-modal-phone').value.trim());
@@ -1208,6 +1302,10 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       localStorage.setItem('biz_zip',     document.getElementById('biz-modal-zip').value.trim());
       var currencySel = document.getElementById('biz-modal-currency');
       if (currencySel) setCurrency(currencySel.value);
+      var primaryEl = document.getElementById('biz-modal-primary');
+      var accentEl  = document.getElementById('biz-modal-accent');
+      if (primaryEl) localStorage.setItem('biz_primary_color', primaryEl.value);
+      if (accentEl)  localStorage.setItem('biz_accent_color',  accentEl.value);
       localStorage.setItem('biz_setup_done', '1');
       closeBizModal();
       if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
@@ -1242,7 +1340,8 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
         if (zip)   line += (line ? ' ' : '') + zip;
         elCity.textContent = line;
       }
-      if (elCountry) elCountry.textContent = (countryCode && countryCode !== 'US') ? countryName : '';
+      var showCb3 = document.getElementById('biz-show-country');
+      if (elCountry) elCountry.textContent = (showCb3?.checked && countryCode !== 'US') ? countryName : '';
       if (elContact) {
         var cp = [];
         if (phone) cp.push(phone);
@@ -1253,6 +1352,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
         var logo = localStorage.getItem('biz_logo');
         if (logo) { elLogo.src = logo; elLogo.style.display = 'block'; }
         else { elLogo.style.display = 'none'; }
+      }
+      var primary = document.getElementById('biz-modal-primary')?.value || localStorage.getItem('biz_primary_color') || '#0f2d52';
+      var accent  = document.getElementById('biz-modal-accent')?.value  || localStorage.getItem('biz_accent_color')  || '#d4500a';
+      var paperEl = document.querySelector('.biz-paper');
+      if (paperEl) {
+        paperEl.style.setProperty('--navy', primary);
+        paperEl.style.setProperty('--fox',  accent);
       }
     }
     document.getElementById('biz-logo-input').addEventListener('change', function() {
@@ -1338,6 +1444,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       <a href="/markup-calculator/">Markup</a>
     </div>
     <p>© {new Date().getFullYear()} FoxMargin.com — Free Business Tools</p>
+    <p style="margin-top:0.5rem;font-size:0.82rem;">Feedback? <a href="mailto:foxmargin@protonmail.com">foxmargin@protonmail.com</a></p>
     <p style="margin-top:0.4rem;font-size:0.75rem;">Results are for informational purposes only. Always verify with a qualified accountant.</p>
   </footer>
 </body>
