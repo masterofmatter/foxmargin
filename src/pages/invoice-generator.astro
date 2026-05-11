@@ -5,378 +5,558 @@ import Layout from '../layouts/Layout.astro';
   title="Free Invoice Generator — Create & Print Invoices | FoxMargin"
   description="Create professional invoices online for free. Add line items, tax, and your logo. Print or save as PDF instantly. No signup required."
 >
-  <div class="card">
-    <h1>Free Invoice Generator</h1>
-    <p>Create a professional invoice in seconds. Fill in your details, add line items, and print or save as PDF — no account needed.</p>
+
+  <!-- Hidden inputs: filled by fillDocFromBiz() and quote conversion -->
+  <input type="hidden" id="from-name" />
+  <input type="hidden" id="from-email" />
+  <input type="hidden" id="from-phone" />
+  <input type="hidden" id="from-street" />
+  <input type="hidden" id="from-city" />
+  <input type="hidden" id="from-state" />
+  <input type="hidden" id="from-zip" />
+
+  <div class="inv-workspace">
+
+    <!-- ── LEFT: scrollable form ── -->
+    <div class="inv-form-col">
+
+      <!-- My Business -->
+      <div class="inv-section">
+        <div class="inv-section-title">My Business</div>
+        <div class="inv-biz-bar">
+          <div class="inv-biz-bar-left">
+            <img id="inv-biz-logo-thumb" class="inv-biz-logo-thumb" style="display:none;" alt="Logo" />
+            <div class="inv-biz-text">
+              <div class="inv-biz-name" id="inv-biz-disp-name" style="color:var(--muted);">No profile saved — click Edit to set up</div>
+              <div class="inv-biz-meta" id="inv-biz-disp-meta"></div>
+            </div>
+          </div>
+          <button class="inv-biz-edit-btn" onclick="openBizModal()" type="button">Edit ›</button>
+        </div>
+      </div>
+
+      <!-- Invoice Details -->
+      <div class="inv-section">
+        <div class="inv-section-title">Invoice Details</div>
+        <div class="calc-form" style="gap:0.65rem;">
+          <div class="field-row">
+            <div class="field">
+              <label for="inv-number">Invoice #</label>
+              <input type="text" id="inv-number" placeholder="INV-001" oninput="renderPreview()" />
+            </div>
+            <div class="field">
+              <label for="inv-date">Date</label>
+              <input type="date" id="inv-date" onchange="renderPreview()" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="due-date">Due Date</label>
+              <input type="date" id="due-date" onchange="renderPreview()" />
+            </div>
+            <div class="field">
+              <label for="tax-rate">Tax Rate (%)</label>
+              <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" oninput="renderPreview()" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bill To -->
+      <div class="inv-section">
+        <div class="inv-section-title">Bill To</div>
+        <div class="calc-form" style="gap:0.65rem;">
+          <div class="field-row">
+            <div class="field">
+              <label for="to-name">Client Name / Company</label>
+              <input type="text" id="to-name" placeholder="Client Co." oninput="renderPreview()" />
+            </div>
+            <div class="field">
+              <label for="to-email">Email</label>
+              <input type="email" id="to-email" placeholder="client@example.com" oninput="renderPreview()" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="to-street">Street Address</label>
+            <input type="text" id="to-street" placeholder="456 Client Ave" autocomplete="off" oninput="renderPreview()" />
+          </div>
+          <div class="addr-grid">
+            <div class="field"><label for="to-city">City</label><input type="text" id="to-city" placeholder="City" autocomplete="off" oninput="renderPreview()" /></div>
+            <div class="field"><label for="to-state">State</label><input type="text" id="to-state" placeholder="ST" autocomplete="off" oninput="renderPreview()" /></div>
+            <div class="field"><label for="to-zip">ZIP</label><input type="text" id="to-zip" placeholder="00000" autocomplete="off" oninput="renderPreview()" /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div class="inv-section">
+        <div class="inv-section-title">Line Items</div>
+        <div class="inv-li-header">
+          <span>Description</span><span>Qty</span><span>Rate</span><span style="text-align:right;">Total</span><span></span>
+        </div>
+        <div id="line-items">
+          <div class="inv-li-row">
+            <input type="text" class="li-description" placeholder="Service or product" oninput="renderPreview()" />
+            <input type="number" class="li-qty-val" placeholder="1" min="0" step="0.01" value="1" oninput="renderPreview()" />
+            <input type="number" class="li-rate-val" placeholder="0.00" min="0" step="0.01" oninput="renderPreview()" />
+            <span class="inv-li-total">—</span>
+            <span></span>
+          </div>
+        </div>
+        <button class="btn btn-outline" onclick="addLine()" type="button" style="font-size:0.82rem;padding:0.45rem 0.9rem;margin-top:0.5rem;align-self:flex-start;">+ Add Line</button>
+      </div>
+
+      <!-- Notes -->
+      <div class="inv-section">
+        <div class="inv-section-title">Notes / Payment Terms</div>
+        <textarea id="notes" placeholder="e.g. Payment due within 30 days. Thank you for your business." rows="3" oninput="renderPreview()"></textarea>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT: sticky paper ── -->
+    <div class="inv-paper-col">
+      <div class="inv-paper-actions">
+        <span class="inv-paper-label">Live Preview</span>
+        <button class="btn" onclick="window.print()" style="font-size:0.82rem;padding:0.45rem 1rem;">Print / Save PDF</button>
+      </div>
+      <div class="inv-paper" id="invoice-paper"></div>
+    </div>
+
   </div>
 
-  <!-- Invoice Builder -->
-  <div class="card doc-builder" id="builder">
-    <div class="biz-profile-bar" id="biz-bar">
-      <span id="biz-bar-name">No business profile saved</span>
-      <button onclick="openBizModal()">Edit My Business</button>
-    </div>
-
-    <h2>Invoice Details</h2>
-    <div class="calc-form">
-      <div class="section-label">Your Business</div>
-      <div class="field-row">
-        <div class="field">
-          <label for="from-name">Business Name</label>
-          <input type="text" id="from-name" placeholder="Acme Corp" />
-        </div>
-        <div class="field">
-          <label for="from-phone">Phone</label>
-          <input type="tel" id="from-phone" placeholder="+1 (555) 000-0000" />
-        </div>
-      </div>
-      <div class="field">
-        <label for="from-email">Email</label>
-        <input type="email" id="from-email" placeholder="hello@acmecorp.com" />
-      </div>
-      <div class="field">
-        <label for="from-street">Street Address</label>
-        <input type="text" id="from-street" placeholder="123 Main St" autocomplete="street-address" />
-      </div>
-      <div class="addr-grid">
-        <div class="field"><label for="from-city">City</label><input type="text" id="from-city" placeholder="Austin" autocomplete="address-level2" /></div>
-        <div class="field"><label for="from-state">State</label><input type="text" id="from-state" placeholder="TX" autocomplete="address-level1" /></div>
-        <div class="field"><label for="from-zip">ZIP</label><input type="text" id="from-zip" placeholder="78701" autocomplete="postal-code" /></div>
-      </div>
-
-      <div class="section-label" style="margin-top:0.5rem;">Bill To</div>
-      <div class="field-row">
-        <div class="field">
-          <label for="to-name">Client Name / Company</label>
-          <input type="text" id="to-name" placeholder="Client Co." />
-        </div>
-        <div class="field">
-          <label for="to-email">Client Email</label>
-          <input type="email" id="to-email" placeholder="client@example.com" />
-        </div>
-      </div>
-      <div class="field">
-        <label for="to-street">Street Address</label>
-        <input type="text" id="to-street" placeholder="456 Client Ave" autocomplete="off" />
-      </div>
-      <div class="addr-grid">
-        <div class="field"><label for="to-city">City</label><input type="text" id="to-city" placeholder="City" autocomplete="off" /></div>
-        <div class="field"><label for="to-state">State</label><input type="text" id="to-state" placeholder="TX" autocomplete="off" /></div>
-        <div class="field"><label for="to-zip">ZIP</label><input type="text" id="to-zip" placeholder="78701" autocomplete="off" /></div>
-      </div>
-
-      <div class="section-label" style="margin-top:0.5rem;">Invoice Info</div>
-      <div class="field-row">
-        <div class="field">
-          <label for="inv-number">Invoice Number</label>
-          <input type="text" id="inv-number" placeholder="INV-001" />
-        </div>
-        <div class="field">
-          <label for="inv-date">Date</label>
-          <input type="date" id="inv-date" />
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="due-date">Due Date</label>
-          <input type="date" id="due-date" />
-        </div>
-        <div class="field">
-          <label for="tax-rate">Tax Rate (%)</label>
-          <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" />
-        </div>
-      </div>
-
-      <div class="section-label" style="margin-top:0.5rem;">Line Items</div>
-      <div id="line-items">
-        <div class="line-item-row">
-          <div class="field li-desc"><label>Description</label><input type="text" placeholder="Service or product" class="li-description" /></div>
-          <div class="field li-qty"><label>Qty</label><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
-          <div class="field li-rate"><label>Rate ($)</label><input type="number" placeholder="100.00" min="0" step="0.01" class="li-rate-val" /></div>
-          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
-        </div>
-      </div>
-      <button class="btn btn-outline print-hide" onclick="addLine()" type="button" style="align-self:flex-start;font-size:0.85rem;padding:0.5rem 1rem;">+ Add Line</button>
-
-      <div class="field" style="margin-top:0.25rem;">
-        <label for="notes">Notes / Payment Terms</label>
-        <textarea id="notes" placeholder="e.g. Payment due within 30 days. Thank you for your business." rows="2" style="width:100%;padding:0.6rem 0.85rem;border:1.5px solid var(--border);border-radius:7px;font-size:0.9rem;resize:vertical;font-family:inherit;"></textarea>
-      </div>
-
-      <button class="btn" onclick="generateInvoice()" type="button">Generate Invoice</button>
-    </div>
-  </div>
-
-  <!-- Invoice Preview (hidden until generated) -->
-  <div class="card doc-preview-card" id="preview" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;" class="print-hide">
-      <h2 style="margin:0;">Preview</h2>
-      <div style="display:flex;gap:0.5rem;">
-        <button class="btn btn-outline" onclick="editInvoice()" style="font-size:0.85rem;padding:0.5rem 1rem;">Edit</button>
-        <button class="btn" onclick="printInvoice()" style="font-size:0.85rem;padding:0.5rem 1rem;">Print / Save PDF</button>
-      </div>
-    </div>
-    <div id="invoice-doc" class="doc-preview">
-      <!-- Filled by JS -->
-    </div>
-  </div>
-
-  <div class="card">
+  <div class="card print-hide" style="margin-top:2rem;">
     <h2>Frequently Asked Questions</h2>
     <details>
       <summary>Is this invoice generator really free?</summary>
-      <p>Yes — completely free, no account required, no watermark. Print or use your browser's "Save as PDF" function to get a PDF copy.</p>
+      <p>Yes — completely free, no account required, no watermark. Print or use your browser's "Save as PDF" to get a PDF copy.</p>
     </details>
     <details>
       <summary>How do I save the invoice as a PDF?</summary>
-      <p>Click "Print / Save PDF," then in the print dialog choose "Save as PDF" as the destination (available in all modern browsers). On Mac, click the PDF dropdown in the bottom left of the print dialog.</p>
+      <p>Click "Print / Save PDF," then in the print dialog choose "Save as PDF" as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog.</p>
     </details>
     <details>
       <summary>What tax rate should I use?</summary>
-      <p>In the US there is no federal sales tax — rates are set by state and locality. Common rates range from 0% (Oregon, Montana, New Hampshire) to over 10% in some cities. Enter your applicable state/local rate, or leave at 0% if you're exempt or selling to another business with a resale certificate.</p>
+      <p>In the US there is no federal sales tax — rates are set by state and locality. Common rates range from 0% (Oregon, Montana) to over 10% in some cities. Leave at 0% if you're exempt or selling B2B with a resale certificate.</p>
     </details>
     <details>
       <summary>Can I add my logo?</summary>
-      <p>Yes — click "My Business" in the nav bar to upload your logo. It's stored in your browser and appears automatically on every invoice, receipt, quote, and purchase order you create.</p>
+      <p>Yes — click "Edit ›" next to your business name, or click "My Business" in the nav. Your logo is stored in your browser and appears on every document automatically.</p>
     </details>
     <details>
       <summary>Can I create an invoice from a quote?</summary>
-      <p>Yes — create your quote in the <a href="/quote-generator/">Quote Generator</a>, then click "Convert to Invoice." All your business info, client details, and line items transfer automatically. Just confirm the invoice number and due date.</p>
+      <p>Yes — create your quote in the <a href="/quote-generator/">Quote Generator</a>, then click "Convert to Invoice." All your business info, client details, and line items transfer automatically.</p>
     </details>
   </div>
 
-  <div class="card">
+  <div class="card print-hide">
     <h2>Embed This Invoice Generator</h2>
     <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
     <pre id="embed-code" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
     <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
   </div>
+
 </Layout>
 
 <style>
-  /* line-item-row override for invoice (4-col, no remove button) */
-  .line-item-row {
+  .inv-workspace {
     display: grid;
-    grid-template-columns: 1fr 80px 110px 90px 28px;
-    gap: 0.5rem;
-    align-items: end;
-    margin-bottom: 0.5rem;
+    grid-template-columns: 400px 1fr;
+    gap: 1.5rem;
+    align-items: start;
   }
-  @media (max-width: 520px) {
-    .line-item-row { grid-template-columns: 1fr 1fr; }
-    .li-total { grid-column: span 2; }
+  .inv-form-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .inv-paper-col {
+    position: sticky;
+    top: 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .inv-section {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+  }
+  .inv-section-title {
+    font-size: 0.67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--fox);
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.85rem;
+  }
+  .inv-biz-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .inv-biz-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+  .inv-biz-logo-thumb {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .inv-biz-text { min-width: 0; }
+  .inv-biz-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .inv-biz-meta {
+    font-size: 0.73rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0.1rem;
+  }
+  .inv-biz-edit-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--fox);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .inv-biz-edit-btn:hover { border-color: var(--fox); background: #fff8f5; }
+  .inv-li-header {
+    display: grid;
+    grid-template-columns: 1fr 58px 88px 76px 24px;
+    gap: 0.4rem;
+    font-size: 0.67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.4rem;
+  }
+  .inv-li-row {
+    display: grid;
+    grid-template-columns: 1fr 58px 88px 76px 24px;
+    gap: 0.4rem;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+  .inv-li-row input {
+    width: 100%;
+    padding: 0.48rem 0.6rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text);
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  .inv-li-row input:focus { outline: none; border-color: var(--fox); }
+  .inv-li-total {
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--navy);
+    text-align: right;
+  }
+  .inv-li-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .inv-li-remove:hover { color: #dc2626; }
+  #notes {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 0.9rem;
+    resize: vertical;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  #notes:focus { outline: none; border-color: var(--fox); }
+  .inv-paper-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .inv-paper-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .inv-paper {
+    background: #fff;
+    border: 1px solid #d0d7e2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 12px 36px rgba(0,0,0,0.09);
+    border-radius: 2px;
+    padding: 9% 10%;
+    font-size: 13px;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.55;
+    min-height: 200px;
+  }
+  @media (max-width: 860px) {
+    .inv-workspace { grid-template-columns: 1fr; }
+    .inv-paper-col { position: static; order: -1; }
+  }
+  @media print {
+    .inv-form-col,
+    .inv-paper-actions { display: none !important; }
+    .inv-workspace { display: block !important; }
+    .inv-paper-col { position: static !important; }
+    .inv-paper {
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
+      font-size: 11pt !important;
+      min-height: 0 !important;
+    }
   }
 </style>
 
 <script is:inline>
 (function() {
   const today = new Date();
-  const due = new Date(today);
+  const due   = new Date(today);
   due.setDate(due.getDate() + 30);
-  const fmtD = d => d.toISOString().slice(0, 10);
-  document.getElementById('inv-date').value = fmtD(today);
-  document.getElementById('due-date').value = fmtD(due);
+  const fmtD  = d => d.toISOString().slice(0, 10);
+  document.getElementById('inv-date').value   = fmtD(today);
+  document.getElementById('due-date').value   = fmtD(due);
   document.getElementById('inv-number').value = 'INV-001';
-  document.getElementById('line-items').addEventListener('input', updateLineTotals);
 
-  // Autocomplete on address fields
-  initAutocomplete(document.getElementById('from-street'));
-  initAutocomplete(document.getElementById('to-street'));
+  document.addEventListener('currencychange', renderPreview);
 
-  // Load business profile
   fillDocFromBiz();
 
-  // Check for quote conversion data
+  // Quote conversion
   const qd = sessionStorage.getItem('fm_quote_data');
   if (qd) {
     try {
       const q = JSON.parse(qd);
       sessionStorage.removeItem('fm_quote_data');
-      if (q.fromName)  document.getElementById('from-name').value = q.fromName;
-      if (q.fromEmail) document.getElementById('from-email').value = q.fromEmail;
-      if (q.fromPhone) document.getElementById('from-phone').value = q.fromPhone || '';
-      if (q.fromStreet) document.getElementById('from-street').value = q.fromStreet;
-      if (q.fromCity)   document.getElementById('from-city').value   = q.fromCity;
-      if (q.fromState)  document.getElementById('from-state').value  = q.fromState;
-      if (q.fromZip)    document.getElementById('from-zip').value    = q.fromZip;
-      if (q.toName)     document.getElementById('to-name').value     = q.toName;
-      if (q.toEmail)    document.getElementById('to-email').value    = q.toEmail;
-      if (q.toStreet)   document.getElementById('to-street').value   = q.toStreet;
-      if (q.toCity)     document.getElementById('to-city').value     = q.toCity;
-      if (q.toState)    document.getElementById('to-state').value    = q.toState;
-      if (q.toZip)      document.getElementById('to-zip').value      = q.toZip;
-      if (q.taxRate)   document.getElementById('tax-rate').value = q.taxRate;
-      if (q.notes)     document.getElementById('notes').value = q.notes;
+      const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+      set('from-name', q.fromName); set('from-email', q.fromEmail); set('from-phone', q.fromPhone);
+      set('from-street', q.fromStreet); set('from-city', q.fromCity); set('from-state', q.fromState); set('from-zip', q.fromZip);
+      set('to-name', q.toName); set('to-email', q.toEmail);
+      set('to-street', q.toStreet); set('to-city', q.toCity); set('to-state', q.toState); set('to-zip', q.toZip);
+      set('tax-rate', q.taxRate); set('notes', q.notes);
       if (q.items && q.items.length) {
         const container = document.getElementById('line-items');
         container.innerHTML = '';
-        q.items.forEach((item, i) => {
-          const row = document.createElement('div');
-          row.className = 'line-item-row';
-          row.innerHTML = `
-            <div class="field li-desc">${i === 0 ? '<label>Description</label>' : ''}<input type="text" placeholder="Service or product" class="li-description" value="${item.desc}" /></div>
-            <div class="field li-qty">${i === 0 ? '<label>Qty</label>' : ''}<input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="${item.qty}" /></div>
-            <div class="field li-rate">${i === 0 ? '<label>Rate ($)</label>' : ''}<input type="number" placeholder="100.00" min="0" step="0.01" class="li-rate-val" value="${item.rate}" /></div>
-            <div class="field li-total">${i === 0 ? '<label>Total</label>' : ''}<span class="li-total-val">${item.total > 0 ? fmt(item.total) : '—'}</span></div>
-            <div class="li-remove">${i > 0 ? '<button class="li-remove-btn" onclick="this.closest(\'.line-item-row\').remove()" type="button" title="Remove">×</button>' : ''}</div>
-          `;
-          container.appendChild(row);
-        });
+        q.items.forEach((item, i) => container.appendChild(buildLineRow(item.desc, item.qty, item.rate, i > 0)));
       }
     } catch(e) {}
   }
 
-  // Show modal on first visit if no profile
   if (!localStorage.getItem('biz_setup_done')) setTimeout(openBizModal, 400);
+
+  renderPreview();
 })();
 
-function fillDocFromBiz() {
-  const name   = localStorage.getItem('biz_name')   || '';
-  const email  = localStorage.getItem('biz_email')  || '';
-  const phone  = localStorage.getItem('biz_phone')  || '';
-  const street = localStorage.getItem('biz_street') || '';
-  const city   = localStorage.getItem('biz_city')   || '';
-  const state  = localStorage.getItem('biz_state')  || '';
-  const zip    = localStorage.getItem('biz_zip')    || '';
-  if (name)   document.getElementById('from-name').value   = name;
-  if (email)  document.getElementById('from-email').value  = email;
-  if (phone)  document.getElementById('from-phone').value  = phone;
-  if (street) document.getElementById('from-street').value = street;
-  if (city)   document.getElementById('from-city').value   = city;
-  if (state)  document.getElementById('from-state').value  = state;
-  if (zip)    document.getElementById('from-zip').value    = zip;
-  const bar = document.getElementById('biz-bar-name');
-  if (bar) bar.textContent = name ? '👤 ' + name : 'No business profile saved';
-}
-function assembleAddr(prefix) {
-  const s = (document.getElementById(prefix+'-street')?.value || '').trim();
-  const c = (document.getElementById(prefix+'-city')?.value   || '').trim();
-  const t = (document.getElementById(prefix+'-state')?.value  || '').trim();
-  const z = (document.getElementById(prefix+'-zip')?.value    || '').trim();
-  const line2 = [c, t].filter(Boolean).join(', ') + (z ? ' ' + z : '');
-  return [s, line2].filter(Boolean);
-}
-
-function addLine() {
-  const container = document.getElementById('line-items');
-  const row = document.createElement('div');
-  row.className = 'line-item-row';
-  row.innerHTML = `
-    <div class="field li-desc"><input type="text" placeholder="Service or product" class="li-description" /></div>
-    <div class="field li-qty"><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
-    <div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
-    <div class="field li-total"><span class="li-total-val">—</span></div>
-  `;
-  container.appendChild(row);
-}
-
-function updateLineTotals() {
-  const rows = document.querySelectorAll('.line-item-row');
-  rows.forEach(row => {
-    const qty = parseFloat(row.querySelector('.li-qty-val')?.value) || 0;
-    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
-    const total = qty * rate;
-    const el = row.querySelector('.li-total-val');
-    if (el) el.textContent = total > 0 ? fmt(total) : '—';
-  });
-}
-
-function getLineItems() {
-  const rows = document.querySelectorAll('.line-item-row');
-  return Array.from(rows).map(row => ({
-    desc: row.querySelector('.li-description')?.value || '',
-    qty: parseFloat(row.querySelector('.li-qty-val')?.value) || 0,
-    rate: parseFloat(row.querySelector('.li-rate-val')?.value) || 0,
-    total: (parseFloat(row.querySelector('.li-qty-val')?.value) || 0) * (parseFloat(row.querySelector('.li-rate-val')?.value) || 0),
-  })).filter(r => r.desc || r.total > 0);
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function fmt(n) {
   const c = window.__currency || { locale: 'en-US', code: 'USD' };
-  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2 }).format(n);
 }
 
-function generateInvoice() {
-  const items = getLineItems();
-  const subtotal = items.reduce((s, r) => s + r.total, 0);
-  const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
-  const tax = subtotal * (taxRate / 100);
-  const total = subtotal + tax;
+function addrLines(street, city, state, zip) {
+  const line2 = [city, state].filter(Boolean).join(', ') + (zip ? ' ' + zip : '');
+  return [street, line2].filter(Boolean);
+}
 
-  const fromName  = document.getElementById('from-name').value || 'Your Business';
-  const fromEmail = document.getElementById('from-email').value;
-  const fromPhone     = document.getElementById('from-phone')?.value || '';
-  const fromAddrLines = assembleAddr('from');
-  const toName        = document.getElementById('to-name').value || 'Client';
-  const toEmail       = document.getElementById('to-email').value;
-  const toAddrLines   = assembleAddr('to');
-  const invNum    = document.getElementById('inv-number').value || 'INV-001';
-  const invDate   = document.getElementById('inv-date').value;
-  const dueDate   = document.getElementById('due-date').value;
-  const notes     = document.getElementById('notes').value;
-  const logo      = localStorage.getItem('biz_logo');
+function getLineItems() {
+  return Array.from(document.querySelectorAll('#line-items .inv-li-row')).map(row => {
+    const qty  = parseFloat(row.querySelector('.li-qty-val')?.value)  || 0;
+    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
+    return { desc: row.querySelector('.li-description')?.value || '', qty, rate, total: qty * rate };
+  }).filter(r => r.desc || r.total > 0);
+}
 
-  const lineRows = items.map(r => `
-    <tr>
-      <td>${r.desc}</td>
-      <td style="text-align:center">${r.qty}</td>
-      <td style="text-align:right">${fmt(r.rate)}</td>
-      <td>${fmt(r.total)}</td>
-    </tr>
-  `).join('');
+function updateLineTotals() {
+  document.querySelectorAll('#line-items .inv-li-row').forEach(row => {
+    const qty  = parseFloat(row.querySelector('.li-qty-val')?.value)  || 0;
+    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
+    const el   = row.querySelector('.inv-li-total');
+    if (el) el.textContent = (qty && rate) ? fmt(qty * rate) : '—';
+  });
+}
 
-  document.getElementById('invoice-doc').innerHTML = `
-    <div class="doc-header">
-      <div>
-        ${logo ? `<img src="${logo}" class="doc-logo" alt="Logo" />` : ''}
-        <div class="doc-title">INVOICE</div>
-        <p style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem;">${fromName}</p>
-      </div>
-      <div class="doc-meta">
-        <p><strong>#${invNum}</strong></p>
-        <p>Date: <strong>${invDate}</strong></p>
-        <p>Due: <strong>${dueDate}</strong></p>
-      </div>
-    </div>
-    <div class="doc-parties">
-      <div>
-        <h3>From</h3>
-        <p class="party-name">${fromName}</p>
-        ${fromPhone ? `<p>${fromPhone}</p>` : ''}
-        ${fromEmail ? `<p>${fromEmail}</p>` : ''}
-        ${fromAddrLines.map(l => `<p>${l}</p>`).join('')}
-      </div>
-      <div>
-        <h3>Bill To</h3>
-        <p class="party-name">${toName}</p>
-        ${toEmail ? `<p>${toEmail}</p>` : ''}
-        ${toAddrLines.map(l => `<p>${l}</p>`).join('')}
-      </div>
-    </div>
-    <table class="doc-table">
-      <thead><tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>
-      <tbody>${lineRows || '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No items added</td></tr>'}</tbody>
-    </table>
-    <div class="doc-totals">
-      <div class="doc-total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
-      ${taxRate > 0 ? `<div class="doc-total-row"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}
-      <div class="doc-total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
-    </div>
-    ${notes ? `<div class="doc-notes"><strong>Notes</strong>${notes}</div>` : ''}
+function fillDocFromBiz() {
+  const get = k => localStorage.getItem(k) || '';
+  const name = get('biz_name'), email = get('biz_email'), phone = get('biz_phone');
+  const street = get('biz_street'), city = get('biz_city'), state = get('biz_state'), zip = get('biz_zip');
+  const logo = get('biz_logo');
+
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  set('from-name', name); set('from-email', email); set('from-phone', phone);
+  set('from-street', street); set('from-city', city); set('from-state', state); set('from-zip', zip);
+
+  const dispName  = document.getElementById('inv-biz-disp-name');
+  const dispMeta  = document.getElementById('inv-biz-disp-meta');
+  const logoThumb = document.getElementById('inv-biz-logo-thumb');
+  if (dispName) { dispName.textContent = name || 'No profile saved — click Edit to set up'; dispName.style.color = name ? 'var(--text)' : 'var(--muted)'; }
+  if (dispMeta) { const p = []; if (phone) p.push(phone); if (email) p.push(email); dispMeta.textContent = p.join('  ·  '); }
+  if (logoThumb) { if (logo) { logoThumb.src = logo; logoThumb.style.display = 'block'; } else { logoThumb.style.display = 'none'; } }
+
+  renderPreview();
+}
+
+function buildLineRow(desc, qty, rate, removable) {
+  const row = document.createElement('div');
+  row.className = 'inv-li-row';
+  const total = (parseFloat(qty) || 0) * (parseFloat(rate) || 0);
+  row.innerHTML = `
+    <input type="text"   class="li-description" placeholder="Service or product" oninput="renderPreview()" value="${esc(desc || '')}" />
+    <input type="number" class="li-qty-val"  placeholder="1"    min="0" step="0.01" value="${qty  || 1}"  oninput="renderPreview()" />
+    <input type="number" class="li-rate-val" placeholder="0.00" min="0" step="0.01" value="${rate || ''}" oninput="renderPreview()" />
+    <span class="inv-li-total">${total > 0 ? fmt(total) : '—'}</span>
+    ${removable
+      ? '<button class="inv-li-remove" onclick="this.closest(\'.inv-li-row\').remove();renderPreview();" type="button" title="Remove line">×</button>'
+      : '<span></span>'}
   `;
-
-  document.getElementById('builder').style.display = 'none';
-  document.getElementById('preview').style.display = 'block';
-  document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+  return row;
 }
 
-function editInvoice() {
-  document.querySelector('.doc-builder').style.display = 'block';
-  document.getElementById('preview').style.display = 'none';
+function addLine() {
+  const container = document.getElementById('line-items');
+  const row = buildLineRow('', 1, '', true);
+  container.appendChild(row);
+  row.querySelector('.li-description').focus();
 }
 
-function printInvoice() {
-  window.print();
+function renderPreview() {
+  updateLineTotals();
+
+  const items    = getLineItems();
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxRate  = parseFloat(document.getElementById('tax-rate').value) || 0;
+  const tax      = subtotal * (taxRate / 100);
+  const total    = subtotal + tax;
+
+  const fromName   = (document.getElementById('from-name')?.value   || '').trim();
+  const fromEmail  = (document.getElementById('from-email')?.value  || '').trim();
+  const fromPhone  = (document.getElementById('from-phone')?.value  || '').trim();
+  const fromAddr   = addrLines(
+    (document.getElementById('from-street')?.value || '').trim(),
+    (document.getElementById('from-city')?.value   || '').trim(),
+    (document.getElementById('from-state')?.value  || '').trim(),
+    (document.getElementById('from-zip')?.value    || '').trim()
+  );
+  const toName  = (document.getElementById('to-name')?.value  || '').trim();
+  const toEmail = (document.getElementById('to-email')?.value || '').trim();
+  const toAddr  = addrLines(
+    (document.getElementById('to-street')?.value || '').trim(),
+    (document.getElementById('to-city')?.value   || '').trim(),
+    (document.getElementById('to-state')?.value  || '').trim(),
+    (document.getElementById('to-zip')?.value    || '').trim()
+  );
+  const invNum  = document.getElementById('inv-number')?.value || 'INV-001';
+  const invDate = document.getElementById('inv-date')?.value   || '';
+  const dueDate = document.getElementById('due-date')?.value   || '';
+  const notes   = (document.getElementById('notes')?.value     || '').trim();
+  const logo    = localStorage.getItem('biz_logo');
+
+  const muted  = '#6b7c93';
+  const navy   = '#0f2d52';
+  const fox    = '#d4500a';
+  const border = '#edf0f5';
+
+  const lineRows = items.length
+    ? items.map(r => `<tr>
+        <td style="padding:.5rem .65rem;border-bottom:1px solid ${border};font-size:.88em;">${esc(r.desc)}</td>
+        <td style="padding:.5rem .65rem;border-bottom:1px solid ${border};text-align:center;font-size:.88em;color:${muted};">${r.qty}</td>
+        <td style="padding:.5rem .65rem;border-bottom:1px solid ${border};text-align:right;font-size:.88em;color:${muted};">${fmt(r.rate)}</td>
+        <td style="padding:.5rem .65rem;border-bottom:1px solid ${border};text-align:right;font-size:.88em;font-weight:600;color:#1a2332;">${fmt(r.total)}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="4" style="padding:1.25rem .65rem;text-align:center;font-size:.85em;color:#c0c8d4;">Add a line item to get started</td></tr>`;
+
+  document.getElementById('invoice-paper').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;gap:1rem;flex-wrap:wrap;">
+      <div>
+        ${logo ? `<img src="${logo}" style="max-height:52px;max-width:160px;object-fit:contain;display:block;margin-bottom:.6rem;" alt="logo" />` : ''}
+        ${fromName
+          ? `<div style="font-size:1.05em;font-weight:700;color:${navy};margin-bottom:.2em;">${esc(fromName)}</div>`
+          : `<div style="font-size:1.05em;font-weight:700;color:#c0c8d4;">Your Business Name</div>`}
+        ${fromAddr.map(l => `<div style="font-size:.84em;color:${muted};line-height:1.5;">${esc(l)}</div>`).join('')}
+        ${fromPhone ? `<div style="font-size:.84em;color:${muted};">${esc(fromPhone)}</div>` : ''}
+        ${fromEmail ? `<div style="font-size:.84em;color:${muted};">${esc(fromEmail)}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:1.9em;font-weight:800;color:${navy};letter-spacing:-.01em;line-height:1;margin-bottom:.45em;">INVOICE</div>
+        <div style="font-size:.88em;color:#1a2332;"><strong>#${esc(invNum)}</strong></div>
+        ${invDate ? `<div style="font-size:.84em;color:${muted};margin-top:.2em;">Date: ${esc(invDate)}</div>` : ''}
+        ${dueDate ? `<div style="font-size:.84em;color:${muted};">Due: ${esc(dueDate)}</div>`  : ''}
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:.68em;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${fox};margin-bottom:.5em;">Bill To</div>
+      ${toName
+        ? `<div style="font-size:1em;font-weight:600;color:#1a2332;">${esc(toName)}</div>`
+        : `<div style="font-size:1em;color:#c0c8d4;">Client name</div>`}
+      ${toEmail ? `<div style="font-size:.85em;color:${muted};">${esc(toEmail)}</div>` : ''}
+      ${toAddr.map(l => `<div style="font-size:.85em;color:${muted};">${esc(l)}</div>`).join('')}
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;">
+      <thead>
+        <tr style="background:${navy};">
+          <th style="padding:.5rem .65rem;text-align:left;font-size:.72em;text-transform:uppercase;letter-spacing:.04em;color:#fff;font-weight:600;">Description</th>
+          <th style="padding:.5rem .65rem;text-align:center;font-size:.72em;text-transform:uppercase;letter-spacing:.04em;color:#fff;font-weight:600;">Qty</th>
+          <th style="padding:.5rem .65rem;text-align:right;font-size:.72em;text-transform:uppercase;letter-spacing:.04em;color:#fff;font-weight:600;">Rate</th>
+          <th style="padding:.5rem .65rem;text-align:right;font-size:.72em;text-transform:uppercase;letter-spacing:.04em;color:#fff;font-weight:600;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>${lineRows}</tbody>
+    </table>
+
+    <div style="margin-left:auto;width:240px;">
+      <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.88em;color:${muted};"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+      ${taxRate > 0 ? `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.88em;color:${muted};"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}
+      <div style="display:flex;justify-content:space-between;padding:.5rem 0;font-size:1.05em;font-weight:700;color:${navy};border-top:2px solid ${navy};margin-top:.25rem;"><span>Total</span><span>${fmt(total)}</span></div>
+    </div>
+
+    ${notes ? `<div style="margin-top:1.75rem;padding-top:1rem;border-top:1px solid ${border};font-size:.82em;color:${muted};"><strong style="display:block;margin-bottom:.25em;color:#1a2332;">Notes</strong>${esc(notes)}</div>` : ''}
+  `;
 }
 </script>
 
