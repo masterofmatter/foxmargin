@@ -1,0 +1,355 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Free Purchase Order Generator — Create Professional POs | FoxMargin"
+  description="Create professional purchase orders online for free. Add vendor details, line items, delivery date, and an authorization block. Print or save as PDF. No signup."
+>
+  <div class="card">
+    <h1>Free Purchase Order Generator</h1>
+    <p>Create a professional purchase order in seconds. Add your company, vendor details, line items, and delivery date — then print or send as PDF.</p>
+  </div>
+
+  <div class="card doc-builder">
+    <div class="biz-profile-bar" id="biz-bar">
+      <span id="biz-bar-name">No business profile saved</span>
+      <button onclick="openBizModal()">Edit My Business</button>
+    </div>
+
+    <h2>Purchase Order Details</h2>
+    <div class="calc-form">
+      <div class="section-label">Your Company (Buyer)</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="from-name">Company Name</label>
+          <input type="text" id="from-name" placeholder="Acme Corp" />
+        </div>
+        <div class="field">
+          <label for="from-phone">Phone</label>
+          <input type="tel" id="from-phone" placeholder="+1 (555) 000-0000" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="from-email">Email</label>
+        <input type="email" id="from-email" placeholder="purchasing@yourcompany.com" />
+      </div>
+      <div class="field addr-wrap">
+        <label for="from-address">Billing Address</label>
+        <input type="text" id="from-address" placeholder="Start typing your address…" autocomplete="off" />
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Vendor / Supplier</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="to-name">Vendor Name / Company</label>
+          <input type="text" id="to-name" placeholder="Supplier Ltd." />
+        </div>
+        <div class="field">
+          <label for="to-email">Vendor Email</label>
+          <input type="email" id="to-email" placeholder="orders@supplier.com" />
+        </div>
+      </div>
+      <div class="field addr-wrap">
+        <label for="to-address">Vendor Address</label>
+        <input type="text" id="to-address" placeholder="Start typing address…" autocomplete="off" />
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Ship To (if different from billing)</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="ship-name">Ship To — Name / Dept</label>
+          <input type="text" id="ship-name" placeholder="Receiving / Warehouse" />
+        </div>
+        <div class="field addr-wrap">
+          <label for="ship-address">Shipping Address</label>
+          <input type="text" id="ship-address" placeholder="Leave blank to use billing address" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">PO Info</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="po-number">PO Number</label>
+          <input type="text" id="po-number" placeholder="PO-2025-001" />
+        </div>
+        <div class="field">
+          <label for="po-date">Date</label>
+          <input type="date" id="po-date" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="delivery-date">Expected Delivery</label>
+          <input type="date" id="delivery-date" />
+        </div>
+        <div class="field">
+          <label for="payment-terms">Payment Terms</label>
+          <select id="payment-terms">
+            <option value="Net 30">Net 30</option>
+            <option value="Net 15">Net 15</option>
+            <option value="Net 60">Net 60</option>
+            <option value="Due on Receipt">Due on Receipt</option>
+            <option value="2/10 Net 30">2/10 Net 30</option>
+            <option value="Prepaid">Prepaid</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Line Items</div>
+      <div id="line-items">
+        <div class="line-item-row">
+          <div class="field li-desc"><label>Description / Part #</label><input type="text" placeholder="Item description" class="li-description" /></div>
+          <div class="field li-qty"><label>Qty</label><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+          <div class="field li-rate"><label>Unit Price ($)</label><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
+          <div class="li-remove"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline print-hide" onclick="addLine()" type="button" style="align-self:flex-start;font-size:0.85rem;padding:0.5rem 1rem;">+ Add Item</button>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="tax-rate">Tax Rate (%)</label>
+          <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" />
+        </div>
+        <div class="field">
+          <label for="shipping-cost">Shipping / Freight ($)</label>
+          <input type="number" id="shipping-cost" placeholder="0.00" min="0" step="0.01" value="0" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Special Instructions / Notes</label>
+        <textarea id="notes" placeholder="e.g. All items must be individually labeled. Contact purchasing@company.com before delivery." rows="2" style="resize:vertical;"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="authorized-by">Authorized By</label>
+        <input type="text" id="authorized-by" placeholder="Full name of approving manager" />
+      </div>
+
+      <button class="btn" onclick="generateDoc()" type="button">Generate Purchase Order</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card doc-preview-card" id="preview" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;" class="print-hide">
+      <h2 style="margin:0;">Preview</h2>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn btn-outline" onclick="editDoc()" style="font-size:0.85rem;padding:0.5rem 1rem;">Edit</button>
+        <button class="btn" onclick="window.print()" style="font-size:0.85rem;padding:0.5rem 1rem;">Print / Save PDF</button>
+      </div>
+    </div>
+    <div id="doc-output" class="doc-preview"></div>
+  </div>
+
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>What is a purchase order and when do I need one?</summary>
+      <p>A purchase order (PO) is a formal document from a buyer to a supplier that commits to purchasing specific goods or services at agreed terms. It becomes a legally binding contract when the supplier accepts it. Use POs when you need a paper trail for approval processes, when ordering from new vendors, or when your accounting requires matching POs to invoices before payment.</p>
+    </details>
+    <details>
+      <summary>What is the difference between a PO and an invoice?</summary>
+      <p>A PO is created by the buyer and sent to the supplier before goods are delivered — it's a commitment to buy. An invoice is created by the supplier and sent to the buyer after delivery — it's a request for payment. In a typical purchase cycle: you send a PO → supplier delivers and sends an invoice → you match the invoice to your PO → you pay.</p>
+    </details>
+    <details>
+      <summary>What does "Net 30" payment terms mean?</summary>
+      <p>Net 30 means the invoice is due 30 days after the invoice date. Net 15 = 15 days, Net 60 = 60 days. "2/10 Net 30" means you get a 2% discount if you pay within 10 days, otherwise full amount is due in 30 days. "Due on Receipt" means payment is expected immediately upon delivery.</p>
+    </details>
+    <details>
+      <summary>Does my business info get saved?</summary>
+      <p>Yes — click "My Business" in the nav to save your company name, email, phone, address, and logo. It's stored locally in your browser and pre-fills every document you create. Nothing is sent to any server.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Embed This Purchase Order Generator</h2>
+    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" class="embed-code-block" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
+</Layout>
+
+<script is:inline>
+(function init() {
+  const today = new Date();
+  const delivery = new Date(today);
+  delivery.setDate(delivery.getDate() + 14);
+  const fmt0 = d => d.toISOString().slice(0, 10);
+  document.getElementById('po-date').value       = fmt0(today);
+  document.getElementById('delivery-date').value = fmt0(delivery);
+  document.getElementById('po-number').value = 'PO-' + today.getFullYear() + '-001';
+  document.getElementById('line-items').addEventListener('input', updateLineTotals);
+  fillDocFromBiz();
+  initAutocomplete(document.getElementById('from-address'));
+  initAutocomplete(document.getElementById('to-address'));
+  initAutocomplete(document.getElementById('ship-address'));
+  if (!localStorage.getItem('biz_setup_done')) setTimeout(openBizModal, 400);
+})();
+
+function fillDocFromBiz() {
+  const name = localStorage.getItem('biz_name') || '';
+  const email = localStorage.getItem('biz_email') || '';
+  const phone = localStorage.getItem('biz_phone') || '';
+  const addr = localStorage.getItem('biz_address') || '';
+  if (name)  document.getElementById('from-name').value = name;
+  if (email) document.getElementById('from-email').value = email;
+  if (phone) document.getElementById('from-phone').value = phone;
+  if (addr)  document.getElementById('from-address').value = addr;
+  const bar = document.getElementById('biz-bar-name');
+  if (bar) bar.textContent = name ? '👤 ' + name : 'No business profile saved';
+}
+
+function fmt(n) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+
+function addLine() {
+  const row = document.createElement('div');
+  row.className = 'line-item-row';
+  row.innerHTML = `
+    <div class="field li-desc"><input type="text" placeholder="Item description" class="li-description" /></div>
+    <div class="field li-qty"><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+    <div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+    <div class="field li-total"><span class="li-total-val">—</span></div>
+    <div class="li-remove"><button class="li-remove-btn" onclick="this.closest('.line-item-row').remove()" type="button" title="Remove">×</button></div>
+  `;
+  document.getElementById('line-items').appendChild(row);
+}
+
+function updateLineTotals() {
+  document.querySelectorAll('.line-item-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('.li-qty-val')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
+    const el = row.querySelector('.li-total-val');
+    if (el) el.textContent = qty * rate > 0 ? fmt(qty * rate) : '—';
+  });
+}
+
+function getLineItems() {
+  return Array.from(document.querySelectorAll('.line-item-row')).map(row => ({
+    desc:  row.querySelector('.li-description')?.value || '',
+    qty:   parseFloat(row.querySelector('.li-qty-val')?.value) || 0,
+    rate:  parseFloat(row.querySelector('.li-rate-val')?.value) || 0,
+    total: (parseFloat(row.querySelector('.li-qty-val')?.value) || 0) * (parseFloat(row.querySelector('.li-rate-val')?.value) || 0),
+  })).filter(r => r.desc || r.total > 0);
+}
+
+function generateDoc() {
+  const items = getLineItems();
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+  const shipping = parseFloat(document.getElementById('shipping-cost').value) || 0;
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax + shipping;
+
+  const fromName    = document.getElementById('from-name').value || 'Your Company';
+  const fromEmail   = document.getElementById('from-email').value;
+  const fromPhone   = document.getElementById('from-phone').value;
+  const fromAddr    = document.getElementById('from-address').value;
+  const toName      = document.getElementById('to-name').value || 'Vendor';
+  const toEmail     = document.getElementById('to-email').value;
+  const toAddr      = document.getElementById('to-address').value;
+  const shipName    = document.getElementById('ship-name').value;
+  const shipAddr    = document.getElementById('ship-address').value;
+  const poNum       = document.getElementById('po-number').value || 'PO-001';
+  const poDate      = document.getElementById('po-date').value;
+  const delivDate   = document.getElementById('delivery-date').value;
+  const payTerms    = document.getElementById('payment-terms').value;
+  const notes       = document.getElementById('notes').value;
+  const authBy      = document.getElementById('authorized-by').value;
+  const logo        = localStorage.getItem('biz_logo');
+
+  const lineRows = items.map(r => `
+    <tr>
+      <td>${r.desc}</td>
+      <td style="text-align:center">${r.qty}</td>
+      <td style="text-align:right">${fmt(r.rate)}</td>
+      <td>${fmt(r.total)}</td>
+    </tr>
+  `).join('');
+
+  const shipSection = (shipAddr || shipName) ? `
+    <div>
+      <h3>Ship To</h3>
+      <p class="party-name">${shipName || fromName}</p>
+      <p>${shipAddr || fromAddr}</p>
+    </div>` : '';
+
+  document.getElementById('doc-output').innerHTML = `
+    <div class="doc-header">
+      <div>
+        ${logo ? `<img src="${logo}" class="doc-logo" alt="Logo" />` : ''}
+        <div class="doc-title">PURCHASE ORDER</div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem;">${fromName}</p>
+      </div>
+      <div class="doc-meta">
+        <p><strong>#${poNum}</strong></p>
+        <p>Date: <strong>${poDate}</strong></p>
+        <p>Delivery: <strong>${delivDate}</strong></p>
+        <p>Terms: <strong>${payTerms}</strong></p>
+      </div>
+    </div>
+    <div class="doc-parties" style="grid-template-columns:${shipSection ? '1fr 1fr 1fr' : '1fr 1fr'};">
+      <div>
+        <h3>Bill To</h3>
+        <p class="party-name">${fromName}</p>
+        ${fromPhone ? `<p>${fromPhone}</p>` : ''}
+        ${fromEmail ? `<p>${fromEmail}</p>` : ''}
+        ${fromAddr  ? `<p>${fromAddr}</p>`  : ''}
+      </div>
+      <div>
+        <h3>Vendor</h3>
+        <p class="party-name">${toName}</p>
+        ${toEmail ? `<p>${toEmail}</p>` : ''}
+        ${toAddr  ? `<p>${toAddr}</p>`  : ''}
+      </div>
+      ${shipSection}
+    </div>
+    <table class="doc-table">
+      <thead><tr><th>Description / Part #</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit Price</th><th style="text-align:right">Total</th></tr></thead>
+      <tbody>${lineRows || '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No items added</td></tr>'}</tbody>
+    </table>
+    <div class="doc-totals">
+      <div class="doc-total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+      ${taxRate > 0 ? `<div class="doc-total-row"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}
+      ${shipping > 0 ? `<div class="doc-total-row"><span>Shipping / Freight</span><span>${fmt(shipping)}</span></div>` : ''}
+      <div class="doc-total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
+    </div>
+    ${notes ? `<div class="doc-notes"><strong>Special Instructions</strong>${notes}</div>` : ''}
+    <div class="doc-acceptance" style="margin-top:2rem;">
+      <h4>Authorization</h4>
+      <p style="font-size:0.88rem;color:var(--muted);">This purchase order constitutes authorization to ship the above items at the stated prices and terms. All deliveries must reference PO #${poNum}.</p>
+      <div class="doc-sig-line">
+        <div class="doc-sig-field">${authBy ? 'Authorized By: ' + authBy : 'Authorized By'}</div>
+        <div class="doc-sig-field">Title</div>
+        <div class="doc-sig-field">Date</div>
+        <div class="doc-sig-field">Signature</div>
+      </div>
+    </div>
+  `;
+
+  document.querySelector('.doc-builder').style.display = 'none';
+  document.getElementById('preview').style.display = 'block';
+  document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+}
+
+function editDoc() {
+  document.querySelector('.doc-builder').style.display = 'block';
+  document.getElementById('preview').style.display = 'none';
+}
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/purchase-order/" width="100%" height="760" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="Free Purchase Order Generator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
+</script>

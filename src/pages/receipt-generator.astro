@@ -1,0 +1,327 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Free Receipt Generator — Create & Print Receipts | FoxMargin"
+  description="Create professional receipts online for free. Add your logo, line items, payment method, and get a PAID stamp. Print or save as PDF instantly. No signup."
+>
+  <div class="card">
+    <h1>Free Receipt Generator</h1>
+    <p>Create a professional receipt in seconds. Add your business details, line items, and payment method — then print or save as PDF with a PAID stamp.</p>
+  </div>
+
+  <div class="card doc-builder">
+    <div class="biz-profile-bar" id="biz-bar">
+      <span id="biz-bar-name">No business profile saved</span>
+      <button onclick="openBizModal()">Edit My Business</button>
+    </div>
+
+    <h2>Receipt Details</h2>
+    <div class="calc-form">
+      <div class="section-label">Your Business</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="from-name">Business Name</label>
+          <input type="text" id="from-name" placeholder="Acme Corp" />
+        </div>
+        <div class="field">
+          <label for="from-phone">Phone</label>
+          <input type="tel" id="from-phone" placeholder="+1 (555) 000-0000" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="from-email">Email</label>
+        <input type="email" id="from-email" placeholder="hello@yourcompany.com" />
+      </div>
+      <div class="field addr-wrap">
+        <label for="from-address">Address</label>
+        <input type="text" id="from-address" placeholder="Start typing your address…" autocomplete="off" />
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Receipt For</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="to-name">Customer Name / Company</label>
+          <input type="text" id="to-name" placeholder="Jane Smith" />
+        </div>
+        <div class="field">
+          <label for="to-email">Customer Email</label>
+          <input type="email" id="to-email" placeholder="customer@example.com" />
+        </div>
+      </div>
+      <div class="field addr-wrap">
+        <label for="to-address">Customer Address</label>
+        <input type="text" id="to-address" placeholder="Start typing address…" autocomplete="off" />
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Receipt Info</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rec-number">Receipt Number</label>
+          <input type="text" id="rec-number" placeholder="REC-001" />
+        </div>
+        <div class="field">
+          <label for="rec-date">Date</label>
+          <input type="date" id="rec-date" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="payment-method">Payment Method</label>
+          <select id="payment-method">
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Check">Check</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tax-rate">Tax Rate (%)</label>
+          <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" />
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Items</div>
+      <div id="line-items">
+        <div class="line-item-row">
+          <div class="field li-desc"><label>Description</label><input type="text" placeholder="Product or service" class="li-description" /></div>
+          <div class="field li-qty"><label>Qty</label><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+          <div class="field li-rate"><label>Price ($)</label><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
+          <div class="li-remove"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline print-hide" onclick="addLine()" type="button" style="align-self:flex-start;font-size:0.85rem;padding:0.5rem 1rem;">+ Add Item</button>
+
+      <div class="field">
+        <label for="amount-paid">Amount Paid ($)</label>
+        <input type="number" id="amount-paid" placeholder="Defaults to total" min="0" step="0.01" />
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:0.3rem;margin-bottom:0;">Leave blank to auto-fill with total amount</p>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea id="notes" placeholder="e.g. Thank you for your business!" rows="2" style="resize:vertical;"></textarea>
+      </div>
+
+      <button class="btn" onclick="generateDoc()" type="button">Generate Receipt</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card doc-preview-card" id="preview" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;" class="print-hide">
+      <h2 style="margin:0;">Preview</h2>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn btn-outline" onclick="editDoc()" style="font-size:0.85rem;padding:0.5rem 1rem;">Edit</button>
+        <button class="btn" onclick="window.print()" style="font-size:0.85rem;padding:0.5rem 1rem;">Print / Save PDF</button>
+      </div>
+    </div>
+    <div id="doc-output" class="doc-preview"></div>
+  </div>
+
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>Is this receipt generator free?</summary>
+      <p>Yes — completely free, no account needed, no watermark. Your logo and data stay in your browser.</p>
+    </details>
+    <details>
+      <summary>How do I get a PDF receipt?</summary>
+      <p>Click "Print / Save PDF," then in the print dialog choose "Save as PDF" as the destination. On Mac, look for the PDF dropdown in the bottom-left of the print dialog. All modern browsers support this natively.</p>
+    </details>
+    <details>
+      <summary>Does my business info get saved?</summary>
+      <p>Yes — click "My Business" in the nav bar (or the "Edit My Business" button) to save your business name, email, phone, address, and logo. It's stored locally in your browser using localStorage and pre-fills every document you create. Nothing is sent to any server.</p>
+    </details>
+    <details>
+      <summary>What if a customer partially paid?</summary>
+      <p>Enter the amount they actually paid in the "Amount Paid" field. The receipt will show the balance due and stamp "PARTIAL PAYMENT" instead of "PAID." Issue a follow-up receipt when the remainder is collected.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Embed This Receipt Generator</h2>
+    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" class="embed-code-block" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
+</Layout>
+
+<script is:inline>
+(function init() {
+  const today = new Date();
+  document.getElementById('rec-date').value = today.toISOString().slice(0, 10);
+  document.getElementById('rec-number').value = 'REC-001';
+  document.getElementById('line-items').addEventListener('input', updateLineTotals);
+  fillDocFromBiz();
+  // Autocomplete on address fields
+  initAutocomplete(document.getElementById('from-address'));
+  initAutocomplete(document.getElementById('to-address'));
+  // Show modal on first visit if no profile
+  if (!localStorage.getItem('biz_setup_done')) {
+    setTimeout(openBizModal, 400);
+  }
+})();
+
+function fillDocFromBiz() {
+  const name = localStorage.getItem('biz_name') || '';
+  const email = localStorage.getItem('biz_email') || '';
+  const phone = localStorage.getItem('biz_phone') || '';
+  const addr = localStorage.getItem('biz_address') || '';
+  if (name)  document.getElementById('from-name').value = name;
+  if (email) document.getElementById('from-email').value = email;
+  if (phone) document.getElementById('from-phone').value = phone;
+  if (addr)  document.getElementById('from-address').value = addr;
+  // Update bar
+  const bar = document.getElementById('biz-bar-name');
+  if (bar) bar.textContent = name ? '👤 ' + name : 'No business profile saved';
+}
+
+function fmt(n) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+
+function addLine() {
+  const container = document.getElementById('line-items');
+  const row = document.createElement('div');
+  row.className = 'line-item-row';
+  row.innerHTML = `
+    <div class="field li-desc"><input type="text" placeholder="Product or service" class="li-description" /></div>
+    <div class="field li-qty"><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+    <div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+    <div class="field li-total"><span class="li-total-val">—</span></div>
+    <div class="li-remove"><button class="li-remove-btn" onclick="this.closest('.line-item-row').remove()" type="button" title="Remove">×</button></div>
+  `;
+  container.appendChild(row);
+}
+
+function updateLineTotals() {
+  document.querySelectorAll('.line-item-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('.li-qty-val')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
+    const el = row.querySelector('.li-total-val');
+    if (el) el.textContent = qty * rate > 0 ? fmt(qty * rate) : '—';
+  });
+}
+
+function getLineItems() {
+  return Array.from(document.querySelectorAll('.line-item-row')).map(row => ({
+    desc:  row.querySelector('.li-description')?.value || '',
+    qty:   parseFloat(row.querySelector('.li-qty-val')?.value) || 0,
+    rate:  parseFloat(row.querySelector('.li-rate-val')?.value) || 0,
+    total: (parseFloat(row.querySelector('.li-qty-val')?.value) || 0) * (parseFloat(row.querySelector('.li-rate-val')?.value) || 0),
+  })).filter(r => r.desc || r.total > 0);
+}
+
+function generateDoc() {
+  const items = getLineItems();
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax;
+  const amountPaidInput = document.getElementById('amount-paid').value;
+  const amountPaid = amountPaidInput !== '' ? parseFloat(amountPaidInput) || 0 : total;
+  const balance = total - amountPaid;
+
+  const fromName    = document.getElementById('from-name').value || 'Your Business';
+  const fromEmail   = document.getElementById('from-email').value;
+  const fromPhone   = document.getElementById('from-phone').value;
+  const fromAddr    = document.getElementById('from-address').value;
+  const toName      = document.getElementById('to-name').value || 'Customer';
+  const toEmail     = document.getElementById('to-email').value;
+  const toAddr      = document.getElementById('to-address').value;
+  const recNum      = document.getElementById('rec-number').value || 'REC-001';
+  const recDate     = document.getElementById('rec-date').value;
+  const payMethod   = document.getElementById('payment-method').value;
+  const notes       = document.getElementById('notes').value;
+  const logo        = localStorage.getItem('biz_logo');
+
+  const isPaid    = balance <= 0.005;
+  const isPartial = !isPaid && amountPaid > 0;
+
+  const lineRows = items.map(r => `
+    <tr>
+      <td>${r.desc}</td>
+      <td style="text-align:center">${r.qty}</td>
+      <td style="text-align:right">${fmt(r.rate)}</td>
+      <td>${fmt(r.total)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('doc-output').innerHTML = `
+    <div class="doc-header">
+      <div>
+        ${logo ? `<img src="${logo}" class="doc-logo" alt="Logo" />` : ''}
+        <div class="doc-title">RECEIPT</div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem;">${fromName}</p>
+      </div>
+      <div class="doc-meta">
+        <p><strong>#${recNum}</strong></p>
+        <p>Date: <strong>${recDate}</strong></p>
+        <p>Payment: <strong>${payMethod}</strong></p>
+      </div>
+    </div>
+    <div class="doc-parties">
+      <div>
+        <h3>From</h3>
+        <p class="party-name">${fromName}</p>
+        ${fromPhone ? `<p>${fromPhone}</p>` : ''}
+        ${fromEmail ? `<p>${fromEmail}</p>` : ''}
+        ${fromAddr  ? `<p>${fromAddr}</p>`  : ''}
+      </div>
+      <div>
+        <h3>Receipt For</h3>
+        <p class="party-name">${toName}</p>
+        ${toEmail ? `<p>${toEmail}</p>` : ''}
+        ${toAddr  ? `<p>${toAddr}</p>`  : ''}
+      </div>
+    </div>
+    <table class="doc-table">
+      <thead><tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr></thead>
+      <tbody>${lineRows || '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No items</td></tr>'}</tbody>
+    </table>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+      <div>
+        ${isPaid    ? '<div class="doc-stamp">PAID</div>' : ''}
+        ${isPartial ? '<div class="doc-stamp partial">PARTIAL PAYMENT</div>' : ''}
+        ${!isPaid && !isPartial ? '<div class="doc-stamp partial">UNPAID</div>' : ''}
+      </div>
+      <div class="doc-totals">
+        <div class="doc-total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+        ${taxRate > 0 ? `<div class="doc-total-row"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}
+        <div class="doc-total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
+        <div class="doc-total-row"><span>Amount Paid</span><span>${fmt(amountPaid)}</span></div>
+        <div class="doc-total-row ${isPaid ? 'balance-zero' : 'balance-owing'}">
+          <span>Balance Due</span><span>${fmt(Math.max(0, balance))}</span>
+        </div>
+      </div>
+    </div>
+    ${notes ? `<div class="doc-notes"><strong>Notes</strong>${notes}</div>` : ''}
+  `;
+
+  document.querySelector('.doc-builder').style.display = 'none';
+  document.getElementById('preview').style.display = 'block';
+  document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+}
+
+function editDoc() {
+  document.querySelector('.doc-builder').style.display = 'block';
+  document.getElementById('preview').style.display = 'none';
+}
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/receipt-generator/" width="100%" height="680" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="Free Receipt Generator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
+</script>

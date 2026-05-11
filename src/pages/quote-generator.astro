@@ -1,0 +1,338 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Free Quote & Estimate Generator — Create Professional Quotes | FoxMargin"
+  description="Create professional quotes and estimates online for free. Add your logo, line items, validity date, and convert to invoice in one click. No signup required."
+>
+  <div class="card">
+    <h1>Free Quote & Estimate Generator</h1>
+    <p>Create a professional quote or estimate in seconds. When accepted, convert it to an invoice with one click — your data transfers automatically.</p>
+  </div>
+
+  <div class="card doc-builder">
+    <div class="biz-profile-bar" id="biz-bar">
+      <span id="biz-bar-name">No business profile saved</span>
+      <button onclick="openBizModal()">Edit My Business</button>
+    </div>
+
+    <h2>Quote Details</h2>
+    <div class="calc-form">
+      <div class="section-label">Your Business</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="from-name">Business Name</label>
+          <input type="text" id="from-name" placeholder="Acme Corp" />
+        </div>
+        <div class="field">
+          <label for="from-phone">Phone</label>
+          <input type="tel" id="from-phone" placeholder="+1 (555) 000-0000" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="from-email">Email</label>
+        <input type="email" id="from-email" placeholder="hello@yourcompany.com" />
+      </div>
+      <div class="field addr-wrap">
+        <label for="from-address">Address</label>
+        <input type="text" id="from-address" placeholder="Start typing your address…" autocomplete="off" />
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Quote For</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="to-name">Client Name / Company</label>
+          <input type="text" id="to-name" placeholder="Client Co." />
+        </div>
+        <div class="field">
+          <label for="to-email">Client Email</label>
+          <input type="email" id="to-email" placeholder="client@example.com" />
+        </div>
+      </div>
+      <div class="field addr-wrap">
+        <label for="to-address">Client Address</label>
+        <input type="text" id="to-address" placeholder="Start typing address…" autocomplete="off" />
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Quote Info</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="quote-number">Quote Number</label>
+          <input type="text" id="quote-number" placeholder="QTE-001" />
+        </div>
+        <div class="field">
+          <label for="quote-date">Date</label>
+          <input type="date" id="quote-date" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="valid-until">Valid Until</label>
+          <input type="date" id="valid-until" />
+        </div>
+        <div class="field">
+          <label for="tax-rate">Tax Rate (%)</label>
+          <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" />
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:0.5rem;">Line Items</div>
+      <div id="line-items">
+        <div class="line-item-row">
+          <div class="field li-desc"><label>Description</label><input type="text" placeholder="Service or product" class="li-description" /></div>
+          <div class="field li-qty"><label>Qty</label><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+          <div class="field li-rate"><label>Rate ($)</label><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
+          <div class="li-remove"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline print-hide" onclick="addLine()" type="button" style="align-self:flex-start;font-size:0.85rem;padding:0.5rem 1rem;">+ Add Line</button>
+
+      <div class="field">
+        <label for="notes">Notes / Scope of Work</label>
+        <textarea id="notes" placeholder="e.g. Price includes materials and 2 revisions. Does not include permit fees." rows="3" style="resize:vertical;"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="acceptance-text">Acceptance Statement (optional)</label>
+        <textarea id="acceptance-text" placeholder="e.g. By signing below, you authorize the above work and agree to payment terms." rows="2" style="resize:vertical;"></textarea>
+      </div>
+
+      <button class="btn" onclick="generateDoc()" type="button">Generate Quote</button>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card doc-preview-card" id="preview" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;" class="print-hide">
+      <h2 style="margin:0;">Preview</h2>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="editDoc()" style="font-size:0.85rem;padding:0.5rem 1rem;">Edit</button>
+        <button class="btn btn-green" onclick="convertToInvoice()" style="font-size:0.85rem;padding:0.5rem 1rem;">→ Convert to Invoice</button>
+        <button class="btn" onclick="window.print()" style="font-size:0.85rem;padding:0.5rem 1rem;">Print / Save PDF</button>
+      </div>
+    </div>
+    <div id="doc-output" class="doc-preview"></div>
+  </div>
+
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+    <details>
+      <summary>What is the difference between a quote and an estimate?</summary>
+      <p>A quote is a fixed price offer — if accepted, you're bound to that price. An estimate is an approximation that can change based on actual work required. For most service businesses, quotes are preferred for clearly defined projects and estimates for open-ended ones. Both use the same format; it's the document title and your communication with the client that sets the expectation.</p>
+    </details>
+    <details>
+      <summary>How does "Convert to Invoice" work?</summary>
+      <p>When your quote is accepted, click "Convert to Invoice." All your business info, client details, and line items are saved and you're taken directly to the invoice generator with everything pre-filled. Just update the invoice number and due date — no re-typing required.</p>
+    </details>
+    <details>
+      <summary>How long should a quote be valid for?</summary>
+      <p>30 days is standard for most industries. For projects involving materials with volatile prices (construction, manufacturing), 7–14 days is common. Service-only quotes can extend to 60–90 days. Always specify the validity period to protect yourself from being held to an old price.</p>
+    </details>
+    <details>
+      <summary>Does my business info get saved?</summary>
+      <p>Yes — click "My Business" in the nav to save your business name, email, phone, address, and logo. It's stored locally in your browser and pre-fills every document you create. Nothing is sent to any server.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Embed This Quote Generator</h2>
+    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" class="embed-code-block" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
+</Layout>
+
+<script is:inline>
+(function init() {
+  const today = new Date();
+  const valid = new Date(today);
+  valid.setDate(valid.getDate() + 30);
+  const fmt0 = d => d.toISOString().slice(0, 10);
+  document.getElementById('quote-date').value  = fmt0(today);
+  document.getElementById('valid-until').value = fmt0(valid);
+  document.getElementById('quote-number').value = 'QTE-001';
+  document.getElementById('line-items').addEventListener('input', updateLineTotals);
+  fillDocFromBiz();
+  initAutocomplete(document.getElementById('from-address'));
+  initAutocomplete(document.getElementById('to-address'));
+  if (!localStorage.getItem('biz_setup_done')) setTimeout(openBizModal, 400);
+})();
+
+function fillDocFromBiz() {
+  const name = localStorage.getItem('biz_name') || '';
+  const email = localStorage.getItem('biz_email') || '';
+  const phone = localStorage.getItem('biz_phone') || '';
+  const addr = localStorage.getItem('biz_address') || '';
+  if (name)  document.getElementById('from-name').value = name;
+  if (email) document.getElementById('from-email').value = email;
+  if (phone) document.getElementById('from-phone').value = phone;
+  if (addr)  document.getElementById('from-address').value = addr;
+  const bar = document.getElementById('biz-bar-name');
+  if (bar) bar.textContent = name ? '👤 ' + name : 'No business profile saved';
+}
+
+function fmt(n) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+
+function addLine() {
+  const row = document.createElement('div');
+  row.className = 'line-item-row';
+  row.innerHTML = `
+    <div class="field li-desc"><input type="text" placeholder="Service or product" class="li-description" /></div>
+    <div class="field li-qty"><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+    <div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+    <div class="field li-total"><span class="li-total-val">—</span></div>
+    <div class="li-remove"><button class="li-remove-btn" onclick="this.closest('.line-item-row').remove()" type="button" title="Remove">×</button></div>
+  `;
+  document.getElementById('line-items').appendChild(row);
+}
+
+function updateLineTotals() {
+  document.querySelectorAll('.line-item-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('.li-qty-val')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
+    const el = row.querySelector('.li-total-val');
+    if (el) el.textContent = qty * rate > 0 ? fmt(qty * rate) : '—';
+  });
+}
+
+function getLineItems() {
+  return Array.from(document.querySelectorAll('.line-item-row')).map(row => ({
+    desc:  row.querySelector('.li-description')?.value || '',
+    qty:   parseFloat(row.querySelector('.li-qty-val')?.value) || 0,
+    rate:  parseFloat(row.querySelector('.li-rate-val')?.value) || 0,
+    total: (parseFloat(row.querySelector('.li-qty-val')?.value) || 0) * (parseFloat(row.querySelector('.li-rate-val')?.value) || 0),
+  })).filter(r => r.desc || r.total > 0);
+}
+
+function generateDoc() {
+  const items = getLineItems();
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax;
+
+  const fromName  = document.getElementById('from-name').value || 'Your Business';
+  const fromEmail = document.getElementById('from-email').value;
+  const fromPhone = document.getElementById('from-phone').value;
+  const fromAddr  = document.getElementById('from-address').value;
+  const toName    = document.getElementById('to-name').value || 'Client';
+  const toEmail   = document.getElementById('to-email').value;
+  const toAddr    = document.getElementById('to-address').value;
+  const qteNum    = document.getElementById('quote-number').value || 'QTE-001';
+  const qteDate   = document.getElementById('quote-date').value;
+  const validDate = document.getElementById('valid-until').value;
+  const notes     = document.getElementById('notes').value;
+  const accept    = document.getElementById('acceptance-text').value;
+  const logo      = localStorage.getItem('biz_logo');
+
+  const lineRows = items.map(r => `
+    <tr>
+      <td>${r.desc}</td>
+      <td style="text-align:center">${r.qty}</td>
+      <td style="text-align:right">${fmt(r.rate)}</td>
+      <td>${fmt(r.total)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('doc-output').innerHTML = `
+    <div class="doc-header">
+      <div>
+        ${logo ? `<img src="${logo}" class="doc-logo" alt="Logo" />` : ''}
+        <div class="doc-title">QUOTE</div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem;">${fromName}</p>
+      </div>
+      <div class="doc-meta">
+        <p><strong>#${qteNum}</strong></p>
+        <p>Date: <strong>${qteDate}</strong></p>
+        <p>Valid Until: <strong>${validDate}</strong></p>
+      </div>
+    </div>
+    <div class="doc-parties">
+      <div>
+        <h3>From</h3>
+        <p class="party-name">${fromName}</p>
+        ${fromPhone ? `<p>${fromPhone}</p>` : ''}
+        ${fromEmail ? `<p>${fromEmail}</p>` : ''}
+        ${fromAddr  ? `<p>${fromAddr}</p>`  : ''}
+      </div>
+      <div>
+        <h3>Quote For</h3>
+        <p class="party-name">${toName}</p>
+        ${toEmail ? `<p>${toEmail}</p>` : ''}
+        ${toAddr  ? `<p>${toAddr}</p>`  : ''}
+      </div>
+    </div>
+    <table class="doc-table">
+      <thead><tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${lineRows || '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No items added</td></tr>'}</tbody>
+    </table>
+    <div class="doc-totals">
+      <div class="doc-total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+      ${taxRate > 0 ? `<div class="doc-total-row"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}
+      <div class="doc-total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
+    </div>
+    ${notes ? `<div class="doc-notes"><strong>Scope / Notes</strong>${notes}</div>` : ''}
+    ${accept ? `
+    <div class="doc-acceptance">
+      <h4>Acceptance</h4>
+      <p style="font-size:0.88rem;color:var(--muted);">${accept}</p>
+      <div class="doc-sig-line">
+        <div class="doc-sig-field">Authorized Signature</div>
+        <div class="doc-sig-field">Printed Name</div>
+        <div class="doc-sig-field">Date</div>
+      </div>
+    </div>` : `
+    <div class="doc-acceptance">
+      <h4>Acceptance</h4>
+      <p style="font-size:0.88rem;color:var(--muted);">To accept this quote, please sign below and return a copy.</p>
+      <div class="doc-sig-line">
+        <div class="doc-sig-field">Authorized Signature</div>
+        <div class="doc-sig-field">Printed Name</div>
+        <div class="doc-sig-field">Date</div>
+      </div>
+    </div>`}
+  `;
+
+  document.querySelector('.doc-builder').style.display = 'none';
+  document.getElementById('preview').style.display = 'block';
+  document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+}
+
+function editDoc() {
+  document.querySelector('.doc-builder').style.display = 'block';
+  document.getElementById('preview').style.display = 'none';
+}
+
+function convertToInvoice() {
+  const items = getLineItems();
+  const data = {
+    fromName:  document.getElementById('from-name').value,
+    fromEmail: document.getElementById('from-email').value,
+    fromPhone: document.getElementById('from-phone').value,
+    fromAddr:  document.getElementById('from-address').value,
+    toName:    document.getElementById('to-name').value,
+    toEmail:   document.getElementById('to-email').value,
+    toAddr:    document.getElementById('to-address').value,
+    taxRate:   document.getElementById('tax-rate').value,
+    notes:     document.getElementById('notes').value,
+    items:     items,
+  };
+  sessionStorage.setItem('fm_quote_data', JSON.stringify(data));
+  window.location.href = '/invoice-generator/';
+}
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/quote-generator/" width="100%" height="720" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="Free Quote Generator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
+</script>

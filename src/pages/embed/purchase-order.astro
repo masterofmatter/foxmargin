@@ -1,0 +1,77 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Free Purchase Order Generator — FoxMargin"
+  fullUrl="https://foxmargin.com/purchase-order/"
+  fullLabel="Free Purchase Order Generator"
+>
+  <div class="card">
+    <h2>Purchase Order Generator</h2>
+    <div class="calc-form">
+      <div class="field-row">
+        <div class="field"><label for="from-name">Your Company</label><input type="text" id="from-name" placeholder="Acme Corp" /></div>
+        <div class="field"><label for="to-name">Vendor / Supplier</label><input type="text" id="to-name" placeholder="Supplier Ltd." /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="po-number">PO Number</label><input type="text" id="po-number" /></div>
+        <div class="field"><label for="po-date">Date</label><input type="date" id="po-date" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="delivery-date">Expected Delivery</label><input type="date" id="delivery-date" /></div>
+        <div class="field">
+          <label for="payment-terms">Payment Terms</label>
+          <select id="payment-terms">
+            <option>Net 30</option><option>Net 15</option><option>Net 60</option>
+            <option>Due on Receipt</option><option>Prepaid</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">Items</div>
+      <div id="line-items">
+        <div class="line-item-row">
+          <div class="field li-desc"><label>Description</label><input type="text" placeholder="Item description" class="li-description" /></div>
+          <div class="field li-qty"><label>Qty</label><input type="number" value="1" min="0" step="0.01" class="li-qty-val" /></div>
+          <div class="field li-rate"><label>Unit Price</label><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="addLine()" type="button" style="font-size:0.82rem;padding:0.45rem 0.85rem;">+ Add Item</button>
+      <div class="field-row">
+        <div class="field"><label for="tax-rate">Tax (%)</label><input type="number" id="tax-rate" value="0" min="0" step="0.01" /></div>
+        <div class="field"><label for="shipping-cost">Shipping ($)</label><input type="number" id="shipping-cost" value="0" min="0" step="0.01" /></div>
+      </div>
+      <button class="btn" onclick="generateDoc()" type="button">Generate Purchase Order</button>
+    </div>
+
+    <div class="results" id="results" style="margin-top:1rem;"></div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+(function(){
+  const t=new Date(),d=new Date(t);d.setDate(d.getDate()+14);
+  document.getElementById('po-date').value=t.toISOString().slice(0,10);
+  document.getElementById('delivery-date').value=d.toISOString().slice(0,10);
+  document.getElementById('po-number').value='PO-'+t.getFullYear()+'-001';
+  document.getElementById('line-items').addEventListener('input',updateTotals);
+  const n=localStorage.getItem('biz_name');if(n)document.getElementById('from-name').value=n;
+})();
+function fmt(n){const c=window.__currency||{locale:'en-US',code:'USD'};return new Intl.NumberFormat(c.locale,{style:'currency',currency:c.code,minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}
+function addLine(){const r=document.createElement('div');r.className='line-item-row';r.innerHTML=`<div class="field li-desc"><input type="text" placeholder="Item description" class="li-description"/></div><div class="field li-qty"><input type="number" value="1" min="0" step="0.01" class="li-qty-val"/></div><div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val"/></div><div class="field li-total"><span class="li-total-val">—</span></div>`;document.getElementById('line-items').appendChild(r);}
+function updateTotals(){document.querySelectorAll('.line-item-row').forEach(r=>{const q=parseFloat(r.querySelector('.li-qty-val')?.value)||0,p=parseFloat(r.querySelector('.li-rate-val')?.value)||0,el=r.querySelector('.li-total-val');if(el)el.textContent=q*p>0?fmt(q*p):'—';});}
+function generateDoc(){
+  const items=Array.from(document.querySelectorAll('.line-item-row')).map(r=>({desc:r.querySelector('.li-description')?.value||'',qty:parseFloat(r.querySelector('.li-qty-val')?.value)||0,rate:parseFloat(r.querySelector('.li-rate-val')?.value)||0})).filter(r=>r.desc||r.qty*r.rate>0);
+  const sub=items.reduce((s,r)=>s+r.qty*r.rate,0),tax=sub*(parseFloat(document.getElementById('tax-rate').value)||0)/100,ship=parseFloat(document.getElementById('shipping-cost').value)||0,total=sub+tax+ship;
+  const res=document.getElementById('results');
+  res.innerHTML=`<strong style="color:var(--navy);">PO #${document.getElementById('po-number').value}</strong>
+    <div style="font-size:0.82rem;color:var(--muted);margin:0.4rem 0;">From: ${document.getElementById('from-name').value||'Buyer'} &nbsp;→&nbsp; ${document.getElementById('to-name').value||'Vendor'} &nbsp;|&nbsp; Delivery: ${document.getElementById('delivery-date').value} &nbsp;|&nbsp; Terms: ${document.getElementById('payment-terms').value}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin:0.5rem 0;"><thead><tr style="background:var(--navy);color:#fff;"><th style="padding:0.4rem;text-align:left;">Item</th><th style="padding:0.4rem;text-align:center;">Qty</th><th style="padding:0.4rem;text-align:right;">Total</th></tr></thead><tbody>${items.map(r=>`<tr><td style="padding:0.35rem 0.4rem;border-bottom:1px solid var(--border);">${r.desc}</td><td style="padding:0.35rem 0.4rem;border-bottom:1px solid var(--border);text-align:center;">${r.qty}</td><td style="padding:0.35rem 0.4rem;border-bottom:1px solid var(--border);text-align:right;">${fmt(r.qty*r.rate)}</td></tr>`).join('')}</tbody></table>
+    ${tax>0?`<div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--muted);"><span>Tax</span><span>${fmt(tax)}</span></div>`:''}
+    ${ship>0?`<div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--muted);"><span>Shipping</span><span>${fmt(ship)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--navy);border-top:2px solid var(--navy);padding-top:0.4rem;margin-top:0.3rem;"><span>Total</span><span>${fmt(total)}</span></div>
+    <p style="margin-top:0.75rem;font-size:0.78rem;color:var(--muted);">Open the <a href="https://foxmargin.com/purchase-order/" target="_blank">full PO Generator</a> to add logo, addresses, and authorization block.</p>`;
+  res.classList.add('show');
+}
+</script>

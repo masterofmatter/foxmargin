@@ -1,0 +1,66 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Free Quote Generator — FoxMargin"
+  fullUrl="https://foxmargin.com/quote-generator/"
+  fullLabel="Free Quote Generator"
+>
+  <div class="card">
+    <h2>Quote / Estimate Generator</h2>
+    <div class="calc-form">
+      <div class="field-row">
+        <div class="field"><label for="from-name">Your Business</label><input type="text" id="from-name" placeholder="Acme Corp" /></div>
+        <div class="field"><label for="to-name">Quote For</label><input type="text" id="to-name" placeholder="Client Name" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="quote-number">Quote #</label><input type="text" id="quote-number" /></div>
+        <div class="field"><label for="quote-date">Date</label><input type="date" id="quote-date" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="valid-until">Valid Until</label><input type="date" id="valid-until" /></div>
+        <div class="field"><label for="tax-rate">Tax (%)</label><input type="number" id="tax-rate" value="0" min="0" step="0.01" /></div>
+      </div>
+
+      <div class="section-label">Items</div>
+      <div id="line-items">
+        <div class="line-item-row">
+          <div class="field li-desc"><label>Description</label><input type="text" placeholder="Service or product" class="li-description" /></div>
+          <div class="field li-qty"><label>Qty</label><input type="number" value="1" min="0" step="0.01" class="li-qty-val" /></div>
+          <div class="field li-rate"><label>Rate</label><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div>
+          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="addLine()" type="button" style="font-size:0.82rem;padding:0.45rem 0.85rem;">+ Add Line</button>
+      <button class="btn" onclick="generateDoc()" type="button">Generate Quote</button>
+    </div>
+
+    <div class="results" id="results" style="margin-top:1rem;"></div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+(function() {
+  const t = new Date(), v = new Date(t); v.setDate(v.getDate()+30);
+  document.getElementById('quote-date').value = t.toISOString().slice(0,10);
+  document.getElementById('valid-until').value = v.toISOString().slice(0,10);
+  document.getElementById('quote-number').value = 'QTE-001';
+  document.getElementById('line-items').addEventListener('input', updateTotals);
+  const n=localStorage.getItem('biz_name'); if(n) document.getElementById('from-name').value=n;
+})();
+function fmt(n){const c=window.__currency||{locale:'en-US',code:'USD'};return new Intl.NumberFormat(c.locale,{style:'currency',currency:c.code,minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}
+function addLine(){const r=document.createElement('div');r.className='line-item-row';r.innerHTML=`<div class="field li-desc"><input type="text" placeholder="Service or product" class="li-description"/></div><div class="field li-qty"><input type="number" value="1" min="0" step="0.01" class="li-qty-val"/></div><div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val"/></div><div class="field li-total"><span class="li-total-val">—</span></div>`;document.getElementById('line-items').appendChild(r);}
+function updateTotals(){document.querySelectorAll('.line-item-row').forEach(r=>{const q=parseFloat(r.querySelector('.li-qty-val')?.value)||0,p=parseFloat(r.querySelector('.li-rate-val')?.value)||0,el=r.querySelector('.li-total-val');if(el)el.textContent=q*p>0?fmt(q*p):'—';});}
+function generateDoc(){
+  const items=Array.from(document.querySelectorAll('.line-item-row')).map(r=>({desc:r.querySelector('.li-description')?.value||'',qty:parseFloat(r.querySelector('.li-qty-val')?.value)||0,rate:parseFloat(r.querySelector('.li-rate-val')?.value)||0})).filter(r=>r.desc||r.qty*r.rate>0);
+  const sub=items.reduce((s,r)=>s+r.qty*r.rate,0),tax=sub*(parseFloat(document.getElementById('tax-rate').value)||0)/100,total=sub+tax;
+  const res=document.getElementById('results');
+  res.innerHTML=`<strong style="color:var(--navy);">${document.getElementById('from-name').value||'Quote'} → ${document.getElementById('to-name').value||'Client'}</strong>
+    <div style="font-size:0.82rem;color:var(--muted);margin:0.4rem 0;">Quote #${document.getElementById('quote-number').value} &nbsp;|&nbsp; Valid until: ${document.getElementById('valid-until').value}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin:0.5rem 0;"><thead><tr style="background:var(--navy);color:#fff;"><th style="padding:0.4rem;text-align:left;">Description</th><th style="padding:0.4rem;text-align:right;">Amount</th></tr></thead><tbody>${items.map(r=>`<tr><td style="padding:0.35rem 0.4rem;border-bottom:1px solid var(--border);">${r.desc} ×${r.qty}</td><td style="padding:0.35rem 0.4rem;border-bottom:1px solid var(--border);text-align:right;">${fmt(r.qty*r.rate)}</td></tr>`).join('')}</tbody></table>
+    ${tax>0?`<div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--muted);"><span>Tax</span><span>${fmt(tax)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--navy);border-top:2px solid var(--navy);padding-top:0.4rem;margin-top:0.3rem;"><span>Total</span><span>${fmt(total)}</span></div>
+    <p style="margin-top:0.75rem;font-size:0.78rem;color:var(--muted);">Open the <a href="https://foxmargin.com/quote-generator/" target="_blank">full Quote Generator</a> to add logo, acceptance block, and convert to invoice.</p>`;
+  res.classList.add('show');
+}
+</script>

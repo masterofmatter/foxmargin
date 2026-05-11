@@ -56,7 +56,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 2rem;
+      gap: 1.25rem;
       height: 56px;
     }
     .logo {
@@ -71,20 +71,28 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     nav ul {
       display: flex;
       list-style: none;
-      gap: 0.25rem;
+      gap: 0.15rem;
       flex-wrap: wrap;
     }
     nav ul a {
       color: rgba(255,255,255,0.8);
-      font-size: 0.85rem;
-      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.6rem;
       border-radius: 6px;
       transition: background 0.15s;
+      white-space: nowrap;
     }
     nav ul a:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
     nav ul a.active { color: var(--fox-light); font-weight: 600; }
-    .currency-select {
+    .nav-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.2); margin: 0 0.15rem; align-self: center; flex-shrink: 0; }
+    .nav-right {
       margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .currency-select {
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.2);
       color: rgba(255,255,255,0.85);
@@ -92,10 +100,21 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       padding: 0.25rem 0.5rem;
       border-radius: 5px;
       cursor: pointer;
-      flex-shrink: 0;
     }
     .currency-select:focus { outline: none; border-color: var(--fox-light); }
     .currency-select option { background: var(--navy); color: #fff; }
+    .biz-nav-btn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.78rem;
+      padding: 0.28rem 0.65rem;
+      border-radius: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .biz-nav-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
 
     /* Layout */
     .page-wrap {
@@ -126,7 +145,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       color: var(--navy);
       margin-bottom: 0.4rem;
     }
-    .field input, .field select {
+    .field input, .field select, .field textarea {
       width: 100%;
       padding: 0.6rem 0.85rem;
       border: 1.5px solid var(--border);
@@ -135,8 +154,9 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       color: var(--text);
       background: #fff;
       transition: border-color 0.15s;
+      font-family: inherit;
     }
-    .field input:focus, .field select:focus {
+    .field input:focus, .field select:focus, .field textarea:focus {
       outline: none;
       border-color: var(--fox);
     }
@@ -161,6 +181,10 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       border: 1.5px solid var(--fox);
     }
     .btn-outline:hover { background: var(--fox); color: #fff; }
+    .btn-green {
+      background: #059669;
+    }
+    .btn-green:hover { background: #047857; }
 
     /* Results */
     .results {
@@ -241,6 +265,206 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     details[open] summary::after { content: '−'; }
     details p { margin-top: 0.6rem; font-size: 0.9rem; color: var(--muted); }
 
+    /* Document section labels */
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--fox);
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Address autocomplete */
+    .addr-wrap { position: relative; }
+    .addr-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 7px 7px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      z-index: 200;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .addr-item {
+      padding: 0.6rem 0.85rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      cursor: pointer;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    .addr-item:last-child { border-bottom: none; }
+    .addr-item:hover { background: #f0f7ff; color: var(--navy); }
+
+    /* Business Profile Modal */
+    .biz-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 45, 82, 0.72);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(3px);
+    }
+    .biz-modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+    }
+    .biz-modal-header { margin-bottom: 1.25rem; }
+    .biz-modal-header h3 { font-size: 1.2rem; color: var(--navy); margin-bottom: 0.2rem; }
+    .biz-modal-header p { font-size: 0.83rem; color: var(--muted); margin: 0; }
+    .biz-logo-upload {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: border-color 0.15s, background 0.15s;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .biz-logo-upload:hover { border-color: var(--fox); background: #fff8f5; }
+    .biz-logo-upload span { font-size: 0.82rem; color: var(--muted); }
+    .biz-logo-upload img { max-height: 56px; max-width: 180px; object-fit: contain; }
+    .biz-modal-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-skip {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0.4rem 0;
+    }
+    .btn-skip:hover { color: var(--text); }
+    .biz-profile-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      background: #f0f7ff;
+      border: 1px solid #c3daf9;
+      border-radius: 7px;
+      margin-bottom: 1.25rem;
+      font-size: 0.83rem;
+      color: var(--navy);
+    }
+    .biz-profile-bar button {
+      background: none;
+      border: none;
+      color: var(--fox);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+    .biz-profile-bar button:hover { text-decoration: underline; }
+
+    /* Line items (document generators) */
+    .line-item-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 110px 90px 28px;
+      gap: 0.5rem;
+      align-items: end;
+      margin-bottom: 0.5rem;
+    }
+    @media (max-width: 520px) {
+      .line-item-row { grid-template-columns: 1fr 1fr; }
+      .li-total, .li-remove { grid-column: span 2; }
+    }
+    .li-total-val {
+      display: block;
+      padding: 0.6rem 0.75rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .li-remove-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0.5rem 0.3rem;
+      line-height: 1;
+      align-self: center;
+    }
+    .li-remove-btn:hover { color: #dc2626; }
+
+    /* Document preview shared styles */
+    .doc-preview { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.9rem; color: #1a2332; }
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .doc-title { font-size: 2rem; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+    .doc-meta { text-align: right; }
+    .doc-meta p { margin: 0.1rem 0; font-size: 0.85rem; color: var(--muted); }
+    .doc-meta strong { color: var(--text); }
+    .doc-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+    .doc-parties h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fox); margin-bottom: 0.4rem; }
+    .doc-parties p { margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--muted); }
+    .doc-parties .party-name { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .doc-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    .doc-table th { background: var(--navy); color: #fff; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .doc-table th:last-child, .doc-table td:last-child { text-align: right; }
+    .doc-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--muted); }
+    .doc-totals { margin-left: auto; width: 260px; }
+    .doc-total-row { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.9rem; color: var(--muted); }
+    .doc-total-row.grand { font-size: 1.1rem; font-weight: 700; color: var(--navy); border-top: 2px solid var(--navy); padding-top: 0.5rem; margin-top: 0.25rem; }
+    .doc-total-row.balance-zero { color: #059669; font-weight: 600; }
+    .doc-total-row.balance-owing { color: #dc2626; font-weight: 600; }
+    .doc-notes { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    .doc-notes strong { display: block; margin-bottom: 0.25rem; color: var(--text); }
+    .doc-logo { max-height: 64px; max-width: 200px; object-fit: contain; margin-bottom: 0.5rem; display: block; }
+    .doc-stamp {
+      display: inline-block;
+      border: 3px solid #059669;
+      border-radius: 5px;
+      color: #059669;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      padding: 0.2rem 0.9rem;
+      transform: rotate(-4deg);
+      opacity: 0.88;
+      margin-top: 0.75rem;
+    }
+    .doc-stamp.partial { border-color: #d97706; color: #d97706; }
+    .doc-acceptance {
+      margin-top: 2rem;
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .doc-acceptance h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fox); margin-bottom: 0.85rem; }
+    .doc-sig-line { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .doc-sig-field { flex: 1; min-width: 120px; border-top: 1px solid var(--text); padding-top: 0.35rem; font-size: 0.78rem; color: var(--muted); }
+
     /* Footer */
     footer {
       background: var(--navy);
@@ -252,6 +476,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
     footer a { color: rgba(255,255,255,0.7); }
     footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+
+    @media print {
+      header, footer, .ad-slot, .doc-builder, #ad-below, .card:has(.embed-code-block),
+      .biz-overlay, .print-hide { display: none !important; }
+      .doc-preview-card { display: block !important; border: none !important; box-shadow: none !important; }
+      .page-wrap { padding: 0; }
+    }
   </style>
 </head>
 <body>
@@ -262,16 +493,23 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
         <li><a href="/profit-margin-calculator/">Profit Margin</a></li>
         <li><a href="/break-even-calculator/">Break-Even</a></li>
         <li><a href="/markup-calculator/">Markup</a></li>
+        <li class="nav-divider" style="list-style:none;width:1px;height:18px;background:rgba(255,255,255,0.2);margin:0 0.2rem;"></li>
         <li><a href="/invoice-generator/">Invoice</a></li>
+        <li><a href="/receipt-generator/">Receipt</a></li>
+        <li><a href="/quote-generator/">Quote</a></li>
+        <li><a href="/purchase-order/">Purchase Order</a></li>
       </ul>
-      <select id="currency-select" class="currency-select" onchange="setCurrency(this.value)" aria-label="Currency">
-        <option value="USD">$ USD</option>
-        <option value="GBP">£ GBP</option>
-        <option value="EUR">€ EUR</option>
-        <option value="AUD">A$ AUD</option>
-        <option value="CAD">C$ CAD</option>
-        <option value="INR">₹ INR</option>
-      </select>
+      <div class="nav-right">
+        <button class="biz-nav-btn" onclick="openBizModal()">👤 My Business</button>
+        <select id="currency-select" class="currency-select" onchange="setCurrency(this.value)" aria-label="Currency">
+          <option value="USD">$ USD</option>
+          <option value="GBP">£ GBP</option>
+          <option value="EUR">€ EUR</option>
+          <option value="AUD">A$ AUD</option>
+          <option value="CAD">C$ CAD</option>
+          <option value="INR">₹ INR</option>
+        </select>
+      </div>
     </nav>
   </header>
 
@@ -279,6 +517,45 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     <main>
       <slot />
     </main>
+  </div>
+
+  <!-- Business Profile Modal -->
+  <div id="biz-modal" class="biz-overlay" style="display:none;" onclick="if(event.target===this)closeBizModal()">
+    <div class="biz-modal">
+      <div class="biz-modal-header">
+        <h3>My Business Profile</h3>
+        <p>Saved in your browser — pre-fills every document you create. Never leaves your device.</p>
+      </div>
+      <div class="biz-logo-upload" id="biz-logo-drop" onclick="document.getElementById('biz-logo-input').click()" title="Upload your logo">
+        <img id="biz-logo-preview" style="display:none;" />
+        <span id="biz-logo-placeholder">🖼 Click to upload your logo (PNG, JPG, SVG)</span>
+        <input type="file" id="biz-logo-input" accept="image/*" style="display:none;" />
+      </div>
+      <div class="calc-form" style="gap:0.75rem;">
+        <div class="field-row">
+          <div class="field">
+            <label for="biz-modal-name">Business Name</label>
+            <input type="text" id="biz-modal-name" placeholder="Acme Corp" autocomplete="organization" />
+          </div>
+          <div class="field">
+            <label for="biz-modal-phone">Phone</label>
+            <input type="tel" id="biz-modal-phone" placeholder="+1 (555) 000-0000" autocomplete="tel" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="biz-modal-email">Email</label>
+          <input type="email" id="biz-modal-email" placeholder="hello@yourcompany.com" autocomplete="email" />
+        </div>
+        <div class="field addr-wrap">
+          <label for="biz-modal-address">Business Address</label>
+          <input type="text" id="biz-modal-address" placeholder="Start typing your address…" autocomplete="off" />
+        </div>
+      </div>
+      <div class="biz-modal-actions">
+        <button type="button" class="btn" onclick="saveBizProfile()">Save Profile</button>
+        <button type="button" class="btn-skip" onclick="closeBizModal()">Skip for now</button>
+      </div>
+    </div>
   </div>
 
   <script is:inline>
@@ -301,6 +578,94 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       const sel = document.getElementById('currency-select');
       if (sel) sel.value = window.__currency.code;
     })();
+
+    // ── Business Profile Modal ──
+    function openBizModal() {
+      document.getElementById('biz-modal').style.display = 'flex';
+      _loadBizToModal();
+    }
+    function closeBizModal() {
+      document.getElementById('biz-modal').style.display = 'none';
+      localStorage.setItem('biz_setup_done', '1');
+    }
+    function _loadBizToModal() {
+      document.getElementById('biz-modal-name').value    = localStorage.getItem('biz_name')    || '';
+      document.getElementById('biz-modal-email').value   = localStorage.getItem('biz_email')   || '';
+      document.getElementById('biz-modal-phone').value   = localStorage.getItem('biz_phone')   || '';
+      document.getElementById('biz-modal-address').value = localStorage.getItem('biz_address') || '';
+      const logo = localStorage.getItem('biz_logo');
+      const prev = document.getElementById('biz-logo-preview');
+      const ph   = document.getElementById('biz-logo-placeholder');
+      if (logo) { prev.src = logo; prev.style.display = 'block'; ph.style.display = 'none'; }
+      else       { prev.style.display = 'none'; ph.style.display = 'block'; }
+    }
+    function saveBizProfile() {
+      localStorage.setItem('biz_name',    document.getElementById('biz-modal-name').value.trim());
+      localStorage.setItem('biz_email',   document.getElementById('biz-modal-email').value.trim());
+      localStorage.setItem('biz_phone',   document.getElementById('biz-modal-phone').value.trim());
+      localStorage.setItem('biz_address', document.getElementById('biz-modal-address').value.trim());
+      localStorage.setItem('biz_setup_done', '1');
+      closeBizModal();
+      if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
+    }
+    document.getElementById('biz-logo-input').addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const b64 = e.target.result;
+        localStorage.setItem('biz_logo', b64);
+        const prev = document.getElementById('biz-logo-preview');
+        const ph   = document.getElementById('biz-logo-placeholder');
+        prev.src = b64; prev.style.display = 'block'; ph.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ── Photon Address Autocomplete ──
+    function initAutocomplete(input) {
+      var _timer = null, _drop = null;
+      function removeDrop() { if (_drop) { _drop.remove(); _drop = null; } }
+      input.addEventListener('input', function() {
+        clearTimeout(_timer);
+        var q = input.value.trim();
+        if (q.length < 3) { removeDrop(); return; }
+        _timer = setTimeout(function() {
+          fetch('https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&limit=6')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              removeDrop();
+              if (!data.features || !data.features.length) return;
+              _drop = document.createElement('div');
+              _drop.className = 'addr-dropdown';
+              data.features.forEach(function(f) {
+                var p = f.properties;
+                var street = (p.housenumber ? p.housenumber + ' ' : '') + (p.street || p.name || '');
+                var parts = [street, p.city || p.county, p.state, p.postcode].filter(Boolean);
+                var label = parts.join(', ');
+                if (!label) return;
+                var item = document.createElement('div');
+                item.className = 'addr-item';
+                item.textContent = label;
+                item.addEventListener('mousedown', function(e) {
+                  e.preventDefault();
+                  input.value = label;
+                  removeDrop();
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                _drop.appendChild(item);
+              });
+              var wrap = input.closest('.addr-wrap') || input.parentElement;
+              wrap.style.position = 'relative';
+              wrap.appendChild(_drop);
+            }).catch(function() {});
+        }, 280);
+      });
+      input.addEventListener('blur', function() { setTimeout(removeDrop, 200); });
+    }
+
+    // Init autocomplete on the modal address field
+    initAutocomplete(document.getElementById('biz-modal-address'));
   </script>
   <footer>
     <div class="footer-links">
@@ -309,8 +674,11 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       <a href="/break-even-calculator/">Break-Even</a>
       <a href="/markup-calculator/">Markup</a>
       <a href="/invoice-generator/">Invoice</a>
+      <a href="/receipt-generator/">Receipt</a>
+      <a href="/quote-generator/">Quote</a>
+      <a href="/purchase-order/">Purchase Order</a>
     </div>
-    <p>© {new Date().getFullYear()} FoxMargin.com — Free Business Calculators</p>
+    <p>© {new Date().getFullYear()} FoxMargin.com — Free Business Tools</p>
     <p style="margin-top:0.4rem;font-size:0.75rem;">Results are for informational purposes only. Always verify with a qualified accountant.</p>
   </footer>
 </body>

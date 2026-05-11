@@ -2,14 +2,39 @@
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout
-  title="FoxMargin — Free Business Calculators"
-  description="Free profit margin, break-even, markup, and invoice calculators for small business owners. Fast, accurate, no signup required."
+  title="FoxMargin — Free Business Calculators & Document Generators"
+  description="Free profit margin, break-even, markup calculators plus invoice, receipt, quote, and purchase order generators. Professional tools for small business. No signup."
 >
   <div class="card">
-    <h1>Free Business Calculators</h1>
-    <p>Fast, accurate tools for small business owners. No signup, no ads in the way — just answers.</p>
+    <h1>Free Business Tools</h1>
+    <p>Professional calculators and document generators for small business owners. No signup, no watermarks — just results you can use.</p>
   </div>
 
+  <div class="section-heading">Document Generators</div>
+  <div class="tools-grid">
+    <a href="/invoice-generator/" class="tool-card tool-card-doc">
+      <div class="tool-meta"><span class="tool-tag tool-tag-green">+ Logo & Profile</span></div>
+      <h2>Invoice Generator</h2>
+      <p>Professional invoices with your logo, line items, and tax. Print or save as PDF instantly.</p>
+    </a>
+    <a href="/receipt-generator/" class="tool-card tool-card-doc">
+      <div class="tool-meta"><span class="tool-tag tool-tag-green">PAID Stamp</span></div>
+      <h2>Receipt Generator</h2>
+      <p>Create receipts with payment method, PAID stamp, and balance due. Perfect for any transaction.</p>
+    </a>
+    <a href="/quote-generator/" class="tool-card tool-card-doc">
+      <div class="tool-meta"><span class="tool-tag">→ Convert to Invoice</span></div>
+      <h2>Quote / Estimate Generator</h2>
+      <p>Create professional quotes with validity date and acceptance block. Convert to invoice in one click.</p>
+    </a>
+    <a href="/purchase-order/" class="tool-card tool-card-doc">
+      <div class="tool-meta"><span class="tool-tag">Authorization Block</span></div>
+      <h2>Purchase Order Generator</h2>
+      <p>Full POs with vendor, ship-to, delivery date, payment terms, and authorization signature.</p>
+    </a>
+  </div>
+
+  <div class="section-heading" style="margin-top:1rem;">Calculators</div>
   <div class="tools-grid">
     <a href="/profit-margin-calculator/" class="tool-card">
       <div class="tool-meta"><span class="tool-tag">Most popular</span></div>
@@ -26,22 +51,32 @@ import Layout from '../layouts/Layout.astro';
       <h2>Markup Calculator</h2>
       <p>Set the right price. Convert between markup percentage and profit margin.</p>
     </a>
-    <a href="/invoice-generator/" class="tool-card">
-      <div class="tool-meta"><span class="tool-tag tool-tag-green">Free PDF</span></div>
-      <h2>Invoice Generator</h2>
-      <p>Create a professional invoice in seconds. Print or save as PDF, free.</p>
-    </a>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#0f2d52 0%,#1a4a82 100%);border:none;">
+    <h2 style="color:#fff;margin-bottom:0.5rem;">Save Your Business Profile Once</h2>
+    <p style="color:rgba(255,255,255,0.75);margin-bottom:1rem;">Click "My Business" in the nav to save your logo, name, address, and contact info. Every document you create pre-fills automatically — your data stays in your browser, never on a server.</p>
+    <button class="btn" onclick="openBizModal()" style="background:var(--fox-light);color:#fff;">Set Up My Business Profile</button>
   </div>
 </Layout>
 
 <style>
-  .tools-grid { display: flex; flex-direction: column; gap: 0.85rem; }
+  .section-heading {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    padding-left: 0.1rem;
+  }
+  .tools-grid { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.75rem; }
   .tool-card {
     background: #fff;
     border: 1px solid var(--border);
     border-left: 3px solid transparent;
     border-radius: var(--radius);
-    padding: 1.1rem 1.4rem;
+    padding: 1rem 1.3rem;
     color: var(--text);
     transition: border-color 0.15s, box-shadow 0.15s;
   }
@@ -50,12 +85,14 @@ import Layout from '../layouts/Layout.astro';
     box-shadow: 0 2px 12px rgba(212,80,10,0.08);
     text-decoration: none;
   }
-  .tool-meta { min-height: 1.4rem; margin-bottom: 0.3rem; }
+  .tool-card-doc { border-left-color: var(--border); }
+  .tool-card-doc:hover { border-left-color: var(--fox); }
+  .tool-meta { min-height: 1.4rem; margin-bottom: 0.25rem; }
   .tool-card h2 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
-  .tool-card p { font-size: 0.87rem; color: var(--muted); margin: 0; }
+  .tool-card p { font-size: 0.86rem; color: var(--muted); margin: 0; }
   .tool-tag {
     display: inline-block;
-    font-size: 0.68rem;
+    font-size: 0.67rem;
     font-weight: 700;
     padding: 0.1rem 0.45rem;
     border-radius: 3px;
