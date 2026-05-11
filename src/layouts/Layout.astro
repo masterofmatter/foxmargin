@@ -622,7 +622,8 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       reader.readAsDataURL(file);
     });
 
-    // ── Photon Address Autocomplete ──
+    // ── Mapbox Address Autocomplete ──
+    var MAPBOX_TOKEN = 'YOUR_MAPBOX_TOKEN'; // paste pk.eyJ1... token here
     function initAutocomplete(input) {
       var _timer = null, _drop = null;
       function removeDrop() { if (_drop) { _drop.remove(); _drop = null; } }
@@ -630,8 +631,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
         clearTimeout(_timer);
         var q = input.value.trim();
         if (q.length < 3) { removeDrop(); return; }
+        if (MAPBOX_TOKEN === 'YOUR_MAPBOX_TOKEN') { return; } // token not set yet
         _timer = setTimeout(function() {
-          fetch('https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&limit=6')
+          var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
+            + encodeURIComponent(q)
+            + '.json?access_token=' + MAPBOX_TOKEN
+            + '&autocomplete=true&limit=6&types=address';
+          fetch(url)
             .then(function(r) { return r.json(); })
             .then(function(data) {
               removeDrop();
@@ -639,10 +645,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
               _drop = document.createElement('div');
               _drop.className = 'addr-dropdown';
               data.features.forEach(function(f) {
-                var p = f.properties;
-                var street = (p.housenumber ? p.housenumber + ' ' : '') + (p.street || p.name || '');
-                var parts = [street, p.city || p.county, p.state, p.postcode].filter(Boolean);
-                var label = parts.join(', ');
+                var label = f.place_name || '';
                 if (!label) return;
                 var item = document.createElement('div');
                 item.className = 'addr-item';
