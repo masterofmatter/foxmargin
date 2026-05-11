@@ -5,71 +5,76 @@ import Layout from '../layouts/Layout.astro';
   title="Break-Even Calculator — Free | FoxMargin"
   description="Calculate your break-even point in units and revenue instantly. Enter fixed costs, variable costs, and price per unit. Free business calculator."
 >
-  <div class="card">
+  <!-- Hero -->
+  <section class="calc-hero">
     <h1>Break-Even Calculator</h1>
-    <p>Find exactly how many units you need to sell — or how much revenue you need to generate — to cover all your costs.</p>
-  </div>
+    <p class="calc-hero-sub">Find exactly how many units you need to sell — or how much revenue you need to generate — to cover all your costs.</p>
+  </section>
 
-
-  <div class="card">
-    <h2>Calculate Your Break-Even Point</h2>
-    <div class="calc-form">
-      <div class="field">
-        <label for="fixed">Fixed Costs per Month ($)</label>
-        <input type="number" id="fixed" placeholder="e.g. 5000 (rent, salaries, insurance)" min="0" step="0.01" />
-      </div>
-      <div class="field-row">
+  <!-- Calculator workspace -->
+  <div class="calc-workspace">
+    <!-- Inputs -->
+    <div class="ws-card">
+      <div class="ws-card-label">Inputs</div>
+      <div class="calc-form" style="gap:0.75rem;">
         <div class="field">
-          <label for="variable">Variable Cost per Unit ($)</label>
-          <input type="number" id="variable" placeholder="e.g. 12.00" min="0" step="0.01" />
+          <label for="fixed">Fixed Costs per Month</label>
+          <input type="number" id="fixed" placeholder="e.g. 5000 (rent, salaries, insurance)" min="0" step="0.01" oninput="recalc()" />
         </div>
-        <div class="field">
-          <label for="price">Selling Price per Unit ($)</label>
-          <input type="number" id="price" placeholder="e.g. 30.00" min="0" step="0.01" />
-        </div>
-      </div>
-      <button class="btn" onclick="calculate()">Calculate Break-Even</button>
-    </div>
-
-    <div class="results" id="results">
-      <strong>Results</strong>
-      <div class="results-grid">
-        <div class="result-item result-highlight">
-          <span class="result-value" id="be-units">—</span>
-          <span class="result-label">Units to Break Even</span>
-        </div>
-        <div class="result-item result-highlight">
-          <span class="result-value" id="be-revenue">—</span>
-          <span class="result-label">Revenue to Break Even</span>
-        </div>
-        <div class="result-item">
-          <span class="result-value" id="contribution">—</span>
-          <span class="result-label">Contribution Margin</span>
-        </div>
-        <div class="result-item">
-          <span class="result-value" id="contrib-ratio">—</span>
-          <span class="result-label">Contribution Ratio</span>
+        <div class="field-row">
+          <div class="field">
+            <label for="variable">Variable Cost per Unit</label>
+            <input type="number" id="variable" placeholder="e.g. 12.00" min="0" step="0.01" oninput="recalc()" />
+          </div>
+          <div class="field">
+            <label for="price">Selling Price per Unit</label>
+            <input type="number" id="price" placeholder="e.g. 30.00" min="0" step="0.01" oninput="recalc()" />
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Results -->
+    <div class="ws-card">
+      <div class="ws-card-label">Results</div>
+      <div class="calc-results-grid">
+        <div class="calc-result-item primary">
+          <div class="calc-result-value" id="be-units">—</div>
+          <div class="calc-result-label">Units to Break Even</div>
+        </div>
+        <div class="calc-result-item primary">
+          <div class="calc-result-value" id="be-revenue">—</div>
+          <div class="calc-result-label">Revenue to Break Even</div>
+        </div>
+        <div class="calc-result-item">
+          <div class="calc-result-value" id="contribution">—</div>
+          <div class="calc-result-label">Contribution Margin</div>
+        </div>
+        <div class="calc-result-item">
+          <div class="calc-result-value" id="contrib-ratio">—</div>
+          <div class="calc-result-label">Contribution Ratio</div>
+        </div>
+      </div>
+      <p id="be-warning" class="calc-warning" style="display:none;">Selling price must exceed variable cost per unit — there's no break-even point at this price.</p>
+    </div>
   </div>
 
+  <!-- About / Formula / Fixed vs Variable -->
+  <div class="ws-card">
+    <div class="ws-card-label">About Break-Even Analysis</div>
+    <p class="ws-body">The break-even point is when total revenue equals total costs — you're making zero profit but covering all expenses. Every unit sold beyond break-even is pure profit.</p>
 
-  <div class="card">
-    <h2>What is a Break-Even Point?</h2>
-    <p>The break-even point is when total revenue equals total costs — you're making zero profit but covering all expenses. Every unit sold beyond break-even is pure profit.</p>
-
-    <h2 style="margin-top:1.5rem;">Break-Even Formula</h2>
+    <div class="ws-card-label" style="margin-top:1.5rem;">Formula</div>
     <div class="formula-box">
       <p><strong>Contribution Margin</strong> = Selling Price − Variable Cost per Unit</p>
       <p><strong>Break-Even Units</strong> = Fixed Costs ÷ Contribution Margin</p>
       <p><strong>Break-Even Revenue</strong> = Break-Even Units × Selling Price</p>
     </div>
 
-    <h2 style="margin-top:1.5rem;">Fixed vs Variable Costs</h2>
+    <div class="ws-card-label" style="margin-top:1.5rem;">Fixed vs Variable Costs</div>
     <div class="cost-grid">
       <div class="cost-box">
-        <h3>Fixed Costs</h3>
+        <h4>Fixed Costs</h4>
         <p>Don't change with sales volume</p>
         <ul>
           <li>Rent / lease</li>
@@ -80,7 +85,7 @@ import Layout from '../layouts/Layout.astro';
         </ul>
       </div>
       <div class="cost-box">
-        <h3>Variable Costs</h3>
+        <h4>Variable Costs</h4>
         <p>Increase with each unit sold</p>
         <ul>
           <li>Raw materials</li>
@@ -93,8 +98,9 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </div>
 
-  <div class="card">
-    <h2>Frequently Asked Questions</h2>
+  <!-- FAQ -->
+  <div class="ws-card">
+    <div class="ws-card-label">Frequently Asked Questions</div>
     <details>
       <summary>What if my contribution margin is zero or negative?</summary>
       <p>If your selling price is at or below your variable cost per unit, you lose money on every sale regardless of volume — there is no break-even point. You must either raise your price or reduce variable costs.</p>
@@ -113,75 +119,176 @@ import Layout from '../layouts/Layout.astro';
     </details>
   </div>
 
-  <div class="card">
-    <h2>Embed This Calculator</h2>
-    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
-    <pre id="embed-code" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
+  <!-- Embed -->
+  <div class="ws-card">
+    <div class="ws-card-label">Embed This Calculator</div>
+    <p class="ws-body">Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" class="embed-code"></pre>
     <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
   </div>
 </Layout>
 
 <style>
+  /* ── Calculator hero ── */
+  .calc-hero {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.85rem 2.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .calc-hero h1 {
+    font-size: 1.75rem;
+    color: var(--navy);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .calc-hero-sub { font-size: 0.95rem; color: var(--muted); line-height: 1.55; margin: 0; }
+  @media (max-width: 600px) {
+    .calc-hero { padding: 1.5rem 1.5rem; }
+    .calc-hero h1 { font-size: 1.45rem; }
+  }
+
+  /* ── Calculator workspace ── */
+  .calc-workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 760px) { .calc-workspace { grid-template-columns: 1fr; } }
+
+  /* ── Result tiles ── */
+  .calc-results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .calc-result-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 1.1rem 1rem;
+    text-align: center;
+  }
+  .calc-result-item.primary { background: #fff8f5; border-color: #f5d6c4; }
+  .calc-result-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 0.3rem;
+  }
+  .calc-result-item.primary .calc-result-value { color: var(--fox); }
+  .calc-result-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .calc-warning {
+    margin-top: 1rem;
+    padding: 0.65rem 0.85rem;
+    background: #fef3e6;
+    border: 1px solid #f5d6a1;
+    border-radius: 8px;
+    color: #92400e;
+    font-size: 0.83rem;
+    line-height: 1.5;
+  }
+
+  /* ── Inline body inside ws-cards ── */
+  .ws-body { font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin: 0 0 0.85rem; }
+
+  /* ── Formula box ── */
   .formula-box {
-    background: #f0f7ff;
+    background: #fff8f5;
     border-left: 3px solid var(--fox);
     padding: 0.85rem 1rem;
-    border-radius: 0 6px 6px 0;
-    font-family: monospace;
-    font-size: 0.9rem;
+    border-radius: 0 7px 7px 0;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 0.87rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.45rem;
+    color: var(--text);
   }
-  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem; }
+  .formula-box strong { color: var(--navy); }
+
+  /* ── Fixed vs Variable cost boxes ── */
+  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   @media (max-width: 500px) { .cost-grid { grid-template-columns: 1fr; } }
   .cost-box {
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
+    border-radius: 9px;
+    padding: 1rem 1.1rem;
   }
-  .cost-box h3 { font-size: 0.9rem; color: var(--navy); margin-bottom: 0.25rem; }
-  .cost-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
-  .cost-box ul { list-style: none; }
-  .cost-box ul li { font-size: 0.85rem; color: var(--muted); padding: 0.2rem 0; border-bottom: 1px solid var(--border); }
+  .cost-box h4 { font-size: 0.95rem; color: var(--navy); margin-bottom: 0.25rem; font-weight: 700; }
+  .cost-box > p { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .cost-box ul { list-style: none; padding: 0; margin: 0; }
+  .cost-box ul li {
+    font-size: 0.85rem; color: var(--muted);
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+  }
   .cost-box ul li:last-child { border-bottom: none; }
   .cost-box ul li::before { content: '· '; color: var(--fox); font-weight: 700; }
+
+  /* ── Embed code block ── */
+  .embed-code {
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 0.85rem 1rem; font-size: 0.78rem; overflow-x: auto;
+    white-space: pre-wrap; word-break: break-all; color: var(--muted);
+    line-height: 1.6; margin-bottom: 0.75rem;
+  }
 </style>
 
 <script is:inline>
-function fmt(n, d = 0) {
+function fmt(n, d) {
+  if (typeof d !== 'number') d = 0;
   const c = window.__currency || { locale: 'en-US', code: 'USD' };
   return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
 }
-function calculate() {
-  const fixed = parseFloat(document.getElementById('fixed').value) || 0;
+
+function recalc() {
+  const fixed    = parseFloat(document.getElementById('fixed').value)    || 0;
   const variable = parseFloat(document.getElementById('variable').value) || 0;
-  const price = parseFloat(document.getElementById('price').value) || 0;
+  const price    = parseFloat(document.getElementById('price').value)    || 0;
+  const warn     = document.getElementById('be-warning');
+  const set = (id, v) => document.getElementById(id).textContent = v;
 
   if (fixed <= 0 || price <= 0) {
-    alert('Please enter fixed costs and selling price.');
+    set('be-units', '—'); set('be-revenue', '—'); set('contribution', '—'); set('contrib-ratio', '—');
+    warn.style.display = 'none';
     return;
   }
 
   const contribution = price - variable;
   if (contribution <= 0) {
-    alert('Selling price must be greater than variable cost per unit.');
+    set('be-units', '—'); set('be-revenue', '—'); set('contribution', '—'); set('contrib-ratio', '—');
+    warn.style.display = 'block';
     return;
   }
+  warn.style.display = 'none';
 
   const beUnits = Math.ceil(fixed / contribution);
   const beRevenue = beUnits * price;
   const contribRatio = (contribution / price) * 100;
 
-  document.getElementById('be-units').textContent = beUnits.toLocaleString() + ' units';
-  document.getElementById('be-revenue').textContent = fmt(beRevenue);
-  document.getElementById('contribution').textContent = fmt(contribution) + '/unit';
-  document.getElementById('contrib-ratio').textContent = contribRatio.toFixed(1) + '%';
-  document.getElementById('results').classList.add('show');
+  set('be-units', beUnits.toLocaleString() + ' units');
+  set('be-revenue', fmt(beRevenue));
+  set('contribution', fmt(contribution) + '/unit');
+  set('contrib-ratio', contribRatio.toFixed(1) + '%');
 }
-document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
-document.addEventListener('currencychange', () => { if (document.getElementById('results').classList.contains('show')) calculate(); });
+
+document.addEventListener('currencychange', recalc);
+recalc();
 </script>
 
 <script is:inline>
