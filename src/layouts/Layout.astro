@@ -636,14 +636,11 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       margin-bottom: 0.3rem;
     }
     :global(.li-total-block) {
-      background: #f0f4f8;
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      padding: 0.45rem 0.65rem;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      min-width: 0;
+      justify-content: flex-end;
+      padding-bottom: 0.45rem;
     }
     :global(.li-total-label) {
       font-size: 0.65rem;
@@ -651,9 +648,9 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 0.1rem;
+      margin-bottom: 0.2rem;
     }
-    :global(.li-total-val) { font-size: 0.9rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
+    :global(.li-total-val) { font-size: 0.95rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
     :global(.li-remove-placeholder) { width: 24px; }
     :global(.li-remove-btn) {
       background: none;
