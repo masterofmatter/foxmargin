@@ -2,104 +2,357 @@
 import Layout from '../layouts/Layout.astro';
 ---
 <Layout
-  title="FoxMargin — Free Business Calculators & Document Generators"
-  description="Free profit margin, break-even, markup calculators plus invoice, receipt, quote, and purchase order generators. Professional tools for small business. No signup."
+  title="FoxMargin — Free Invoice, Receipt, Quote & PO Generator"
+  description="Create professional invoices, receipts, quotes, and purchase orders for free. Live preview, your logo, no signup. Plus free profit margin, break-even, and markup calculators."
 >
-  <div class="card">
-    <h1>Free Business Tools</h1>
-    <p>Professional calculators and document generators for small business owners. No signup, no watermarks — just results you can use.</p>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Free invoices, receipts, quotes & purchase orders.</h1>
+      <p class="hero-sub">Print-ready business documents in seconds. Live preview as you type. Your data stays in your browser — no signup, no watermark, no catch.</p>
+      <div class="hero-ctas">
+        <a href="/invoice-generator/" class="btn-cta">Start an Invoice →</a>
+        <a href="#tools" class="btn-cta-link">See all tools ↓</a>
+      </div>
+      <div class="hero-chips">
+        <span>🔒 Browser-only</span>
+        <span>⚡ Live preview</span>
+        <span>✓ Free forever</span>
+        <span>🖨 Print to PDF</span>
+      </div>
+    </div>
+    <div class="hero-mock-wrap" aria-hidden="true">
+      <div class="hero-mock">
+        <div class="mock-header">
+          <div class="mock-biz">
+            <div class="mock-logo">🦊</div>
+            <div class="mock-name">Acme Co.</div>
+          </div>
+          <div class="mock-doc-type">INVOICE</div>
+        </div>
+        <div class="mock-divider"></div>
+        <div class="mock-section-label">Bill To</div>
+        <div class="mock-line w-65"></div>
+        <div class="mock-line w-50"></div>
+        <div class="mock-line w-40"></div>
+        <div class="mock-table-head"></div>
+        <div class="mock-table-row"></div>
+        <div class="mock-table-row w-85"></div>
+        <div class="mock-table-row w-70 dim"></div>
+        <div class="mock-totals">
+          <div class="mock-total-row"></div>
+          <div class="mock-total-row"></div>
+          <div class="mock-total-grand"></div>
+        </div>
+        <div class="mock-fade"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Business profile invite -->
+  <a class="profile-invite" href="#" onclick="openBizModal(); return false;">
+    <span class="profile-invite-icon">👤</span>
+    <span class="profile-invite-text"><strong>Save your business profile.</strong> Your logo and address pre-fill every document you create — takes 30 seconds.</span>
+    <span class="profile-invite-cta">Set up →</span>
+  </a>
+
+  <!-- Document generators -->
+  <h2 id="tools" class="section-h">Document Generators</h2>
+  <div class="doc-grid">
+    <a href="/invoice-generator/" class="doc-card">
+      <div class="doc-pill doc-pill-invoice">INVOICE</div>
+      <h3>Invoice Generator</h3>
+      <p>Bill clients with line items, multi-tax, your logo, and an international Bill To. Live paper preview updates as you type.</p>
+      <div class="doc-chips">
+        <span>✓ Logo & profile</span>
+        <span>✓ Multi-tax</span>
+        <span>✓ Print to PDF</span>
+      </div>
+      <span class="doc-cta">Open Invoice Generator →</span>
+    </a>
+
+    <a href="/receipt-generator/" class="doc-card">
+      <div class="doc-pill doc-pill-receipt">RECEIPT</div>
+      <h3>Receipt Generator</h3>
+      <p>Acknowledge a payment with method, items, a PAID stamp, and balance due. Handles full, partial, and unpaid balances.</p>
+      <div class="doc-chips">
+        <span>✓ PAID stamp</span>
+        <span>✓ Partial payments</span>
+        <span>✓ Print to PDF</span>
+      </div>
+      <span class="doc-cta">Open Receipt Generator →</span>
+    </a>
+
+    <a href="/quote-generator/" class="doc-card">
+      <div class="doc-pill doc-pill-quote">QUOTE</div>
+      <h3>Quote / Estimate Generator</h3>
+      <p>Send a quote with a validity date and acceptance block. When accepted, convert it to an invoice with one click — all data carries over.</p>
+      <div class="doc-chips">
+        <span>✓ Acceptance block</span>
+        <span>✓ Convert to invoice</span>
+        <span>✓ Print to PDF</span>
+      </div>
+      <span class="doc-cta">Open Quote Generator →</span>
+    </a>
+
+    <a href="/purchase-order/" class="doc-card">
+      <div class="doc-pill doc-pill-po">PO</div>
+      <h3>Purchase Order Generator</h3>
+      <p>Issue POs to vendors with bill-to, optional ship-to, payment terms, shipping cost, and a signed authorization block.</p>
+      <div class="doc-chips">
+        <span>✓ Ship-to address</span>
+        <span>✓ Authorization</span>
+        <span>✓ Print to PDF</span>
+      </div>
+      <span class="doc-cta">Open PO Generator →</span>
+    </a>
   </div>
 
-  <div class="section-heading">Document Generators</div>
-  <div class="tools-grid">
-    <a href="/invoice-generator/" class="tool-card tool-card-doc">
-      <div class="tool-meta"><span class="tool-tag tool-tag-green">+ Logo & Profile</span></div>
-      <h2>Invoice Generator</h2>
-      <p>Professional invoices with your logo, line items, and tax. Print or save as PDF instantly.</p>
-    </a>
-    <a href="/receipt-generator/" class="tool-card tool-card-doc">
-      <div class="tool-meta"><span class="tool-tag tool-tag-green">PAID Stamp</span></div>
-      <h2>Receipt Generator</h2>
-      <p>Create receipts with payment method, PAID stamp, and balance due. Perfect for any transaction.</p>
-    </a>
-    <a href="/quote-generator/" class="tool-card tool-card-doc">
-      <div class="tool-meta"><span class="tool-tag">→ Convert to Invoice</span></div>
-      <h2>Quote / Estimate Generator</h2>
-      <p>Create professional quotes with validity date and acceptance block. Convert to invoice in one click.</p>
-    </a>
-    <a href="/purchase-order/" class="tool-card tool-card-doc">
-      <div class="tool-meta"><span class="tool-tag">Authorization Block</span></div>
-      <h2>Purchase Order Generator</h2>
-      <p>Full POs with vendor, ship-to, delivery date, payment terms, and authorization signature.</p>
-    </a>
-  </div>
-
-  <div class="section-heading" style="margin-top:1rem;">Calculators</div>
-  <div class="tools-grid">
-    <a href="/profit-margin-calculator/" class="tool-card">
-      <div class="tool-meta"><span class="tool-tag">Most popular</span></div>
-      <h2>Profit Margin Calculator</h2>
+  <!-- Calculators -->
+  <h2 id="calculators" class="section-h section-h-sub">Calculators</h2>
+  <p class="section-sub">Quick decisions for pricing, margin, and break-even.</p>
+  <div class="calc-grid">
+    <a href="/profit-margin-calculator/" class="calc-card">
+      <h4>Profit Margin</h4>
       <p>Calculate gross margin, net margin, and profit from revenue and cost.</p>
     </a>
-    <a href="/break-even-calculator/" class="tool-card">
-      <div class="tool-meta"></div>
-      <h2>Break-Even Calculator</h2>
-      <p>Find exactly how many units you need to sell to cover your costs.</p>
+    <a href="/break-even-calculator/" class="calc-card">
+      <h4>Break-Even</h4>
+      <p>Find how many units you need to sell to cover fixed and variable costs.</p>
     </a>
-    <a href="/markup-calculator/" class="tool-card">
-      <div class="tool-meta"></div>
-      <h2>Markup Calculator</h2>
-      <p>Set the right price. Convert between markup percentage and profit margin.</p>
+    <a href="/markup-calculator/" class="calc-card">
+      <h4>Markup</h4>
+      <p>Convert between markup percentage and profit margin. Set the right price.</p>
     </a>
   </div>
 
-  <div class="card" style="background:linear-gradient(135deg,#0f2d52 0%,#1a4a82 100%);border:none;">
-    <h2 style="color:#fff;margin-bottom:0.5rem;">Save Your Business Profile Once</h2>
-    <p style="color:rgba(255,255,255,0.75);margin-bottom:1rem;">Click "My Business" in the nav to save your logo, name, address, and contact info. Every document you create pre-fills automatically — your data stays in your browser, never on a server.</p>
-    <button class="btn" onclick="openBizModal()" style="background:var(--fox-light);color:#fff;">Set Up My Business Profile</button>
-  </div>
 </Layout>
 
+
 <style>
-  .section-heading {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 0.6rem;
-    padding-left: 0.1rem;
-  }
-  .tools-grid { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.75rem; }
-  .tool-card {
+  /* ── HERO ── */
+  .hero {
     background: #fff;
     border: 1px solid var(--border);
-    border-left: 3px solid transparent;
-    border-radius: var(--radius);
-    padding: 1rem 1.3rem;
-    color: var(--text);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    border-radius: 14px;
+    padding: 2.25rem 2.5rem;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 2.5rem;
+    align-items: center;
   }
-  .tool-card:hover {
-    border-left-color: var(--fox);
-    box-shadow: 0 2px 12px rgba(212,80,10,0.08);
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; padding: 1.75rem 1.5rem; gap: 1.5rem; }
+    .hero-mock-wrap { display: none; }
+  }
+  .hero h1 {
+    font-size: 2.1rem;
+    line-height: 1.15;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.85rem;
+    font-weight: 800;
+  }
+  @media (max-width: 760px) { .hero h1 { font-size: 1.55rem; } }
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 1.4rem;
+  }
+  .hero-ctas { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .btn-cta {
+    background: var(--fox);
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.15s;
+    display: inline-block;
     text-decoration: none;
   }
-  .tool-card-doc { border-left-color: var(--border); }
-  .tool-card-doc:hover { border-left-color: var(--fox); }
-  .tool-meta { min-height: 1.4rem; margin-bottom: 0.25rem; }
-  .tool-card h2 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
-  .tool-card p { font-size: 0.86rem; color: var(--muted); margin: 0; }
-  .tool-tag {
-    display: inline-block;
-    font-size: 0.67rem;
-    font-weight: 700;
-    padding: 0.1rem 0.45rem;
-    border-radius: 3px;
-    background: #fff3e0;
-    color: var(--fox);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .btn-cta:hover { background: var(--fox-light); text-decoration: none; color: #fff; }
+  .btn-cta-link { color: var(--navy); font-weight: 600; font-size: 0.9rem; text-decoration: none; }
+  .btn-cta-link:hover { color: var(--fox); text-decoration: none; }
+  .hero-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .hero-chips span {
+    font-size: 0.78rem;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 0.3rem 0.65rem;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
   }
-  .tool-tag-green { background: #e8f5e9; color: #2e7d32; }
+
+  /* Hero ghost-paper mockup */
+  .hero-mock-wrap { display: flex; align-items: center; justify-content: center; }
+  .hero-mock {
+    background: #fff;
+    border: 1px solid #d0d7e2;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08), 0 18px 38px rgba(0,0,0,0.10);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 240px;
+    aspect-ratio: 8.5 / 11;
+    padding: 8% 9%;
+    position: relative;
+    overflow: hidden;
+    font-size: 8px;
+    color: var(--text);
+  }
+  .mock-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6%; }
+  .mock-biz { display: flex; align-items: center; gap: 0.4em; }
+  .mock-logo { font-size: 2.2em; line-height: 1; }
+  .mock-name { font-size: 1.15em; font-weight: 700; color: var(--text); }
+  .mock-doc-type { font-size: 2em; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; line-height: 1; }
+  .mock-divider { border-top: 1.5px solid var(--navy); margin: 4% 0; }
+  .mock-section-label { font-size: 0.82em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fox); margin-bottom: 2.2%; }
+  .mock-line { height: 0.85em; background: #e4e9f0; border-radius: 3px; margin-bottom: 1.4%; }
+  .mock-line.w-65 { width: 62%; }
+  .mock-line.w-50 { width: 48%; }
+  .mock-line.w-40 { width: 36%; }
+  .mock-table-head { height: 1.6em; background: var(--navy); border-radius: 2px; margin: 4.5% 0 1.5%; opacity: 0.88; }
+  .mock-table-row { height: 1.1em; background: #e4e9f0; border-radius: 2px; margin-bottom: 1.4%; }
+  .mock-table-row.w-85 { width: 85%; }
+  .mock-table-row.w-70 { width: 70%; }
+  .mock-table-row.dim { opacity: 0.55; }
+  .mock-totals { margin-left: 55%; margin-top: 3.5%; }
+  .mock-total-row { height: 0.9em; background: #e4e9f0; border-radius: 2px; margin-bottom: 1.6%; }
+  .mock-total-grand { height: 1.35em; background: var(--navy); border-radius: 2px; opacity: 0.78; }
+  .mock-fade {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 22%;
+    background: linear-gradient(to bottom, transparent 0%, #fff 92%);
+    pointer-events: none;
+  }
+
+  /* ── PROFILE INVITE BAR ── */
+  .profile-invite {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: #fff8f5;
+    border: 1px solid #f5d6c4;
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 1.75rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .profile-invite:hover { border-color: var(--fox); background: #fff3eb; text-decoration: none; color: var(--text); }
+  .profile-invite-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .profile-invite-text { flex: 1; font-size: 0.9rem; color: var(--text); line-height: 1.45; }
+  .profile-invite-text strong { color: var(--navy); }
+  .profile-invite-cta { color: var(--fox); font-weight: 700; font-size: 0.88rem; flex-shrink: 0; white-space: nowrap; }
+  @media (max-width: 520px) {
+    .profile-invite { flex-direction: column; align-items: flex-start; }
+    .profile-invite-cta { align-self: flex-end; }
+  }
+
+  /* ── SECTION HEADINGS ── */
+  .section-h {
+    font-size: 1.15rem;
+    color: var(--navy);
+    font-weight: 700;
+    margin: 0 0 0.85rem;
+  }
+  .section-h-sub { margin-top: 2.25rem; }
+  .section-sub { font-size: 0.88rem; color: var(--muted); margin: -0.4rem 0 1rem; }
+
+  /* ── DOC CARDS ── */
+  .doc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 720px) { .doc-grid { grid-template-columns: 1fr; } }
+  .doc-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.5rem;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  .doc-card:hover {
+    border-color: var(--fox);
+    box-shadow: 0 4px 16px rgba(212,80,10,0.12);
+    text-decoration: none;
+    transform: translateY(-1px);
+    color: var(--text);
+  }
+  .doc-pill {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.85rem;
+    align-self: flex-start;
+  }
+  .doc-pill-invoice { background: #fff3e0; color: var(--fox); }
+  .doc-pill-receipt { background: #e8f5e9; color: #2e7d32; }
+  .doc-pill-quote   { background: #e3f2fd; color: #1565c0; }
+  .doc-pill-po      { background: #ede7f6; color: #5e35b1; }
+  .doc-card h3 {
+    font-size: 1.1rem;
+    color: var(--navy);
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+  }
+  .doc-card p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 0.9rem;
+    flex: 1;
+  }
+  .doc-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+  .doc-chips span {
+    font-size: 0.72rem;
+    background: var(--bg);
+    color: var(--text);
+    padding: 0.22rem 0.55rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .doc-cta { color: var(--fox); font-size: 0.88rem; font-weight: 700; }
+
+  /* ── CALC CARDS ── */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 720px) { .calc-grid { grid-template-columns: 1fr; } }
+  .calc-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .calc-card:hover { border-color: var(--fox); background: #fffaf7; text-decoration: none; color: var(--text); }
+  .calc-card h4 {
+    font-size: 0.95rem;
+    color: var(--navy);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .calc-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin: 0; }
 </style>

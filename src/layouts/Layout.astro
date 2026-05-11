@@ -70,14 +70,19 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     .logo:hover { text-decoration: none; }
     nav ul {
       display: flex;
+      align-items: center;
       list-style: none;
       gap: 0.15rem;
       flex-wrap: wrap;
     }
+    nav ul li { display: flex; align-items: center; }
     nav ul a {
+      display: inline-flex;
+      align-items: center;
       color: rgba(255,255,255,0.8);
       font-size: 0.82rem;
-      padding: 0.3rem 0.6rem;
+      line-height: 1;
+      padding: 0.45rem 0.6rem;
       border-radius: 6px;
       transition: background 0.15s;
       white-space: nowrap;
@@ -85,6 +90,54 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     nav ul a:hover { background: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
     nav ul a.active { color: var(--fox-light); font-weight: 600; }
     .nav-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.2); margin: 0 0.15rem; align-self: center; flex-shrink: 0; }
+
+    /* Calculators dropdown */
+    .nav-dd-item { position: relative; }
+    .nav-dropdown { display: inline-block; border: none; padding: 0; }
+    .nav-dropdown summary {
+      list-style: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.82rem;
+      font-weight: 400;
+      line-height: 1;
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      outline: none;
+      transition: background 0.15s;
+    }
+    .nav-dropdown summary::-webkit-details-marker { display: none; }
+    .nav-dropdown summary::after { content: '▾'; font-size: 0.7rem; opacity: 0.7; }
+    .nav-dropdown summary:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-dropdown summary:focus-visible { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-dropdown[open] summary { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-dropdown-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+      padding: 0.4rem;
+      min-width: 180px;
+      z-index: 200;
+    }
+    nav .nav-dropdown-panel a {
+      display: block;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.85rem;
+      line-height: 1.2;
+      color: var(--text);
+      background: transparent;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    nav .nav-dropdown-panel a:hover { background: var(--bg); color: var(--fox); text-decoration: none; }
     .nav-right {
       margin-left: auto;
       display: flex;
@@ -92,17 +145,6 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       gap: 0.5rem;
       flex-shrink: 0;
     }
-    .currency-select {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.85);
-      font-size: 0.82rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .currency-select:focus { outline: none; border-color: var(--fox-light); }
-    .currency-select option { background: var(--navy); color: #fff; }
     .biz-nav-btn {
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.2);
@@ -779,25 +821,24 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     <nav>
       <a href="/" class="logo"><span class="logo-icon">🦊</span>Fox<span>Margin</span></a>
       <ul>
-        <li><a href="/profit-margin-calculator/">Profit Margin</a></li>
-        <li><a href="/break-even-calculator/">Break-Even</a></li>
-        <li><a href="/markup-calculator/">Markup</a></li>
-        <li class="nav-divider" style="list-style:none;width:1px;height:18px;background:rgba(255,255,255,0.2);margin:0 0.2rem;"></li>
         <li><a href="/invoice-generator/">Invoice</a></li>
         <li><a href="/receipt-generator/">Receipt</a></li>
         <li><a href="/quote-generator/">Quote</a></li>
         <li><a href="/purchase-order/">Purchase Order</a></li>
+        <li class="nav-divider" style="list-style:none;width:1px;height:18px;background:rgba(255,255,255,0.2);margin:0 0.2rem;"></li>
+        <li class="nav-dd-item">
+          <details class="nav-dropdown">
+            <summary>Calculators</summary>
+            <div class="nav-dropdown-panel">
+              <a href="/profit-margin-calculator/">Profit Margin</a>
+              <a href="/break-even-calculator/">Break-Even</a>
+              <a href="/markup-calculator/">Markup</a>
+            </div>
+          </details>
+        </li>
       </ul>
       <div class="nav-right">
         <button class="biz-nav-btn" onclick="openBizModal()">👤 My Business</button>
-        <select id="currency-select" class="currency-select" onchange="setCurrency(this.value)" aria-label="Currency">
-          <option value="USD">$ USD</option>
-          <option value="GBP">£ GBP</option>
-          <option value="EUR">€ EUR</option>
-          <option value="AUD">A$ AUD</option>
-          <option value="CAD">C$ CAD</option>
-          <option value="INR">₹ INR</option>
-        </select>
       </div>
     </nav>
   </header>
@@ -841,21 +882,22 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
               <label for="biz-modal-email">Email</label>
               <input type="email" id="biz-modal-email" placeholder="hello@yourcompany.com" autocomplete="email" oninput="updateBizPreview()" />
             </div>
-            <div class="field">
-              <label for="biz-modal-country">Country</label>
-              <select id="biz-modal-country" autocomplete="country" onchange="updateAddrLabels();updateBizPreview()">
-                <optgroup label="Popular">
-                  <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="AU">Australia</option>
-                  <option value="NZ">New Zealand</option>
-                  <option value="IE">Ireland</option>
-                  <option value="IN">India</option>
-                  <option value="SG">Singapore</option>
-                  <option value="ZA">South Africa</option>
-                  <option value="NG">Nigeria</option>
-                </optgroup>
+            <div class="field-row">
+              <div class="field">
+                <label for="biz-modal-country">Country</label>
+                <select id="biz-modal-country" autocomplete="country" onchange="updateAddrLabels();updateBizPreview()">
+                  <optgroup label="Popular">
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="IE">Ireland</option>
+                    <option value="IN">India</option>
+                    <option value="SG">Singapore</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="NG">Nigeria</option>
+                  </optgroup>
                 <optgroup label="Europe">
                   <option value="AT">Austria</option>
                   <option value="BE">Belgium</option>
@@ -931,6 +973,18 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
                   <option value="ZW">Zimbabwe</option>
                 </optgroup>
               </select>
+            </div>
+            <div class="field">
+              <label for="biz-modal-currency">Currency</label>
+              <select id="biz-modal-currency" onchange="updateBizPreview()">
+                <option value="USD">$ USD</option>
+                <option value="GBP">£ GBP</option>
+                <option value="EUR">€ EUR</option>
+                <option value="AUD">A$ AUD</option>
+                <option value="CAD">C$ CAD</option>
+                <option value="INR">₹ INR</option>
+              </select>
+            </div>
             </div>
             <div class="field">
               <label for="biz-modal-street">Street Address</label>
@@ -1016,6 +1070,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       const sel = document.getElementById('currency-select');
       if (sel) sel.value = window.__currency.code;
     })();
+
+    // Close nav dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.nav-dropdown[open]').forEach(function(d) {
+        if (!d.contains(e.target)) d.removeAttribute('open');
+      });
+    });
 
     // ── Business Profile Modal ──
     var ADDR_CONFIG = {
@@ -1119,6 +1180,8 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     function _loadBizToModal() {
       var countrySel = document.getElementById('biz-modal-country');
       if (countrySel) countrySel.value = localStorage.getItem('biz_country') || 'US';
+      var currencySel = document.getElementById('biz-modal-currency');
+      if (currencySel) currencySel.value = localStorage.getItem('preferred_currency') || 'USD';
       document.getElementById('biz-modal-name').value   = localStorage.getItem('biz_name')   || '';
       document.getElementById('biz-modal-email').value  = localStorage.getItem('biz_email')  || '';
       document.getElementById('biz-modal-phone').value  = localStorage.getItem('biz_phone')  || '';
@@ -1143,6 +1206,8 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       localStorage.setItem('biz_city',    document.getElementById('biz-modal-city').value.trim());
       localStorage.setItem('biz_state',   document.getElementById('biz-modal-state').value.trim());
       localStorage.setItem('biz_zip',     document.getElementById('biz-modal-zip').value.trim());
+      var currencySel = document.getElementById('biz-modal-currency');
+      if (currencySel) setCurrency(currencySel.value);
       localStorage.setItem('biz_setup_done', '1');
       closeBizModal();
       if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
@@ -1264,13 +1329,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
   <footer>
     <div class="footer-links">
       <a href="/">Home</a>
-      <a href="/profit-margin-calculator/">Profit Margin</a>
-      <a href="/break-even-calculator/">Break-Even</a>
-      <a href="/markup-calculator/">Markup</a>
       <a href="/invoice-generator/">Invoice</a>
       <a href="/receipt-generator/">Receipt</a>
       <a href="/quote-generator/">Quote</a>
       <a href="/purchase-order/">Purchase Order</a>
+      <a href="/profit-margin-calculator/">Profit Margin</a>
+      <a href="/break-even-calculator/">Break-Even</a>
+      <a href="/markup-calculator/">Markup</a>
     </div>
     <p>© {new Date().getFullYear()} FoxMargin.com — Free Business Tools</p>
     <p style="margin-top:0.4rem;font-size:0.75rem;">Results are for informational purposes only. Always verify with a qualified accountant.</p>
