@@ -103,6 +103,13 @@ import Layout from '../layouts/Layout.astro';
       <p>No — this calculates pre-tax margin. To get after-tax net margin, subtract your tax rate from the net profit figure before dividing by revenue.</p>
     </details>
   </div>
+
+  <div class="card">
+    <h2>Embed This Calculator</h2>
+    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
 </Layout>
 
 <style>
@@ -155,4 +162,15 @@ function calculate() {
 
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
 document.addEventListener('currencychange', () => { if (document.getElementById('results').classList.contains('show')) calculate(); });
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/profit-margin-calculator/" width="100%" height="450" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="Profit Margin Calculator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
 </script>

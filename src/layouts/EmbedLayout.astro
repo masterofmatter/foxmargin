@@ -1,0 +1,101 @@
+---
+export interface Props {
+  title: string;
+  fullUrl: string;
+  fullLabel: string;
+}
+const { title, fullUrl, fullLabel } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f2d52;
+      --fox: #d4500a;
+      --fox-light: #f0884a;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --border: #e1e8ed;
+      --text: #1a2332;
+      --muted: #6b7c93;
+      --radius: 10px;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--fox); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .embed-wrap { padding: 1rem 1rem 0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+    .card h2 { font-size: 1.05rem; color: var(--navy); margin-bottom: 0.85rem; }
+    .card p { color: var(--muted); margin-bottom: 0.75rem; font-size: 0.9rem; }
+    .calc-form { display: flex; flex-direction: column; gap: 0.85rem; }
+    .field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--navy); margin-bottom: 0.35rem; }
+    .field input, .field select { width: 100%; padding: 0.55rem 0.75rem; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.95rem; color: var(--text); background: #fff; transition: border-color 0.15s; }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--fox); }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+    @media (max-width: 420px) { .field-row { grid-template-columns: 1fr; } }
+    .btn { background: var(--fox); color: #fff; border: none; padding: 0.65rem 1.25rem; border-radius: 7px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.15s; align-self: flex-start; }
+    .btn:hover { background: var(--fox-light); }
+    .btn-outline { background: transparent; color: var(--fox); border: 1.5px solid var(--fox); }
+    .btn-outline:hover { background: var(--fox); color: #fff; }
+    .results { display: none; margin-top: 1rem; padding: 1rem; background: #f0f7ff; border: 1.5px solid #c3daf9; border-radius: var(--radius); }
+    .results.show { display: block; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-top: 0.6rem; }
+    .result-item { text-align: center; }
+    .result-value { font-size: 1.35rem; font-weight: 700; color: var(--navy); display: block; }
+    .result-label { font-size: 0.7rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
+    .result-highlight .result-value { color: var(--fox); }
+    .mode-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+    .tab { background: none; border: none; padding: 0.5rem 0.85rem; font-size: 0.85rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 500; }
+    .tab.active { color: var(--fox); border-bottom-color: var(--fox); font-weight: 600; }
+    .section-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fox); padding-bottom: 0.25rem; border-bottom: 1px solid var(--border); }
+    .line-item-row { display: grid; grid-template-columns: 1fr 72px 96px 80px; gap: 0.5rem; align-items: end; margin-bottom: 0.5rem; }
+    @media (max-width: 500px) { .line-item-row { grid-template-columns: 1fr 1fr; } .li-total { grid-column: span 2; } }
+    .li-total-val { display: block; padding: 0.55rem 0.75rem; background: var(--bg); border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.95rem; font-weight: 600; color: var(--navy); }
+    .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .inv-title { font-size: 1.6rem; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+    .inv-meta { text-align: right; }
+    .inv-meta p { margin: 0.1rem 0; font-size: 0.82rem; color: var(--muted); }
+    .inv-meta strong { color: var(--text); }
+    .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .inv-parties h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fox); margin-bottom: 0.3rem; }
+    .inv-parties p { margin: 0; font-size: 0.85rem; line-height: 1.5; color: var(--muted); }
+    .inv-parties .party-name { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; }
+    .inv-table th { background: var(--navy); color: #fff; padding: 0.45rem 0.65rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .inv-table th:last-child, .inv-table td:last-child { text-align: right; }
+    .inv-table td { padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--muted); }
+    .inv-totals { margin-left: auto; width: 240px; }
+    .inv-total-row { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.88rem; color: var(--muted); }
+    .inv-total-row.grand { font-size: 1.05rem; font-weight: 700; color: var(--navy); border-top: 2px solid var(--navy); padding-top: 0.4rem; margin-top: 0.2rem; }
+    .inv-notes { margin-top: 1.5rem; padding-top: 0.85rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--muted); }
+    .inv-notes strong { display: block; margin-bottom: 0.2rem; color: var(--text); }
+    .embed-bar { text-align: center; padding: 0.55rem 1rem; font-size: 0.73rem; color: var(--muted); border-top: 1px solid var(--border); background: #fff; }
+    .embed-bar a { color: var(--fox); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="embed-wrap">
+    <slot />
+  </div>
+  <div class="embed-bar">
+    <a href={fullUrl} target="_blank" rel="noopener">{fullLabel}</a> — free at <a href="https://foxmargin.com" target="_blank" rel="noopener">FoxMargin.com</a>
+  </div>
+  <script is:inline>
+    window.__CURRENCIES = [
+      { code: 'USD', locale: 'en-US', symbol: '$' },
+      { code: 'GBP', locale: 'en-GB', symbol: '£' },
+      { code: 'EUR', locale: 'de-DE', symbol: '€' },
+      { code: 'AUD', locale: 'en-AU', symbol: 'A$' },
+      { code: 'CAD', locale: 'en-CA', symbol: 'C$' },
+      { code: 'INR', locale: 'en-IN', symbol: '₹' },
+    ];
+    const saved = localStorage.getItem('preferred_currency');
+    window.__currency = (saved && window.__CURRENCIES.find(c => c.code === saved)) || window.__CURRENCIES[0];
+  </script>
+</body>
+</html>

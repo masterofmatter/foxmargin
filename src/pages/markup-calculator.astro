@@ -114,6 +114,13 @@ import Layout from '../layouts/Layout.astro';
       <p>Use this formula: Markup % = Margin % ÷ (1 − Margin %). So a 40% target margin = 40 ÷ 0.60 = 66.7% markup. The reverse: Margin % = Markup % ÷ (1 + Markup %).</p>
     </details>
   </div>
+
+  <div class="card">
+    <h2>Embed This Calculator</h2>
+    <p>Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" style="background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem;"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
 </Layout>
 
 <style>
@@ -189,4 +196,15 @@ document.addEventListener('currencychange', () => {
     document.getElementById('mode-markup').style.display !== 'none' ? calcFromMarkup() : calcReverse();
   }
 });
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/markup-calculator/" width="100%" height="420" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="Markup Calculator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
 </script>

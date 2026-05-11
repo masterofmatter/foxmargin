@@ -1,0 +1,104 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Markup Calculator — FoxMargin"
+  fullUrl="https://foxmargin.com/markup-calculator/"
+  fullLabel="Markup Calculator"
+>
+  <div class="card">
+    <h2>Markup Calculator</h2>
+    <div class="mode-tabs" style="margin-bottom:1rem;">
+      <button class="tab active" onclick="setMode('markup')">Cost + Markup %</button>
+      <button class="tab" onclick="setMode('reverse')">Cost + Selling Price</button>
+    </div>
+
+    <div id="mode-markup" class="calc-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="cost1">Cost ($)</label>
+          <input type="number" id="cost1" placeholder="e.g. 25.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="markup-pct">Markup (%)</label>
+          <input type="number" id="markup-pct" placeholder="e.g. 50" min="0" step="0.1" />
+        </div>
+      </div>
+      <button class="btn" onclick="calcFromMarkup()">Calculate Price</button>
+    </div>
+
+    <div id="mode-reverse" class="calc-form" style="display:none;">
+      <div class="field-row">
+        <div class="field">
+          <label for="cost2">Cost ($)</label>
+          <input type="number" id="cost2" placeholder="e.g. 25.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="sell-price">Selling Price ($)</label>
+          <input type="number" id="sell-price" placeholder="e.g. 40.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <button class="btn" onclick="calcReverse()">Calculate Markup</button>
+    </div>
+
+    <div class="results" id="results">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="res-price">—</span>
+          <span class="result-label">Selling Price</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="res-profit">—</span>
+          <span class="result-label">Profit</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="res-markup">—</span>
+          <span class="result-label">Markup %</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="res-margin">—</span>
+          <span class="result-label">Margin %</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+function fmt(n, d = 2) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+}
+function setMode(mode) {
+  document.getElementById('mode-markup').style.display = mode === 'markup' ? 'flex' : 'none';
+  document.getElementById('mode-reverse').style.display = mode === 'reverse' ? 'flex' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (mode === 'markup') === (i === 0)));
+  document.getElementById('results').classList.remove('show');
+}
+function showResults(price, profit, markup, margin) {
+  document.getElementById('res-price').textContent = fmt(price);
+  document.getElementById('res-profit').textContent = fmt(profit);
+  document.getElementById('res-markup').textContent = markup.toFixed(1) + '%';
+  document.getElementById('res-margin').textContent = margin.toFixed(1) + '%';
+  document.getElementById('results').classList.add('show');
+}
+function calcFromMarkup() {
+  const cost = parseFloat(document.getElementById('cost1').value) || 0;
+  const markupPct = parseFloat(document.getElementById('markup-pct').value) || 0;
+  if (cost <= 0) { alert('Please enter a cost.'); return; }
+  const price = cost * (1 + markupPct / 100);
+  const profit = price - cost;
+  const margin = (profit / price) * 100;
+  showResults(price, profit, markupPct, margin);
+}
+function calcReverse() {
+  const cost = parseFloat(document.getElementById('cost2').value) || 0;
+  const price = parseFloat(document.getElementById('sell-price').value) || 0;
+  if (cost <= 0 || price <= cost) { alert('Selling price must be greater than cost.'); return; }
+  const profit = price - cost;
+  const markup = (profit / cost) * 100;
+  const margin = (profit / price) * 100;
+  showResults(price, profit, markup, margin);
+}
+</script>

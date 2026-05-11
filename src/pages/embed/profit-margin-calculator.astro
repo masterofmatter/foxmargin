@@ -1,0 +1,74 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Profit Margin Calculator — FoxMargin"
+  fullUrl="https://foxmargin.com/profit-margin-calculator/"
+  fullLabel="Profit Margin Calculator"
+>
+  <div class="card">
+    <h2>Profit Margin Calculator</h2>
+    <div class="calc-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="revenue">Revenue ($)</label>
+          <input type="number" id="revenue" placeholder="e.g. 10000" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="cost">Cost of Goods ($)</label>
+          <input type="number" id="cost" placeholder="e.g. 6000" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="operating">Operating Expenses ($) <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <input type="number" id="operating" placeholder="e.g. 1500" min="0" step="0.01" />
+      </div>
+      <button class="btn" onclick="calculate()">Calculate Margin</button>
+    </div>
+    <div class="results" id="results">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="gross-margin">—</span>
+          <span class="result-label">Gross Margin %</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="gross-profit">—</span>
+          <span class="result-label">Gross Profit</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="net-margin">—</span>
+          <span class="result-label">Net Margin %</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="net-profit">—</span>
+          <span class="result-label">Net Profit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+function fmt(n, d = 0) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+}
+function fmtPct(n) { return n.toFixed(1) + '%'; }
+function calculate() {
+  const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+  const cost = parseFloat(document.getElementById('cost').value) || 0;
+  const operating = parseFloat(document.getElementById('operating').value) || 0;
+  if (revenue <= 0) { alert('Please enter a revenue amount.'); return; }
+  const grossProfit = revenue - cost;
+  const grossMargin = (grossProfit / revenue) * 100;
+  const netProfit = grossProfit - operating;
+  const netMargin = (netProfit / revenue) * 100;
+  document.getElementById('gross-margin').textContent = fmtPct(grossMargin);
+  document.getElementById('gross-profit').textContent = fmt(grossProfit);
+  document.getElementById('net-margin').textContent = fmtPct(netMargin);
+  document.getElementById('net-profit').textContent = fmt(netProfit);
+  document.getElementById('results').classList.add('show');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+</script>

@@ -1,0 +1,156 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Free Invoice Generator — FoxMargin"
+  fullUrl="https://foxmargin.com/invoice-generator/"
+  fullLabel="Free Invoice Generator"
+>
+  <div class="card" id="builder">
+    <h2>Invoice Generator</h2>
+    <div class="calc-form">
+      <div class="section-label">Your Business</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="from-name">Business Name</label>
+          <input type="text" id="from-name" placeholder="Acme Corp" />
+        </div>
+        <div class="field">
+          <label for="from-email">Email</label>
+          <input type="email" id="from-email" placeholder="hello@acmecorp.com" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="from-address">Address</label>
+        <input type="text" id="from-address" placeholder="123 Main St, Austin, TX 78701" />
+      </div>
+      <div class="section-label" style="margin-top:0.25rem;">Bill To</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="to-name">Client Name / Company</label>
+          <input type="text" id="to-name" placeholder="Client Co." />
+        </div>
+        <div class="field">
+          <label for="to-email">Client Email</label>
+          <input type="email" id="to-email" placeholder="client@example.com" />
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:0.25rem;">Invoice Info</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="inv-number">Invoice Number</label>
+          <input type="text" id="inv-number" placeholder="INV-001" />
+        </div>
+        <div class="field">
+          <label for="inv-date">Date</label>
+          <input type="date" id="inv-date" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="due-date">Due Date</label>
+          <input type="date" id="due-date" />
+        </div>
+        <div class="field">
+          <label for="tax-rate">Tax Rate (%)</label>
+          <input type="number" id="tax-rate" placeholder="0" min="0" max="100" step="0.01" value="0" />
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:0.25rem;">Line Items</div>
+      <div id="line-items">
+        <div class="line-item-row">
+          <div class="field li-desc"><label>Description</label><input type="text" placeholder="Service or product" class="li-description" /></div>
+          <div class="field li-qty"><label>Qty</label><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div>
+          <div class="field li-rate"><label>Rate ($)</label><input type="number" placeholder="100.00" min="0" step="0.01" class="li-rate-val" /></div>
+          <div class="field li-total"><label>Total</label><span class="li-total-val">—</span></div>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="addLine()" type="button" style="align-self:flex-start;font-size:0.82rem;padding:0.45rem 0.9rem;">+ Add Line</button>
+      <div class="field">
+        <label for="notes">Notes / Payment Terms</label>
+        <textarea id="notes" placeholder="e.g. Payment due within 30 days." rows="2" style="width:100%;padding:0.55rem 0.75rem;border:1.5px solid var(--border);border-radius:7px;font-size:0.88rem;resize:vertical;font-family:inherit;"></textarea>
+      </div>
+      <button class="btn" onclick="generateInvoice()" type="button">Generate Invoice</button>
+    </div>
+  </div>
+
+  <div class="card" id="preview" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="margin:0;">Preview</h2>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn btn-outline" onclick="editInvoice()" style="font-size:0.82rem;padding:0.45rem 0.9rem;">Edit</button>
+        <button class="btn" onclick="window.print()" style="font-size:0.82rem;padding:0.45rem 0.9rem;">Print / Save PDF</button>
+      </div>
+    </div>
+    <div id="invoice-doc"></div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+(function() {
+  const today = new Date();
+  const due = new Date(today);
+  due.setDate(due.getDate() + 30);
+  const f = d => d.toISOString().slice(0, 10);
+  document.getElementById('inv-date').value = f(today);
+  document.getElementById('due-date').value = f(due);
+  document.getElementById('inv-number').value = 'INV-001';
+  document.getElementById('line-items').addEventListener('input', updateLineTotals);
+})();
+
+function fmt(n) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+function addLine() {
+  const row = document.createElement('div');
+  row.className = 'line-item-row';
+  row.innerHTML = `<div class="field li-desc"><input type="text" placeholder="Service or product" class="li-description" /></div><div class="field li-qty"><input type="number" placeholder="1" min="0" step="0.01" class="li-qty-val" value="1" /></div><div class="field li-rate"><input type="number" placeholder="0.00" min="0" step="0.01" class="li-rate-val" /></div><div class="field li-total"><span class="li-total-val">—</span></div>`;
+  document.getElementById('line-items').appendChild(row);
+}
+function updateLineTotals() {
+  document.querySelectorAll('.line-item-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('.li-qty-val')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.li-rate-val')?.value) || 0;
+    const el = row.querySelector('.li-total-val');
+    if (el) el.textContent = qty * rate > 0 ? fmt(qty * rate) : '—';
+  });
+}
+function getLineItems() {
+  return Array.from(document.querySelectorAll('.line-item-row')).map(row => ({
+    desc: row.querySelector('.li-description')?.value || '',
+    qty: parseFloat(row.querySelector('.li-qty-val')?.value) || 0,
+    rate: parseFloat(row.querySelector('.li-rate-val')?.value) || 0,
+    total: (parseFloat(row.querySelector('.li-qty-val')?.value) || 0) * (parseFloat(row.querySelector('.li-rate-val')?.value) || 0),
+  })).filter(r => r.desc || r.total > 0);
+}
+function generateInvoice() {
+  const items = getLineItems();
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax;
+  const fromName = document.getElementById('from-name').value || 'Your Business';
+  const fromEmail = document.getElementById('from-email').value;
+  const fromAddr = document.getElementById('from-address').value;
+  const toName = document.getElementById('to-name').value || 'Client';
+  const toEmail = document.getElementById('to-email').value;
+  const invNum = document.getElementById('inv-number').value || 'INV-001';
+  const invDate = document.getElementById('inv-date').value;
+  const dueDate = document.getElementById('due-date').value;
+  const notes = document.getElementById('notes').value;
+  const lineRows = items.map(r => `<tr><td>${r.desc}</td><td style="text-align:center">${r.qty}</td><td style="text-align:right">${fmt(r.rate)}</td><td>${fmt(r.total)}</td></tr>`).join('');
+  document.getElementById('invoice-doc').innerHTML = `
+    <div class="inv-header"><div><div class="inv-title">INVOICE</div><p style="color:var(--muted);font-size:0.82rem;margin-top:0.2rem;">${fromName}</p></div><div class="inv-meta"><p><strong>#${invNum}</strong></p><p>Date: <strong>${invDate}</strong></p><p>Due: <strong>${dueDate}</strong></p></div></div>
+    <div class="inv-parties"><div><h3>From</h3><p class="party-name">${fromName}</p>${fromEmail ? `<p>${fromEmail}</p>` : ''}${fromAddr ? `<p>${fromAddr}</p>` : ''}</div><div><h3>Bill To</h3><p class="party-name">${toName}</p>${toEmail ? `<p>${toEmail}</p>` : ''}</div></div>
+    <table class="inv-table"><thead><tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead><tbody>${lineRows || '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No items added</td></tr>'}</tbody></table>
+    <div class="inv-totals"><div class="inv-total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>${taxRate > 0 ? `<div class="inv-total-row"><span>Tax (${taxRate}%)</span><span>${fmt(tax)}</span></div>` : ''}<div class="inv-total-row grand"><span>Total</span><span>${fmt(total)}</span></div></div>
+    ${notes ? `<div class="inv-notes"><strong>Notes</strong>${notes}</div>` : ''}`;
+  document.getElementById('builder').style.display = 'none';
+  document.getElementById('preview').style.display = 'block';
+}
+function editInvoice() {
+  document.getElementById('builder').style.display = 'block';
+  document.getElementById('preview').style.display = 'none';
+}
+</script>

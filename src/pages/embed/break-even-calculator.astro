@@ -1,0 +1,74 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Break-Even Calculator — FoxMargin"
+  fullUrl="https://foxmargin.com/break-even-calculator/"
+  fullLabel="Break-Even Calculator"
+>
+  <div class="card">
+    <h2>Break-Even Calculator</h2>
+    <div class="calc-form">
+      <div class="field">
+        <label for="fixed">Fixed Costs per Month ($)</label>
+        <input type="number" id="fixed" placeholder="e.g. 5000 (rent, salaries, insurance)" min="0" step="0.01" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="variable">Variable Cost per Unit ($)</label>
+          <input type="number" id="variable" placeholder="e.g. 12.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="price">Selling Price per Unit ($)</label>
+          <input type="number" id="price" placeholder="e.g. 30.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <button class="btn" onclick="calculate()">Calculate Break-Even</button>
+    </div>
+    <div class="results" id="results">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="be-units">—</span>
+          <span class="result-label">Units to Break Even</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="be-revenue">—</span>
+          <span class="result-label">Revenue to Break Even</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="contribution">—</span>
+          <span class="result-label">Contribution Margin</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="contrib-ratio">—</span>
+          <span class="result-label">Contribution Ratio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+function fmt(n, d = 0) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+}
+function calculate() {
+  const fixed = parseFloat(document.getElementById('fixed').value) || 0;
+  const variable = parseFloat(document.getElementById('variable').value) || 0;
+  const price = parseFloat(document.getElementById('price').value) || 0;
+  if (fixed <= 0 || price <= 0) { alert('Please enter fixed costs and selling price.'); return; }
+  const contribution = price - variable;
+  if (contribution <= 0) { alert('Selling price must be greater than variable cost per unit.'); return; }
+  const beUnits = Math.ceil(fixed / contribution);
+  const beRevenue = beUnits * price;
+  const contribRatio = (contribution / price) * 100;
+  document.getElementById('be-units').textContent = beUnits.toLocaleString() + ' units';
+  document.getElementById('be-revenue').textContent = fmt(beRevenue);
+  document.getElementById('contribution').textContent = fmt(contribution) + '/unit';
+  document.getElementById('contrib-ratio').textContent = contribRatio.toFixed(1) + '%';
+  document.getElementById('results').classList.add('show');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+</script>
