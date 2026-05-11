@@ -33,9 +33,14 @@ import Layout from '../layouts/Layout.astro';
         <label for="from-email">Email</label>
         <input type="email" id="from-email" placeholder="purchasing@yourcompany.com" />
       </div>
-      <div class="field addr-wrap">
-        <label for="from-address">Billing Address</label>
-        <input type="text" id="from-address" placeholder="Start typing your address…" autocomplete="off" />
+      <div class="field">
+        <label for="from-street">Street Address</label>
+        <input type="text" id="from-street" placeholder="123 Main St" autocomplete="street-address" />
+      </div>
+      <div class="addr-grid">
+        <div class="field"><label for="from-city">City</label><input type="text" id="from-city" placeholder="Austin" autocomplete="address-level2" /></div>
+        <div class="field"><label for="from-state">State</label><input type="text" id="from-state" placeholder="TX" autocomplete="address-level1" /></div>
+        <div class="field"><label for="from-zip">ZIP</label><input type="text" id="from-zip" placeholder="78701" autocomplete="postal-code" /></div>
       </div>
 
       <div class="section-label" style="margin-top:0.5rem;">Vendor / Supplier</div>
@@ -49,9 +54,14 @@ import Layout from '../layouts/Layout.astro';
           <input type="email" id="to-email" placeholder="orders@supplier.com" />
         </div>
       </div>
-      <div class="field addr-wrap">
-        <label for="to-address">Vendor Address</label>
-        <input type="text" id="to-address" placeholder="Start typing address…" autocomplete="off" />
+      <div class="field">
+        <label for="to-street">Street Address</label>
+        <input type="text" id="to-street" placeholder="456 Supplier Blvd" autocomplete="off" />
+      </div>
+      <div class="addr-grid">
+        <div class="field"><label for="to-city">City</label><input type="text" id="to-city" placeholder="City" autocomplete="off" /></div>
+        <div class="field"><label for="to-state">State</label><input type="text" id="to-state" placeholder="TX" autocomplete="off" /></div>
+        <div class="field"><label for="to-zip">ZIP</label><input type="text" id="to-zip" placeholder="78701" autocomplete="off" /></div>
       </div>
 
       <div class="section-label" style="margin-top:0.5rem;">Ship To (if different from billing)</div>
@@ -60,9 +70,14 @@ import Layout from '../layouts/Layout.astro';
           <label for="ship-name">Ship To — Name / Dept</label>
           <input type="text" id="ship-name" placeholder="Receiving / Warehouse" />
         </div>
-        <div class="field addr-wrap">
-          <label for="ship-address">Shipping Address</label>
-          <input type="text" id="ship-address" placeholder="Leave blank to use billing address" autocomplete="off" />
+        <div class="field">
+          <label for="ship-street">Street Address</label>
+          <input type="text" id="ship-street" placeholder="Leave blank to use billing address" autocomplete="off" />
+        </div>
+        <div class="addr-grid">
+          <div class="field"><label for="ship-city">City</label><input type="text" id="ship-city" placeholder="City" autocomplete="off" /></div>
+          <div class="field"><label for="ship-state">State</label><input type="text" id="ship-state" placeholder="TX" autocomplete="off" /></div>
+          <div class="field"><label for="ship-zip">ZIP</label><input type="text" id="ship-zip" placeholder="78701" autocomplete="off" /></div>
         </div>
       </div>
 
@@ -183,23 +198,37 @@ import Layout from '../layouts/Layout.astro';
   document.getElementById('po-number').value = 'PO-' + today.getFullYear() + '-001';
   document.getElementById('line-items').addEventListener('input', updateLineTotals);
   fillDocFromBiz();
-  initAutocomplete(document.getElementById('from-address'));
-  initAutocomplete(document.getElementById('to-address'));
-  initAutocomplete(document.getElementById('ship-address'));
+  initAutocomplete(document.getElementById('from-street'));
+  initAutocomplete(document.getElementById('to-street'));
+  initAutocomplete(document.getElementById('ship-street'));
   if (!localStorage.getItem('biz_setup_done')) setTimeout(openBizModal, 400);
 })();
 
 function fillDocFromBiz() {
-  const name = localStorage.getItem('biz_name') || '';
-  const email = localStorage.getItem('biz_email') || '';
-  const phone = localStorage.getItem('biz_phone') || '';
-  const addr = localStorage.getItem('biz_address') || '';
-  if (name)  document.getElementById('from-name').value = name;
-  if (email) document.getElementById('from-email').value = email;
-  if (phone) document.getElementById('from-phone').value = phone;
-  if (addr)  document.getElementById('from-address').value = addr;
+  const name   = localStorage.getItem('biz_name')   || '';
+  const email  = localStorage.getItem('biz_email')  || '';
+  const phone  = localStorage.getItem('biz_phone')  || '';
+  const street = localStorage.getItem('biz_street') || '';
+  const city   = localStorage.getItem('biz_city')   || '';
+  const state  = localStorage.getItem('biz_state')  || '';
+  const zip    = localStorage.getItem('biz_zip')    || '';
+  if (name)   document.getElementById('from-name').value   = name;
+  if (email)  document.getElementById('from-email').value  = email;
+  if (phone)  document.getElementById('from-phone').value  = phone;
+  if (street) document.getElementById('from-street').value = street;
+  if (city)   document.getElementById('from-city').value   = city;
+  if (state)  document.getElementById('from-state').value  = state;
+  if (zip)    document.getElementById('from-zip').value    = zip;
   const bar = document.getElementById('biz-bar-name');
   if (bar) bar.textContent = name ? '👤 ' + name : 'No business profile saved';
+}
+function assembleAddr(prefix) {
+  const s = (document.getElementById(prefix+'-street')?.value || '').trim();
+  const c = (document.getElementById(prefix+'-city')?.value   || '').trim();
+  const t = (document.getElementById(prefix+'-state')?.value  || '').trim();
+  const z = (document.getElementById(prefix+'-zip')?.value    || '').trim();
+  const line2 = [c, t].filter(Boolean).join(', ') + (z ? ' ' + z : '');
+  return [s, line2].filter(Boolean);
 }
 
 function fmt(n) {
@@ -249,12 +278,12 @@ function generateDoc() {
   const fromName    = document.getElementById('from-name').value || 'Your Company';
   const fromEmail   = document.getElementById('from-email').value;
   const fromPhone   = document.getElementById('from-phone').value;
-  const fromAddr    = document.getElementById('from-address').value;
-  const toName      = document.getElementById('to-name').value || 'Vendor';
-  const toEmail     = document.getElementById('to-email').value;
-  const toAddr      = document.getElementById('to-address').value;
-  const shipName    = document.getElementById('ship-name').value;
-  const shipAddr    = document.getElementById('ship-address').value;
+  const fromAddrLines = assembleAddr('from');
+  const toName        = document.getElementById('to-name').value || 'Vendor';
+  const toEmail       = document.getElementById('to-email').value;
+  const toAddrLines   = assembleAddr('to');
+  const shipName      = document.getElementById('ship-name').value;
+  const shipAddrLines = assembleAddr('ship');
   const poNum       = document.getElementById('po-number').value || 'PO-001';
   const poDate      = document.getElementById('po-date').value;
   const delivDate   = document.getElementById('delivery-date').value;
@@ -272,11 +301,12 @@ function generateDoc() {
     </tr>
   `).join('');
 
-  const shipSection = (shipAddr || shipName) ? `
+  const hasShip = shipAddrLines.length > 0 || shipName;
+  const shipSection = hasShip ? `
     <div>
       <h3>Ship To</h3>
       <p class="party-name">${shipName || fromName}</p>
-      <p>${shipAddr || fromAddr}</p>
+      ${(shipAddrLines.length ? shipAddrLines : fromAddrLines).map(l => `<p>${l}</p>`).join('')}
     </div>` : '';
 
   document.getElementById('doc-output').innerHTML = `
@@ -293,19 +323,19 @@ function generateDoc() {
         <p>Terms: <strong>${payTerms}</strong></p>
       </div>
     </div>
-    <div class="doc-parties" style="grid-template-columns:${shipSection ? '1fr 1fr 1fr' : '1fr 1fr'};">
+    <div class="doc-parties" style="grid-template-columns:${hasShip ? '1fr 1fr 1fr' : '1fr 1fr'};">
       <div>
         <h3>Bill To</h3>
         <p class="party-name">${fromName}</p>
         ${fromPhone ? `<p>${fromPhone}</p>` : ''}
         ${fromEmail ? `<p>${fromEmail}</p>` : ''}
-        ${fromAddr  ? `<p>${fromAddr}</p>`  : ''}
+        ${fromAddrLines.map(l => `<p>${l}</p>`).join('')}
       </div>
       <div>
         <h3>Vendor</h3>
         <p class="party-name">${toName}</p>
         ${toEmail ? `<p>${toEmail}</p>` : ''}
-        ${toAddr  ? `<p>${toAddr}</p>`  : ''}
+        ${toAddrLines.map(l => `<p>${l}</p>`).join('')}
       </div>
       ${shipSection}
     </div>

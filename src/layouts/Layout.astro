@@ -276,7 +276,11 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       border-bottom: 1px solid var(--border);
     }
 
-    /* Address autocomplete */
+    /* Address fields — structured layout */
+    .addr-grid { display: grid; grid-template-columns: 1fr 80px 110px; gap: 0.75rem; }
+    @media (max-width: 520px) { .addr-grid { grid-template-columns: 1fr 1fr; } }
+
+    /* Address autocomplete dropdown (activated when live token is set) */
     .addr-wrap { position: relative; }
     .addr-dropdown {
       position: absolute;
@@ -546,9 +550,23 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
           <label for="biz-modal-email">Email</label>
           <input type="email" id="biz-modal-email" placeholder="hello@yourcompany.com" autocomplete="email" />
         </div>
-        <div class="field addr-wrap">
-          <label for="biz-modal-address">Business Address</label>
-          <input type="text" id="biz-modal-address" placeholder="Start typing your address…" autocomplete="off" />
+        <div class="field">
+          <label for="biz-modal-street">Street Address</label>
+          <input type="text" id="biz-modal-street" placeholder="123 Main St" autocomplete="street-address" />
+        </div>
+        <div class="addr-grid">
+          <div class="field">
+            <label for="biz-modal-city">City</label>
+            <input type="text" id="biz-modal-city" placeholder="Austin" autocomplete="address-level2" />
+          </div>
+          <div class="field">
+            <label for="biz-modal-state">State</label>
+            <input type="text" id="biz-modal-state" placeholder="TX" autocomplete="address-level1" />
+          </div>
+          <div class="field">
+            <label for="biz-modal-zip">ZIP / Postal</label>
+            <input type="text" id="biz-modal-zip" placeholder="78701" autocomplete="postal-code" />
+          </div>
         </div>
       </div>
       <div class="biz-modal-actions">
@@ -589,10 +607,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       localStorage.setItem('biz_setup_done', '1');
     }
     function _loadBizToModal() {
-      document.getElementById('biz-modal-name').value    = localStorage.getItem('biz_name')    || '';
-      document.getElementById('biz-modal-email').value   = localStorage.getItem('biz_email')   || '';
-      document.getElementById('biz-modal-phone').value   = localStorage.getItem('biz_phone')   || '';
-      document.getElementById('biz-modal-address').value = localStorage.getItem('biz_address') || '';
+      document.getElementById('biz-modal-name').value   = localStorage.getItem('biz_name')   || '';
+      document.getElementById('biz-modal-email').value  = localStorage.getItem('biz_email')  || '';
+      document.getElementById('biz-modal-phone').value  = localStorage.getItem('biz_phone')  || '';
+      document.getElementById('biz-modal-street').value = localStorage.getItem('biz_street') || '';
+      document.getElementById('biz-modal-city').value   = localStorage.getItem('biz_city')   || '';
+      document.getElementById('biz-modal-state').value  = localStorage.getItem('biz_state')  || '';
+      document.getElementById('biz-modal-zip').value    = localStorage.getItem('biz_zip')    || '';
       const logo = localStorage.getItem('biz_logo');
       const prev = document.getElementById('biz-logo-preview');
       const ph   = document.getElementById('biz-logo-placeholder');
@@ -600,10 +621,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       else       { prev.style.display = 'none'; ph.style.display = 'block'; }
     }
     function saveBizProfile() {
-      localStorage.setItem('biz_name',    document.getElementById('biz-modal-name').value.trim());
-      localStorage.setItem('biz_email',   document.getElementById('biz-modal-email').value.trim());
-      localStorage.setItem('biz_phone',   document.getElementById('biz-modal-phone').value.trim());
-      localStorage.setItem('biz_address', document.getElementById('biz-modal-address').value.trim());
+      localStorage.setItem('biz_name',   document.getElementById('biz-modal-name').value.trim());
+      localStorage.setItem('biz_email',  document.getElementById('biz-modal-email').value.trim());
+      localStorage.setItem('biz_phone',  document.getElementById('biz-modal-phone').value.trim());
+      localStorage.setItem('biz_street', document.getElementById('biz-modal-street').value.trim());
+      localStorage.setItem('biz_city',   document.getElementById('biz-modal-city').value.trim());
+      localStorage.setItem('biz_state',  document.getElementById('biz-modal-state').value.trim());
+      localStorage.setItem('biz_zip',    document.getElementById('biz-modal-zip').value.trim());
       localStorage.setItem('biz_setup_done', '1');
       closeBizModal();
       if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
@@ -622,22 +646,37 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       reader.readAsDataURL(file);
     });
 
-    // ── Mapbox Address Autocomplete ──
-    var MAPBOX_TOKEN = 'YOUR_MAPBOX_TOKEN'; // paste pk.eyJ1... token here
-    function initAutocomplete(input) {
+    // ── Address Autocomplete (flip on: replace YOUR_MAPBOX_TOKEN with a real token) ──
+    // When active, attaches a live dropdown to the street input and fills all four
+    // structured fields (street / city / state / zip) on selection.
+    var MAPBOX_TOKEN = 'YOUR_MAPBOX_TOKEN';
+    function initAutocomplete(streetInput) {
+      if (!streetInput || MAPBOX_TOKEN === 'YOUR_MAPBOX_TOKEN') return;
+      var prefix = streetInput.id ? streetInput.id.replace('-street', '') : null;
       var _timer = null, _drop = null;
       function removeDrop() { if (_drop) { _drop.remove(); _drop = null; } }
-      input.addEventListener('input', function() {
+      function fillStructured(feature) {
+        if (!prefix) return;
+        var placeName = feature.place_name || '';
+        // Mapbox context array: [neighborhood, place/city, region/state, postcode, country]
+        var ctx = {};
+        (feature.context || []).forEach(function(c) {
+          var type = c.id.split('.')[0];
+          ctx[type] = c.text;
+        });
+        var streetText = (feature.address ? feature.address + ' ' : '') + (feature.text || '');
+        if (document.getElementById(prefix+'-street')) document.getElementById(prefix+'-street').value = streetText;
+        if (document.getElementById(prefix+'-city'))   document.getElementById(prefix+'-city').value   = ctx.place || ctx.locality || '';
+        if (document.getElementById(prefix+'-state'))  document.getElementById(prefix+'-state').value  = ctx.region || '';
+        if (document.getElementById(prefix+'-zip'))    document.getElementById(prefix+'-zip').value    = ctx.postcode || '';
+      }
+      streetInput.addEventListener('input', function() {
         clearTimeout(_timer);
-        var q = input.value.trim();
+        var q = streetInput.value.trim();
         if (q.length < 3) { removeDrop(); return; }
-        if (MAPBOX_TOKEN === 'YOUR_MAPBOX_TOKEN') { return; } // token not set yet
         _timer = setTimeout(function() {
-          var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
-            + encodeURIComponent(q)
-            + '.json?access_token=' + MAPBOX_TOKEN
-            + '&autocomplete=true&limit=6&types=address';
-          fetch(url)
+          fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(q)
+            + '.json?access_token=' + MAPBOX_TOKEN + '&autocomplete=true&limit=6&types=address')
             .then(function(r) { return r.json(); })
             .then(function(data) {
               removeDrop();
@@ -645,30 +684,23 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
               _drop = document.createElement('div');
               _drop.className = 'addr-dropdown';
               data.features.forEach(function(f) {
-                var label = f.place_name || '';
-                if (!label) return;
+                var label = f.place_name || ''; if (!label) return;
                 var item = document.createElement('div');
                 item.className = 'addr-item';
                 item.textContent = label;
                 item.addEventListener('mousedown', function(e) {
-                  e.preventDefault();
-                  input.value = label;
-                  removeDrop();
-                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                  e.preventDefault(); fillStructured(f); removeDrop();
                 });
                 _drop.appendChild(item);
               });
-              var wrap = input.closest('.addr-wrap') || input.parentElement;
+              var wrap = streetInput.closest('.addr-wrap') || streetInput.parentElement;
               wrap.style.position = 'relative';
               wrap.appendChild(_drop);
             }).catch(function() {});
         }, 280);
       });
-      input.addEventListener('blur', function() { setTimeout(removeDrop, 200); });
+      streetInput.addEventListener('blur', function() { setTimeout(removeDrop, 200); });
     }
-
-    // Init autocomplete on the modal address field
-    initAutocomplete(document.getElementById('biz-modal-address'));
   </script>
   <footer>
     <div class="footer-links">
