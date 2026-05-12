@@ -1,0 +1,228 @@
+/* ── Document Workspace styles ──
+ *
+ * Shared styles for the four document generators (invoice, receipt, quote,
+ * purchase order). Imported globally from Layout.astro so each page's slot
+ * content can use these class names without re-declaring them.
+ *
+ * Previously lived inside Layout.astro's scoped <style> wrapped in
+ * :global(...). Promoted to a plain .css file (which is global by default
+ * in Astro) so the :global(...) wrappers are no longer needed and the
+ * intent is unambiguous.
+ */
+
+.inv-workspace {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+.inv-form-col { display: flex; flex-direction: column; gap: 0.85rem; }
+.inv-paper-col { position: sticky; top: 72px; display: flex; flex-direction: column; gap: 0.65rem; }
+
+/* Form cards — match modal design language */
+.ws-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
+}
+.ws-card-label {
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--fox);
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.tax-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 24px;
+  gap: 0.5rem;
+  align-items: end;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.tax-row:last-child { border-bottom: none; }
+.tax-remove-placeholder { width: 24px; }
+
+/* Compact inputs inside ws-card — smaller than modal, fits the narrower column */
+.ws-card .field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.28rem;
+}
+.ws-card .field input,
+.ws-card .field select {
+  padding: 0.45rem 0.7rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+.ws-card .calc-form { gap: 0.7rem; }
+/* Hide number spinners on inputs inside ws-card */
+.ws-card .field input[type="number"] { -moz-appearance: textfield; }
+.ws-card .field input[type="number"]::-webkit-inner-spin-button,
+.ws-card .field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* My Business bar */
+.inv-biz-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.inv-biz-bar-left { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+.inv-biz-logo-thumb {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.inv-biz-text { min-width: 0; }
+.inv-biz-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inv-biz-meta { font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.1rem; }
+.ws-edit-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--fox);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.85rem;
+  border-radius: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ws-edit-btn:hover { border-color: var(--fox); background: #fff8f5; }
+
+/* Line item rows — no nested card, just clean dividers */
+.li-card {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.li-card:first-child { padding-top: 0; }
+.li-card:last-child { border-bottom: none; padding-bottom: 0.25rem; }
+.li-card .field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+}
+.li-card .field input {
+  padding: 0.55rem 0.7rem;
+  font-size: 0.93rem;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text);
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.li-card .field input:focus { outline: none; border-color: var(--fox); }
+.li-bottom-row {
+  display: grid;
+  grid-template-columns: 68px 1fr 80px 24px;
+  gap: 0.5rem;
+  align-items: end;
+}
+.li-field-sm label, .li-field-md label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--navy);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.li-total-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding-bottom: 0.45rem;
+}
+.li-total-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+.li-total-val { font-size: 0.95rem; font-weight: 700; color: var(--navy); white-space: nowrap; }
+.li-remove-placeholder { width: 24px; }
+.li-remove-btn {
+  background: none;
+  border: none;
+  color: #c8d0db;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0 0.45rem;
+  line-height: 1;
+  align-self: end;
+  transition: color 0.15s;
+}
+.li-remove-btn:hover { color: #dc2626; }
+.ws-add-line-btn {
+  background: none;
+  border: 1.5px dashed var(--border);
+  color: var(--fox);
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: 0.2rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ws-add-line-btn:hover { border-color: var(--fox); background: #fff8f5; }
+
+/* Notes textarea inside ws-card */
+.ws-card .field textarea {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+.ws-card .field textarea:focus { outline: none; border-color: var(--fox); }
+
+/* Paper preview */
+.inv-paper-actions { display: flex; justify-content: space-between; align-items: center; }
+.inv-paper-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.inv-paper {
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 12px 40px rgba(0,0,0,0.10);
+  border-radius: 14px;
+  aspect-ratio: 8.5 / 11;
+  padding: 8% 9%;
+  font-size: 13px;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.55;
+  overflow: visible;
+}
+
+@media (max-width: 900px) {
+  .inv-workspace { grid-template-columns: 1fr; }
+  .inv-paper-col { position: static; order: -1; }
+  .inv-paper { aspect-ratio: unset; min-height: 520px; }
+}
+
+@media print {
+  .inv-form-col, .inv-paper-actions { display: none !important; }
+  .inv-workspace { display: block !important; }
+  .inv-paper-col { position: static !important; }
+  .inv-paper { box-shadow: none !important; border: none !important; padding: 0 !important; font-size: 11pt !important; aspect-ratio: unset !important; }
+}
