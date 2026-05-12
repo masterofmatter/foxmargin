@@ -1,4 +1,5 @@
 ---
+import BusinessProfileModal from '../components/BusinessProfileModal.astro';
 export interface Props {
   title: string;
   description: string;
@@ -15,14 +16,16 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16" />
+  <link rel="apple-touch-icon" href="/foxmargin-logo.png" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
   <!-- Google AdSense — swap ca-pub-XXXXXXXXXXXXXXXX once approved -->
   <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :global(*), :global(*::before), :global(*::after) { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --navy: #0f2d52;
       --fox: #d4500a;
@@ -64,8 +67,10 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       font-weight: 700;
       color: #fff;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
     }
-    .logo-icon { width: 26px; height: 26px; margin-right: 0.45rem; vertical-align: middle; object-fit: contain; }
+    .logo-icon { width: 26px; height: 26px; margin-right: 0.25rem; object-fit: contain; flex-shrink: 0; }
     .logo span { color: var(--fox-light); }
     .logo:hover { text-decoration: none; }
     nav ul {
@@ -206,7 +211,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     :global(.field-row) { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 480px) { :global(.field-row) { grid-template-columns: 1fr; } }
     :global(.field input[type="color"]) { padding: 0.2rem 0.25rem; height: 2.55rem; cursor: pointer; }
-    .btn {
+    :global(.btn) {
       background: var(--fox);
       color: #fff;
       border: none;
@@ -218,17 +223,17 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       transition: background 0.15s;
       align-self: flex-start;
     }
-    .btn:hover { background: var(--fox-light); }
-    .btn-outline {
+    :global(.btn:hover) { background: var(--fox-light); }
+    :global(.btn-outline) {
       background: transparent;
       color: var(--fox);
       border: 1.5px solid var(--fox);
     }
-    .btn-outline:hover { background: var(--fox); color: #fff; }
-    .btn-green {
+    :global(.btn-outline:hover) { background: var(--fox); color: #fff; }
+    :global(.btn-green) {
       background: #059669;
     }
-    .btn-green:hover { background: #047857; }
+    :global(.btn-green:hover) { background: #047857; }
 
     /* Results */
     .results {
@@ -310,7 +315,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     details p { margin-top: 0.6rem; font-size: 0.9rem; color: var(--muted); }
 
     /* Document section labels */
-    .section-label {
+    :global(.section-label) {
       font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -349,157 +354,6 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
     .addr-item:last-child { border-bottom: none; }
     .addr-item:hover { background: #f0f7ff; color: var(--navy); }
-
-    /* Business Profile Modal */
-    .biz-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 45, 82, 0.72);
-      z-index: 1000;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 3vh 1rem;
-      backdrop-filter: blur(3px);
-      overflow-y: auto;
-    }
-    .biz-modal {
-      background: #fff;
-      border-radius: 14px;
-      padding: 1.75rem 2rem;
-      width: 100%;
-      max-width: 900px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
-      position: relative;
-    }
-    .biz-modal-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
-    }
-    .biz-modal-header h3 { font-size: 1.2rem; color: var(--navy); margin-bottom: 0.2rem; }
-    .biz-modal-header p { font-size: 0.83rem; color: var(--muted); margin: 0; }
-    .biz-modal-close {
-      background: none;
-      border: none;
-      font-size: 1.4rem;
-      color: var(--muted);
-      cursor: pointer;
-      line-height: 1;
-      padding: 0 0 0 0.75rem;
-      flex-shrink: 0;
-    }
-    .biz-modal-close:hover { color: var(--text); }
-    .biz-modal-cols {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 1.75rem;
-      align-items: start;
-    }
-    @media (max-width: 680px) {
-      .biz-modal-cols { grid-template-columns: 1fr; }
-      .biz-paper-col { display: none; }
-    }
-    .biz-form-col { display: flex; flex-direction: column; }
-    .biz-paper-col { display: flex; flex-direction: column; gap: 0.5rem; }
-    .biz-paper-hint {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--muted);
-      text-align: center;
-    }
-    .biz-paper {
-      background: #fff;
-      border: 1px solid #d0d7e2;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 10px 32px rgba(0,0,0,0.10);
-      width: 100%;
-      aspect-ratio: 8.5 / 11;
-      padding: 7% 8%;
-      position: relative;
-      overflow: hidden;
-      border-radius: 2px;
-      font-size: 9px;
-    }
-    .bp-doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5%; }
-    .bp-logo-img { max-height: 3.4em; max-width: 10em; object-fit: contain; display: block; }
-    .bp-doc-type { font-size: 2.2em; font-weight: 800; color: var(--navy); letter-spacing: -0.01em; line-height: 1; }
-    .bp-biz-name { font-size: 1.25em; font-weight: 700; color: var(--text); margin-bottom: 0.4em; line-height: 1.3; transition: color 0.15s; }
-    .bp-biz-addr { font-size: 1em; color: var(--muted); line-height: 1.6; min-height: 1.2em; }
-    .bp-biz-contact { font-size: 0.95em; color: var(--muted); margin-top: 0.4em; }
-    .bp-divider { border: none; border-top: 1.5px solid var(--navy); margin: 4% 0 3%; }
-    .bp-ghost-section { margin-bottom: 4%; }
-    .bp-ghost-label { font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fox); margin-bottom: 1.8%; }
-    .bp-ghost-line { height: 0.88em; background: #e4e9f0; border-radius: 3px; margin-bottom: 1.4%; }
-    .bp-ghost-table { margin-bottom: 3%; }
-    .bp-ghost-thead { height: 1.6em; background: var(--navy); border-radius: 2px; margin-bottom: 1.5%; opacity: 0.85; }
-    .bp-ghost-row { height: 1.1em; background: #e4e9f0; border-radius: 2px; margin-bottom: 1.2%; }
-    .bp-ghost-totals { margin-left: 55%; margin-bottom: 2%; }
-    .bp-ghost-total-row { height: 0.9em; background: #e4e9f0; border-radius: 2px; margin-bottom: 1.5%; }
-    .bp-ghost-total-grand { height: 1.35em; background: var(--navy); border-radius: 2px; opacity: 0.75; }
-    .bp-fade { position: absolute; bottom: 0; left: 0; right: 0; height: 28%; background: linear-gradient(to bottom, transparent 0%, #fff 90%); pointer-events: none; }
-    .biz-logo-upload {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 0.85rem;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: 0.75rem;
-      transition: border-color 0.15s, background 0.15s;
-      min-height: 68px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-    .biz-logo-upload:hover { border-color: var(--fox); background: #fff8f5; }
-    .biz-logo-upload span { font-size: 0.82rem; color: var(--muted); }
-    .biz-logo-upload img { max-height: 48px; max-width: 160px; object-fit: contain; }
-    .biz-country-flag { display:flex; align-items:center; gap:.4rem; margin-top:.45rem; cursor:pointer; }
-    .biz-country-flag input[type="checkbox"] { width:auto; margin:0; accent-color:var(--fox); flex-shrink:0; }
-    .biz-country-flag span { font-size:.8rem; color:var(--muted); user-select:none; }
-    .biz-modal-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1.25rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-    }
-    .btn-skip {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 0.85rem;
-      cursor: pointer;
-      padding: 0.4rem 0;
-    }
-    .btn-skip:hover { color: var(--text); }
-    .biz-profile-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.6rem 0.85rem;
-      background: #f0f7ff;
-      border: 1px solid #c3daf9;
-      border-radius: 7px;
-      margin-bottom: 1.25rem;
-      font-size: 0.83rem;
-      color: var(--navy);
-    }
-    .biz-profile-bar button {
-      background: none;
-      border: none;
-      color: var(--fox);
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 0;
-    }
-    .biz-profile-bar button:hover { text-decoration: underline; }
 
     /* Line items (document generators) */
     .line-item-row {
@@ -889,247 +743,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     </main>
   </div>
 
-  <!-- Business Profile Modal -->
-  <div id="biz-modal" class="biz-overlay" style="display:none;" onclick="if(event.target===this)closeBizModal()">
-    <div class="biz-modal">
-      <div class="biz-modal-header">
-        <div>
-          <h3>My Business Profile</h3>
-          <p>Saved in your browser — pre-fills every document you create. Never leaves your device.</p>
-        </div>
-        <button class="biz-modal-close" onclick="closeBizModal()" title="Close">&#x2715;</button>
-      </div>
-      <div class="biz-modal-cols">
-        <!-- LEFT: form -->
-        <div class="biz-form-col">
-          <div class="biz-logo-upload" id="biz-logo-drop" onclick="document.getElementById('biz-logo-input').click()" title="Upload your logo">
-            <img id="biz-logo-preview" style="display:none;" />
-            <span id="biz-logo-placeholder">🖼 Click to upload your logo (PNG, JPG, SVG)</span>
-            <input type="file" id="biz-logo-input" accept="image/*" style="display:none;" />
-          </div>
-          <div class="calc-form" style="gap:0.65rem;">
-            <div class="field-row">
-              <div class="field">
-                <label for="biz-modal-name">Business Name</label>
-                <input type="text" id="biz-modal-name" placeholder="Acme Corp" autocomplete="organization" oninput="updateBizPreview()" />
-              </div>
-              <div class="field">
-                <label for="biz-modal-phone">Phone</label>
-                <input type="tel" id="biz-modal-phone" placeholder="+1 (555) 000-0000" autocomplete="tel" oninput="updateBizPreview()" />
-              </div>
-            </div>
-            <div class="field">
-              <label for="biz-modal-email">Email</label>
-              <input type="email" id="biz-modal-email" placeholder="hello@yourcompany.com" autocomplete="email" oninput="updateBizPreview()" />
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="biz-modal-country">Country</label>
-                <select id="biz-modal-country" autocomplete="country" onchange="updateAddrLabels();autoSetCountryFlag();updateBizPreview()">
-                  <optgroup label="Popular">
-                    <option value="US">United States</option>
-                    <option value="CA">Canada</option>
-                    <option value="GB">United Kingdom</option>
-                    <option value="AU">Australia</option>
-                    <option value="NZ">New Zealand</option>
-                    <option value="IE">Ireland</option>
-                    <option value="IN">India</option>
-                    <option value="SG">Singapore</option>
-                    <option value="ZA">South Africa</option>
-                    <option value="NG">Nigeria</option>
-                  </optgroup>
-                <optgroup label="Europe">
-                  <option value="AT">Austria</option>
-                  <option value="BE">Belgium</option>
-                  <option value="CH">Switzerland</option>
-                  <option value="CZ">Czech Republic</option>
-                  <option value="DE">Germany</option>
-                  <option value="DK">Denmark</option>
-                  <option value="ES">Spain</option>
-                  <option value="FI">Finland</option>
-                  <option value="FR">France</option>
-                  <option value="GR">Greece</option>
-                  <option value="HR">Croatia</option>
-                  <option value="HU">Hungary</option>
-                  <option value="IT">Italy</option>
-                  <option value="LU">Luxembourg</option>
-                  <option value="MT">Malta</option>
-                  <option value="NL">Netherlands</option>
-                  <option value="NO">Norway</option>
-                  <option value="PL">Poland</option>
-                  <option value="PT">Portugal</option>
-                  <option value="RO">Romania</option>
-                  <option value="RU">Russia</option>
-                  <option value="SE">Sweden</option>
-                  <option value="SI">Slovenia</option>
-                  <option value="SK">Slovakia</option>
-                  <option value="UA">Ukraine</option>
-                </optgroup>
-                <optgroup label="Americas">
-                  <option value="AR">Argentina</option>
-                  <option value="BR">Brazil</option>
-                  <option value="CL">Chile</option>
-                  <option value="CO">Colombia</option>
-                  <option value="MX">Mexico</option>
-                  <option value="PE">Peru</option>
-                  <option value="UY">Uruguay</option>
-                  <option value="VE">Venezuela</option>
-                </optgroup>
-                <optgroup label="Asia &amp; Pacific">
-                  <option value="AE">United Arab Emirates</option>
-                  <option value="BD">Bangladesh</option>
-                  <option value="BH">Bahrain</option>
-                  <option value="CN">China</option>
-                  <option value="HK">Hong Kong</option>
-                  <option value="ID">Indonesia</option>
-                  <option value="IL">Israel</option>
-                  <option value="JP">Japan</option>
-                  <option value="KR">South Korea</option>
-                  <option value="KW">Kuwait</option>
-                  <option value="LK">Sri Lanka</option>
-                  <option value="MY">Malaysia</option>
-                  <option value="OM">Oman</option>
-                  <option value="PH">Philippines</option>
-                  <option value="PK">Pakistan</option>
-                  <option value="QA">Qatar</option>
-                  <option value="SA">Saudi Arabia</option>
-                  <option value="TH">Thailand</option>
-                  <option value="TW">Taiwan</option>
-                  <option value="TR">Turkey</option>
-                  <option value="VN">Vietnam</option>
-                </optgroup>
-                <optgroup label="Africa">
-                  <option value="DZ">Algeria</option>
-                  <option value="EG">Egypt</option>
-                  <option value="ET">Ethiopia</option>
-                  <option value="GH">Ghana</option>
-                  <option value="KE">Kenya</option>
-                  <option value="MA">Morocco</option>
-                  <option value="MZ">Mozambique</option>
-                  <option value="TN">Tunisia</option>
-                  <option value="TZ">Tanzania</option>
-                  <option value="UG">Uganda</option>
-                  <option value="ZM">Zambia</option>
-                  <option value="ZW">Zimbabwe</option>
-                </optgroup>
-              </select>
-              <label class="biz-country-flag">
-                <input type="checkbox" id="biz-show-country" onchange="updateBizPreview()" />
-                <span>Show on documents</span>
-              </label>
-            </div>
-            <div class="field">
-              <label for="biz-modal-currency">Currency</label>
-              <select id="biz-modal-currency" onchange="updateBizPreview()">
-                <option value="USD">$ USD</option>
-                <option value="GBP">£ GBP</option>
-                <option value="EUR">€ EUR</option>
-                <option value="AUD">A$ AUD</option>
-                <option value="CAD">C$ CAD</option>
-                <option value="INR">₹ INR</option>
-              </select>
-            </div>
-            </div>
-            <div class="field">
-              <label for="biz-modal-street">Street Address</label>
-              <input type="text" id="biz-modal-street" placeholder="123 Main St" autocomplete="street-address" oninput="updateBizPreview()" />
-            </div>
-            <div class="addr-grid">
-              <div class="field">
-                <label id="lbl-biz-city" for="biz-modal-city">City</label>
-                <input type="text" id="biz-modal-city" placeholder="Austin" autocomplete="address-level2" oninput="updateBizPreview()" />
-              </div>
-              <div class="field" id="field-biz-state">
-                <label id="lbl-biz-state" for="biz-modal-state">State</label>
-                <input type="text" id="biz-modal-state" placeholder="TX" autocomplete="address-level1" oninput="updateBizPreview()" />
-              </div>
-              <div class="field" id="field-biz-zip">
-                <label id="lbl-biz-zip" for="biz-modal-zip">ZIP Code</label>
-                <input type="text" id="biz-modal-zip" placeholder="78701" autocomplete="postal-code" oninput="updateBizPreview()" />
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="biz-modal-primary">Header Color</label>
-                <input type="color" id="biz-modal-primary" value="#0f2d52" oninput="updateBizPreview()" />
-              </div>
-              <div class="field">
-                <label for="biz-modal-accent">Accent Color</label>
-                <input type="color" id="biz-modal-accent" value="#d4500a" oninput="updateBizPreview()" />
-              </div>
-            </div>
-            <div class="section-label" style="margin:1rem 0 0.65rem;">Payment Options</div>
-            <div class="field">
-              <label for="biz-modal-paypal">PayPal.me Username</label>
-              <input type="text" id="biz-modal-paypal" placeholder="your-username" autocomplete="off" />
-            </div>
-            <div class="field">
-              <label for="biz-modal-bank-name">Bank Name</label>
-              <input type="text" id="biz-modal-bank-name" placeholder="First National Bank" autocomplete="off" />
-            </div>
-            <div class="field">
-              <label for="biz-modal-bank-holder">Account Holder</label>
-              <input type="text" id="biz-modal-bank-holder" placeholder="Acme Corp" autocomplete="off" />
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="biz-modal-bank-acct">Account Number</label>
-                <input type="text" id="biz-modal-bank-acct" placeholder="123456789" autocomplete="off" />
-              </div>
-              <div class="field">
-                <label for="biz-modal-bank-routing">Routing / Sort Code</label>
-                <input type="text" id="biz-modal-bank-routing" placeholder="021000021" autocomplete="off" />
-              </div>
-            </div>
-            <div class="field">
-              <label for="biz-modal-bank-iban">IBAN <span style="font-weight:400;color:var(--muted);font-size:0.85em;">(optional, international)</span></label>
-              <input type="text" id="biz-modal-bank-iban" placeholder="GB29 NWBK 6016 1331 9268 19" autocomplete="off" />
-            </div>
-          </div>
-          <div class="biz-modal-actions">
-            <button type="button" class="btn" onclick="saveBizProfile()">Save Profile</button>
-            <button type="button" class="btn-skip" onclick="closeBizModal()">Skip for now</button>
-          </div>
-        </div>
-        <!-- RIGHT: live paper preview -->
-        <div class="biz-paper-col">
-          <div class="biz-paper-hint">Live Preview &mdash; 8.5 &times; 11&Prime;</div>
-          <div class="biz-paper">
-            <div class="bp-doc-header">
-              <div class="bp-logo-area">
-                <img id="bp-prev-logo" class="bp-logo-img" style="display:none;" />
-              </div>
-              <div class="bp-doc-type">INVOICE</div>
-            </div>
-            <div id="bp-prev-name" class="bp-biz-name" style="color:#c0c8d4;">Your Business Name</div>
-            <div id="bp-prev-street" class="bp-biz-addr"></div>
-            <div id="bp-prev-cityline" class="bp-biz-addr"></div>
-            <div id="bp-prev-country" class="bp-biz-addr"></div>
-            <div id="bp-prev-contact" class="bp-biz-contact"></div>
-            <div class="bp-divider"></div>
-            <div class="bp-ghost-section">
-              <div class="bp-ghost-label">Bill To</div>
-              <div class="bp-ghost-line" style="width:62%"></div>
-              <div class="bp-ghost-line" style="width:48%"></div>
-              <div class="bp-ghost-line" style="width:36%"></div>
-            </div>
-            <div class="bp-ghost-table">
-              <div class="bp-ghost-thead"></div>
-              <div class="bp-ghost-row"></div>
-              <div class="bp-ghost-row" style="width:85%"></div>
-              <div class="bp-ghost-row" style="width:70%;opacity:0.55"></div>
-            </div>
-            <div class="bp-ghost-totals">
-              <div class="bp-ghost-total-row"></div>
-              <div class="bp-ghost-total-row"></div>
-              <div class="bp-ghost-total-grand"></div>
-            </div>
-            <div class="bp-fade"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <BusinessProfileModal />
 
   <script is:inline>
     window.__CURRENCIES = [
@@ -1176,245 +790,6 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       if (!e.target.closest('header')) {
         document.querySelector('nav ul')?.classList.remove('nav-open');
       }
-    });
-
-    // ── Business Profile Modal ──
-    var ADDR_CONFIG = {
-      'US': { regionLabel: 'State',          regionPh: 'TX',            postalLabel: 'ZIP Code',       postalPh: '10001'       },
-      'CA': { regionLabel: 'Province',       regionPh: 'ON',            postalLabel: 'Postal Code',    postalPh: 'M5V 2T6'     },
-      'GB': { regionLabel: 'County',         regionPh: 'Surrey',        postalLabel: 'Postcode',       postalPh: 'SW1A 1AA'    },
-      'AU': { regionLabel: 'State',          regionPh: 'NSW',           postalLabel: 'Postcode',       postalPh: '2000'        },
-      'NZ': { regionLabel: 'Region',         regionPh: 'Auckland',      postalLabel: 'Postcode',       postalPh: '1010'        },
-      'IE': { regionLabel: 'County',         regionPh: 'Dublin',        postalLabel: 'Eircode',        postalPh: 'D01 F5P2'    },
-      'IN': { regionLabel: 'State',          regionPh: 'Maharashtra',   postalLabel: 'PIN Code',       postalPh: '400001'      },
-      'SG': { regionLabel: null,             regionPh: '',              postalLabel: 'Postal Code',    postalPh: '018989'      },
-      'HK': { regionLabel: 'District',       regionPh: 'Kowloon',       postalLabel: null,             postalPh: ''            },
-      'ZA': { regionLabel: 'Province',       regionPh: 'Gauteng',       postalLabel: 'Postal Code',    postalPh: '2000'        },
-      'NG': { regionLabel: 'State',          regionPh: 'Lagos',         postalLabel: 'Postal Code',    postalPh: '100001'      },
-      'DE': { regionLabel: 'State',          regionPh: 'Bayern',        postalLabel: 'Postleitzahl',   postalPh: '80331'       },
-      'AT': { regionLabel: 'State',          regionPh: 'Wien',          postalLabel: 'Postleitzahl',   postalPh: '1010'        },
-      'CH': { regionLabel: 'Canton',         regionPh: 'Zürich',        postalLabel: 'PLZ',            postalPh: '8001'        },
-      'FR': { regionLabel: 'Department',     regionPh: '75',            postalLabel: 'Code postal',    postalPh: '75001'       },
-      'NL': { regionLabel: 'Province',       regionPh: 'Noord-Holland', postalLabel: 'Postcode',       postalPh: '1011 AB'     },
-      'BE': { regionLabel: 'Province',       regionPh: 'Antwerp',       postalLabel: 'Postcode',       postalPh: '2000'        },
-      'ES': { regionLabel: 'Province',       regionPh: 'Madrid',        postalLabel: 'Código Postal',  postalPh: '28001'       },
-      'PT': { regionLabel: 'District',       regionPh: 'Lisboa',        postalLabel: 'Código Postal',  postalPh: '1000-001'    },
-      'IT': { regionLabel: 'Province',       regionPh: 'RM',            postalLabel: 'CAP',            postalPh: '00100'       },
-      'SE': { regionLabel: 'County',         regionPh: 'Stockholm',     postalLabel: 'Postnummer',     postalPh: '111 20'      },
-      'NO': { regionLabel: 'County',         regionPh: 'Oslo',          postalLabel: 'Postnummer',     postalPh: '0150'        },
-      'DK': { regionLabel: 'Region',         regionPh: 'Midtjylland',   postalLabel: 'Postnummer',     postalPh: '1050'        },
-      'FI': { regionLabel: 'Region',         regionPh: 'Uusimaa',       postalLabel: 'Postinumero',    postalPh: '00100'       },
-      'PL': { regionLabel: 'Voivodeship',    regionPh: 'Masovian',      postalLabel: 'Kod pocztowy',   postalPh: '00-001'      },
-      'RO': { regionLabel: 'County',         regionPh: 'Ilfov',         postalLabel: 'Cod poștal',     postalPh: '010011'      },
-      'CZ': { regionLabel: 'Region',         regionPh: 'Prague',        postalLabel: 'PSČ',            postalPh: '110 00'      },
-      'SK': { regionLabel: 'Region',         regionPh: 'Bratislava',    postalLabel: 'PSČ',            postalPh: '811 01'      },
-      'HU': { regionLabel: 'County',         regionPh: 'Pest',          postalLabel: 'Irányítószám',   postalPh: '1011'        },
-      'GR': { regionLabel: 'Region',         regionPh: 'Attica',        postalLabel: 'Postal Code',    postalPh: '105 57'      },
-      'BR': { regionLabel: 'State',          regionPh: 'SP',            postalLabel: 'CEP',            postalPh: '01310-100'   },
-      'MX': { regionLabel: 'State',          regionPh: 'CDMX',          postalLabel: 'Código Postal',  postalPh: '06600'       },
-      'AR': { regionLabel: 'Province',       regionPh: 'Buenos Aires',  postalLabel: 'Código Postal',  postalPh: 'C1000'       },
-      'CL': { regionLabel: 'Region',         regionPh: 'Metropolitana', postalLabel: 'Código Postal',  postalPh: '8320000'     },
-      'CO': { regionLabel: 'Department',     regionPh: 'Cundinamarca',  postalLabel: 'Código Postal',  postalPh: '110111'      },
-      'JP': { regionLabel: 'Prefecture',     regionPh: 'Tokyo',         postalLabel: 'Postal Code',    postalPh: '100-0001'    },
-      'CN': { regionLabel: 'Province',       regionPh: 'Guangdong',     postalLabel: 'Postal Code',    postalPh: '510000'      },
-      'KR': { regionLabel: 'Province',       regionPh: 'Seoul',         postalLabel: 'Postal Code',    postalPh: '03000'       },
-      'TW': { regionLabel: 'County/City',    regionPh: 'Taipei',        postalLabel: 'Postal Code',    postalPh: '100'         },
-      'MY': { regionLabel: 'State',          regionPh: 'Selangor',      postalLabel: 'Postcode',       postalPh: '50450'       },
-      'ID': { regionLabel: 'Province',       regionPh: 'DKI Jakarta',   postalLabel: 'Kode Pos',       postalPh: '10110'       },
-      'TH': { regionLabel: 'Province',       regionPh: 'Bangkok',       postalLabel: 'Postal Code',    postalPh: '10100'       },
-      'PH': { regionLabel: 'Province',       regionPh: 'Metro Manila',  postalLabel: 'ZIP Code',       postalPh: '1000'        },
-      'PK': { regionLabel: 'Province',       regionPh: 'Punjab',        postalLabel: 'Postal Code',    postalPh: '54000'       },
-      'BD': { regionLabel: 'Division',       regionPh: 'Dhaka',         postalLabel: 'Postal Code',    postalPh: '1000'        },
-      'LK': { regionLabel: 'Province',       regionPh: 'Western',       postalLabel: 'Postal Code',    postalPh: '00100'       },
-      'VN': { regionLabel: 'Province',       regionPh: 'Hanoi',         postalLabel: 'Postal Code',    postalPh: '100000'      },
-      'AE': { regionLabel: 'Emirate',        regionPh: 'Dubai',         postalLabel: null,             postalPh: ''            },
-      'SA': { regionLabel: 'Region',         regionPh: 'Riyadh',        postalLabel: 'Postal Code',    postalPh: '11564'       },
-      'QA': { regionLabel: 'Municipality',   regionPh: 'Ad Dawhah',     postalLabel: null,             postalPh: ''            },
-      'KW': { regionLabel: 'Governorate',    regionPh: 'Al Asimah',     postalLabel: 'Postal Code',    postalPh: '13001'       },
-      'BH': { regionLabel: 'Governorate',    regionPh: 'Capital',       postalLabel: 'Postal Code',    postalPh: '317'         },
-      'OM': { regionLabel: 'Governorate',    regionPh: 'Muscat',        postalLabel: 'Postal Code',    postalPh: '100'         },
-      'IL': { regionLabel: 'District',       regionPh: 'Tel Aviv',      postalLabel: 'Postal Code',    postalPh: '6100000'     },
-      'TR': { regionLabel: 'Province',       regionPh: 'İstanbul',      postalLabel: 'Posta Kodu',     postalPh: '34000'       },
-      'EG': { regionLabel: 'Governorate',    regionPh: 'Cairo',         postalLabel: 'Postal Code',    postalPh: '11511'       },
-      'MA': { regionLabel: 'Region',         regionPh: 'Casablanca',    postalLabel: 'Code Postal',    postalPh: '20000'       },
-      'KE': { regionLabel: 'County',         regionPh: 'Nairobi',       postalLabel: 'Postal Code',    postalPh: '00100'       },
-      'GH': { regionLabel: 'Region',         regionPh: 'Greater Accra', postalLabel: null,             postalPh: ''            },
-    };
-    var ADDR_DEFAULT = { regionLabel: 'State / Region', regionPh: '', postalLabel: 'Postal Code', postalPh: '' };
-
-    function updateAddrLabels() {
-      var code = (document.getElementById('biz-modal-country')?.value || 'US');
-      var cfg  = ADDR_CONFIG[code] || ADDR_DEFAULT;
-      var lblState = document.getElementById('lbl-biz-state');
-      var lblZip   = document.getElementById('lbl-biz-zip');
-      var fldState = document.getElementById('field-biz-state');
-      var fldZip   = document.getElementById('field-biz-zip');
-      var inpState = document.getElementById('biz-modal-state');
-      var inpZip   = document.getElementById('biz-modal-zip');
-      if (cfg.regionLabel) {
-        if (fldState) fldState.style.display = '';
-        if (lblState) lblState.textContent = cfg.regionLabel;
-        if (inpState) inpState.placeholder  = cfg.regionPh;
-      } else {
-        if (fldState) fldState.style.display = 'none';
-        if (inpState) inpState.value = '';
-      }
-      if (cfg.postalLabel) {
-        if (fldZip) fldZip.style.display = '';
-        if (lblZip) lblZip.textContent = cfg.postalLabel;
-        if (inpZip) inpZip.placeholder  = cfg.postalPh;
-      } else {
-        if (fldZip) fldZip.style.display = 'none';
-        if (inpZip) inpZip.value = '';
-      }
-    }
-
-    function openBizModal() {
-      document.getElementById('biz-modal').style.display = 'flex';
-      _loadBizToModal();
-    }
-    function closeBizModal() {
-      document.getElementById('biz-modal').style.display = 'none';
-      localStorage.setItem('biz_setup_done', '1');
-    }
-    function autoSetCountryFlag() {
-      var sel = document.getElementById('biz-modal-country');
-      var cb  = document.getElementById('biz-show-country');
-      if (cb && sel) cb.checked = (sel.value !== 'US');
-    }
-    function _loadBizToModal() {
-      var countrySel = document.getElementById('biz-modal-country');
-      if (countrySel) countrySel.value = localStorage.getItem('biz_country') || 'US';
-      var showCb = document.getElementById('biz-show-country');
-      if (showCb) {
-        var savedFlag = localStorage.getItem('biz_show_country');
-        showCb.checked = savedFlag !== null ? (savedFlag === '1') : ((localStorage.getItem('biz_country') || 'US') !== 'US');
-      }
-      var currencySel = document.getElementById('biz-modal-currency');
-      if (currencySel) currencySel.value = localStorage.getItem('preferred_currency') || 'USD';
-      document.getElementById('biz-modal-name').value   = localStorage.getItem('biz_name')   || '';
-      document.getElementById('biz-modal-email').value  = localStorage.getItem('biz_email')  || '';
-      document.getElementById('biz-modal-phone').value  = localStorage.getItem('biz_phone')  || '';
-      document.getElementById('biz-modal-street').value = localStorage.getItem('biz_street') || '';
-      document.getElementById('biz-modal-city').value   = localStorage.getItem('biz_city')   || '';
-      document.getElementById('biz-modal-state').value  = localStorage.getItem('biz_state')  || '';
-      document.getElementById('biz-modal-zip').value    = localStorage.getItem('biz_zip')    || '';
-      const logo = localStorage.getItem('biz_logo');
-      const prev = document.getElementById('biz-logo-preview');
-      const ph   = document.getElementById('biz-logo-placeholder');
-      if (logo) { prev.src = logo; prev.style.display = 'block'; ph.style.display = 'none'; }
-      else       { prev.style.display = 'none'; ph.style.display = 'block'; }
-      var primaryEl = document.getElementById('biz-modal-primary');
-      var accentEl  = document.getElementById('biz-modal-accent');
-      if (primaryEl) primaryEl.value = localStorage.getItem('biz_primary_color') || '#0f2d52';
-      if (accentEl)  accentEl.value  = localStorage.getItem('biz_accent_color')  || '#d4500a';
-      var paypalEl = document.getElementById('biz-modal-paypal');
-      if (paypalEl) paypalEl.value = localStorage.getItem('biz_paypal') || '';
-      [['biz-modal-bank-name','biz_bank_name'],['biz-modal-bank-holder','biz_bank_holder'],
-       ['biz-modal-bank-acct','biz_bank_acct'],['biz-modal-bank-routing','biz_bank_routing'],
-       ['biz-modal-bank-iban','biz_bank_iban']].forEach(function(p) {
-        var el = document.getElementById(p[0]); if (el) el.value = localStorage.getItem(p[1]) || '';
-      });
-      updateAddrLabels();
-      updateBizPreview();
-    }
-    function saveBizProfile() {
-      var cSel2 = document.getElementById('biz-modal-country');
-      if (cSel2) {
-        localStorage.setItem('biz_country', cSel2.value);
-        var idx2 = cSel2.selectedIndex;
-        localStorage.setItem('biz_country_name', idx2 >= 0 ? cSel2.options[idx2].text : '');
-      }
-      var showCb2 = document.getElementById('biz-show-country');
-      if (showCb2) localStorage.setItem('biz_show_country', showCb2.checked ? '1' : '0');
-      localStorage.setItem('biz_name',    document.getElementById('biz-modal-name').value.trim());
-      localStorage.setItem('biz_email',   document.getElementById('biz-modal-email').value.trim());
-      localStorage.setItem('biz_phone',   document.getElementById('biz-modal-phone').value.trim());
-      localStorage.setItem('biz_street',  document.getElementById('biz-modal-street').value.trim());
-      localStorage.setItem('biz_city',    document.getElementById('biz-modal-city').value.trim());
-      localStorage.setItem('biz_state',   document.getElementById('biz-modal-state').value.trim());
-      localStorage.setItem('biz_zip',     document.getElementById('biz-modal-zip').value.trim());
-      var currencySel = document.getElementById('biz-modal-currency');
-      if (currencySel) setCurrency(currencySel.value);
-      var primaryEl = document.getElementById('biz-modal-primary');
-      var accentEl  = document.getElementById('biz-modal-accent');
-      if (primaryEl) localStorage.setItem('biz_primary_color', primaryEl.value);
-      if (accentEl)  localStorage.setItem('biz_accent_color',  accentEl.value);
-      var paypalEl2 = document.getElementById('biz-modal-paypal');
-      if (paypalEl2) localStorage.setItem('biz_paypal', paypalEl2.value.trim().replace(/^@/, '').replace(/paypal\.me\//i, ''));
-      [['biz-modal-bank-name','biz_bank_name'],['biz-modal-bank-holder','biz_bank_holder'],
-       ['biz-modal-bank-acct','biz_bank_acct'],['biz-modal-bank-routing','biz_bank_routing'],
-       ['biz-modal-bank-iban','biz_bank_iban']].forEach(function(p) {
-        var el = document.getElementById(p[0]); if (el) localStorage.setItem(p[1], el.value.trim());
-      });
-      localStorage.setItem('biz_setup_done', '1');
-      closeBizModal();
-      if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
-    }
-    function updateBizPreview() {
-      var name   = (document.getElementById('biz-modal-name')?.value   || '').trim();
-      var street = (document.getElementById('biz-modal-street')?.value || '').trim();
-      var city   = (document.getElementById('biz-modal-city')?.value   || '').trim();
-      var state  = (document.getElementById('biz-modal-state')?.value  || '').trim();
-      var zip    = (document.getElementById('biz-modal-zip')?.value    || '').trim();
-      var phone  = (document.getElementById('biz-modal-phone')?.value  || '').trim();
-      var email  = (document.getElementById('biz-modal-email')?.value  || '').trim();
-      var cSel   = document.getElementById('biz-modal-country');
-      var countryName = (cSel && cSel.selectedIndex >= 0) ? cSel.options[cSel.selectedIndex].text : '';
-      var countryCode = cSel?.value || 'US';
-      var elName    = document.getElementById('bp-prev-name');
-      var elStreet  = document.getElementById('bp-prev-street');
-      var elCity    = document.getElementById('bp-prev-cityline');
-      var elCountry = document.getElementById('bp-prev-country');
-      var elContact = document.getElementById('bp-prev-contact');
-      var elLogo    = document.getElementById('bp-prev-logo');
-      if (elName) {
-        elName.textContent = name || 'Your Business Name';
-        elName.style.color = name ? 'var(--text)' : '#c0c8d4';
-      }
-      if (elStreet) elStreet.textContent = street;
-      if (elCity) {
-        var parts = [];
-        if (city)  parts.push(city);
-        if (state) parts.push(state);
-        var line = parts.join(', ');
-        if (zip)   line += (line ? ' ' : '') + zip;
-        elCity.textContent = line;
-      }
-      var showCb3 = document.getElementById('biz-show-country');
-      if (elCountry) elCountry.textContent = (showCb3?.checked && countryCode !== 'US') ? countryName : '';
-      if (elContact) {
-        var cp = [];
-        if (phone) cp.push(phone);
-        if (email) cp.push(email);
-        elContact.textContent = cp.join('  ·  ');
-      }
-      if (elLogo) {
-        var logo = localStorage.getItem('biz_logo');
-        if (logo) { elLogo.src = logo; elLogo.style.display = 'block'; }
-        else { elLogo.style.display = 'none'; }
-      }
-      var primary = document.getElementById('biz-modal-primary')?.value || localStorage.getItem('biz_primary_color') || '#0f2d52';
-      var accent  = document.getElementById('biz-modal-accent')?.value  || localStorage.getItem('biz_accent_color')  || '#d4500a';
-      var paperEl = document.querySelector('.biz-paper');
-      if (paperEl) {
-        paperEl.style.setProperty('--navy', primary);
-        paperEl.style.setProperty('--fox',  accent);
-      }
-    }
-    document.getElementById('biz-logo-input').addEventListener('change', function() {
-      const file = this.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const b64 = e.target.result;
-        localStorage.setItem('biz_logo', b64);
-        const prev = document.getElementById('biz-logo-preview');
-        const ph   = document.getElementById('biz-logo-placeholder');
-        prev.src = b64; prev.style.display = 'block'; ph.style.display = 'none';
-        updateBizPreview();
-      };
-      reader.readAsDataURL(file);
     });
 
     // ── Address Autocomplete (flip on: replace YOUR_MAPBOX_TOKEN with a real token) ──
