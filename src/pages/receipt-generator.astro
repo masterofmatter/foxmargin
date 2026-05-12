@@ -87,6 +87,10 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
               <input type="text" inputmode="decimal" id="amount-paid" placeholder="Defaults to total" oninput="renderPreview()" />
             </div>
           </div>
+          <label style="display:flex;align-items:center;gap:.4rem;margin-top:.15rem;cursor:pointer;">
+            <input type="checkbox" id="show-stamp" onchange="localStorage.setItem('rec_show_stamp', this.checked ? '1' : '0'); renderPreview();" style="width:auto;margin:0;accent-color:var(--fox);flex-shrink:0;" />
+            <span style="font-size:.8rem;color:var(--muted);user-select:none;">Show payment stamp on receipt</span>
+          </label>
         </div>
         <div id="tax-lines" style="margin-top:0.75rem;">
           <div class="tax-row">
@@ -279,6 +283,9 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   const fmtD = d => d.toISOString().slice(0, 10);
   document.getElementById('rec-date').value   = fmtD(today);
   document.getElementById('rec-number').value = 'REC-001';
+
+  const stampCb = document.getElementById('show-stamp');
+  if (stampCb) stampCb.checked = (localStorage.getItem('rec_show_stamp') ?? '1') === '1';
 
   document.addEventListener('currencychange', renderPreview);
 
@@ -492,8 +499,10 @@ function renderPreview() {
         </tr>`).join('')
     : `<tr><td colspan="4" style="padding:1.5rem .7rem;text-align:center;font-size:.85em;color:#c0c8d4;font-style:italic;">Add an item to get started</td></tr>`;
 
-  const stampHTML =
-    isPaid
+  const showStamp = document.getElementById('show-stamp')?.checked ?? true;
+  const stampHTML = (!showStamp || total <= 0)
+    ? ''
+    : isPaid
       ? `<div style="display:inline-block;border:3px solid #059669;border-radius:5px;color:#059669;font-size:1.5em;font-weight:900;letter-spacing:.12em;padding:.2em .9em;transform:rotate(-4deg);opacity:.88;">PAID</div>`
       : isPartial
         ? `<div style="display:inline-block;border:3px solid #d97706;border-radius:5px;color:#d97706;font-size:1.2em;font-weight:900;letter-spacing:.12em;padding:.2em .9em;transform:rotate(-4deg);opacity:.88;">PARTIAL PAYMENT</div>`

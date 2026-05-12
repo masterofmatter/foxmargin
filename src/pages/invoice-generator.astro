@@ -76,7 +76,15 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
               <label for="due-date">Due Date</label>
               <input type="text" id="due-date" placeholder="YYYY-MM-DD" oninput="renderPreview()" />
             </div>
+            <div class="field">
+              <label for="amount-paid">Amount Paid</label>
+              <input type="text" inputmode="decimal" id="amount-paid" placeholder="0.00" oninput="renderPreview()" />
+            </div>
           </div>
+          <label style="display:flex;align-items:center;gap:.4rem;margin-top:.15rem;cursor:pointer;">
+            <input type="checkbox" id="show-stamp" onchange="localStorage.setItem('inv_show_stamp', this.checked ? '1' : '0'); renderPreview();" style="width:auto;margin:0;accent-color:var(--fox);flex-shrink:0;" />
+            <span style="font-size:.8rem;color:var(--muted);user-select:none;">Show payment stamp on invoice</span>
+          </label>
         </div>
         <div id="tax-lines" style="margin-top:0.75rem;">
           <div class="tax-row">
@@ -276,6 +284,9 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   document.getElementById('inv-date').value   = fmtD(today);
   document.getElementById('due-date').value   = fmtD(due);
   document.getElementById('inv-number').value = 'INV-001';
+
+  const stampCb = document.getElementById('show-stamp');
+  if (stampCb) stampCb.checked = (localStorage.getItem('inv_show_stamp') ?? '1') === '1';
 
   document.addEventListener('currencychange', renderPreview);
 
@@ -492,6 +503,20 @@ function renderPreview() {
   const invNum  = document.getElementById('inv-number')?.value || 'INV-001';
   const invDate = document.getElementById('inv-date')?.value   || '';
   const dueDate = document.getElementById('due-date')?.value   || '';
+
+  const apRaw      = document.getElementById('amount-paid')?.value || '';
+  const amountPaid = apRaw.trim() !== '' ? (parseFloat(apRaw) || 0) : 0;
+  const balance    = total - amountPaid;
+  const isPaid     = total > 0 && balance <= 0.005;
+  const isPartial  = !isPaid && amountPaid > 0;
+  const showStamp  = document.getElementById('show-stamp')?.checked ?? true;
+  const stampHTML  = (!showStamp || total <= 0)
+    ? ''
+    : isPaid
+      ? `<div style="display:inline-block;border:3px solid #059669;border-radius:5px;color:#059669;font-size:1.5em;font-weight:900;letter-spacing:.12em;padding:.2em .9em;transform:rotate(-4deg);opacity:.88;">PAID</div>`
+      : isPartial
+        ? `<div style="display:inline-block;border:3px solid #d97706;border-radius:5px;color:#d97706;font-size:1.2em;font-weight:900;letter-spacing:.12em;padding:.2em .9em;transform:rotate(-4deg);opacity:.88;">PARTIAL PAYMENT</div>`
+        : `<div style="display:inline-block;border:3px solid #d97706;border-radius:5px;color:#d97706;font-size:1.5em;font-weight:900;letter-spacing:.12em;padding:.2em .9em;transform:rotate(-4deg);opacity:.88;">UNPAID</div>`;
   const notes   = (document.getElementById('notes')?.value     || '').trim();
   const logo    = localStorage.getItem('biz_logo');
 
@@ -579,11 +604,14 @@ function renderPreview() {
       <tbody>${lineRows}</tbody>
     </table>
 
-    <div style="display:flex;justify-content:flex-end;">
-      <div style="width:220px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;">
+      <div>${stampHTML}</div>
+      <div style="width:240px;">
         <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.87em;color:${muted};border-bottom:1px solid ${border};"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
         ${taxes.map(t => `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.87em;color:${muted};border-bottom:1px solid ${border};"><span>${esc(t.label)} (${t.rate}%)</span><span>${fmt(subtotal * t.rate / 100)}</span></div>`).join('')}
-        <div style="display:flex;justify-content:space-between;padding:.55rem 0 .35rem;font-size:1.05em;font-weight:700;color:${navy};margin-top:.1rem;"><span>Total</span><span>${fmt(total)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:.55rem 0 .35rem;font-size:1.05em;font-weight:700;color:${navy};margin-top:.1rem;${amountPaid > 0 ? `border-bottom:1px solid ${border};` : ''}"><span>Total</span><span>${fmt(total)}</span></div>
+        ${amountPaid > 0 ? `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.87em;color:${muted};"><span>Amount Paid</span><span>${fmt(amountPaid)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.9em;font-weight:600;color:${isPaid ? '#059669' : '#dc2626'};"><span>Balance Due</span><span>${fmt(Math.max(0, balance))}</span></div>` : ''}
       </div>
     </div>
 
