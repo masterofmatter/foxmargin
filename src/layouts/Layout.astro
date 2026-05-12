@@ -5,8 +5,9 @@ export interface Props {
   title: string;
   description: string;
   canonical?: string;
+  schema?: string;
 }
-const { title, description, canonical } = Astro.props;
+const { title, description, canonical, schema } = Astro.props;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 ---
 <!doctype html>
@@ -23,6 +24,7 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
+  {schema && <Fragment set:html={`<script type="application/ld+json">${schema}</script>`} />}
   <!-- Plausible Analytics -->
   <script defer data-domain="foxmargin.com" src="https://plausible.io/js/script.js"></script>
   <!-- Google AdSense — swap ca-pub-XXXXXXXXXXXXXXXX once approved -->

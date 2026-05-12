@@ -1,9 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Free Receipt Generator",
+    "url": "https://foxmargin.com/receipt-generator/",
+    "description": "Create professional receipts online for free. Add your logo, line items, payment method, and get a PAID stamp. Print or save as PDF instantly. No signup.",
+    "applicationCategory": "BusinessApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Free receipt creation", "PDF export", "Logo upload", "PAID stamp", "Partial payment support", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "Is this receipt generator free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — completely free, no account needed, no watermark. Your logo and data stay in your browser." } },
+    { "@type": "Question", "name": "How do I get a PDF receipt?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, look for the PDF dropdown in the bottom-left of the print dialog. All modern browsers support this natively." } },
+    { "@type": "Question", "name": "Can I add my logo to the receipt?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your logo is stored in your browser and appears on every document automatically." } },
+    { "@type": "Question", "name": "What if a customer partially paid?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Enter the amount they actually paid in the Amount Paid field. The receipt will show the balance due and stamp PARTIAL PAYMENT instead of PAID. Issue a follow-up receipt when the remainder is collected." } }
+  ]}
+]});
 ---
 <Layout
   title="Free Receipt Generator — Create & Print Receipts | FoxMargin"
   description="Create professional receipts online for free. Add your logo, line items, payment method, and get a PAID stamp. Print or save as PDF instantly. No signup."
+  schema={schema}
 >
 
   <!-- Hidden inputs: filled by fillDocFromBiz() -->

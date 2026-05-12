@@ -1,9 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Profit Margin Calculator",
+    "url": "https://foxmargin.com/profit-margin-calculator/",
+    "description": "Calculate gross profit margin, net margin, and profit instantly. Enter revenue and cost to see your margin percentage. Free, no signup.",
+    "applicationCategory": "FinanceApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Gross margin calculation", "Net margin calculation", "Live results", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "What is the difference between margin and markup?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Margin is calculated from revenue (what you sell for). Markup is calculated from cost (what you paid). A 50% markup on a $10 cost = $15 price = 33% margin." } },
+    { "@type": "Question", "name": "Is 30% profit margin good?",
+      "acceptedAnswer": { "@type": "Answer", "text": "30% gross margin is average for retail and reasonable for most product businesses. For services, aim for 40–60% gross margin. Net margin of 10% or more is generally considered healthy." } },
+    { "@type": "Question", "name": "How do I improve my profit margin?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two levers: raise prices (hardest psychologically but highest impact) or reduce COGS through better supplier terms, bulk purchasing, or more efficient production. Cutting operating expenses helps net margin but won't move gross margin." } },
+    { "@type": "Question", "name": "Does this calculator include tax?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No — this calculates pre-tax margin. To get after-tax net margin, subtract your tax rate from the net profit figure before dividing by revenue." } }
+  ]}
+]});
 ---
 <Layout
   title="Profit Margin Calculator — Free | FoxMargin"
   description="Calculate gross profit margin, net margin, and profit instantly. Enter revenue and cost to see your margin percentage. Free, no signup."
+  schema={schema}
 >
   <!-- Hero -->
   <section class="calc-hero">

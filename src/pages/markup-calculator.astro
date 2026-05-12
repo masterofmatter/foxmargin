@@ -1,9 +1,27 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Markup Calculator",
+    "url": "https://foxmargin.com/markup-calculator/",
+    "description": "Calculate markup percentage, selling price, and profit margin. Convert between markup and margin instantly. Free business pricing calculator.",
+    "applicationCategory": "FinanceApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Markup percentage", "Selling price calculator", "Margin to markup conversion", "Live results", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "What markup should I use for retail?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Retail markup varies widely by category. Fashion typically uses 100–200%. Electronics are much lower at 10–30% due to thin margins. Specialty goods and handmade products can support 200–400% markup. Use your industry benchmarks as a starting point, then test price sensitivity." } },
+    { "@type": "Question", "name": "What is keystone pricing?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Keystone pricing is doubling the wholesale cost — a 100% markup, which gives you a 50% margin. It was a traditional retail standard. Many modern retailers use it as a floor rather than a target, especially for premium or low-competition products." } },
+    { "@type": "Question", "name": "How do I convert a target margin to a markup?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Use this formula: Markup % = Margin % divided by (1 minus Margin %). So a 40% target margin = 40 divided by 0.60 = 66.7% markup. The reverse: Margin % = Markup % divided by (1 + Markup %)." } }
+  ]}
+]});
 ---
 <Layout
   title="Markup Calculator — Free | FoxMargin"
   description="Calculate markup percentage, selling price, and profit margin. Convert between markup and margin instantly. Free business pricing calculator."
+  schema={schema}
 >
   <!-- Hero -->
   <section class="calc-hero">

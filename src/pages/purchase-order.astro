@@ -1,9 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Free Purchase Order Generator",
+    "url": "https://foxmargin.com/purchase-order/",
+    "description": "Create professional purchase orders online for free. Add vendor details, line items, delivery date, and an authorization block. Print or save as PDF. No signup.",
+    "applicationCategory": "BusinessApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Free PO creation", "PDF export", "Logo upload", "Authorization block", "Delivery date", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "What is a purchase order and when do I need one?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A purchase order (PO) is a formal document from a buyer to a supplier that commits to purchasing specific goods or services at agreed terms. It becomes a legally binding contract when the supplier accepts it. Use POs when you need a paper trail for approval processes, when ordering from new vendors, or when your accounting requires matching POs to invoices before payment." } },
+    { "@type": "Question", "name": "What is the difference between a PO and an invoice?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A PO is created by the buyer and sent to the supplier before goods are delivered — it's a commitment to buy. An invoice is created by the supplier and sent to the buyer after delivery — it's a request for payment. In a typical purchase cycle: you send a PO, the supplier delivers and sends an invoice, you match the invoice to your PO, then you pay." } },
+    { "@type": "Question", "name": "What does Net 30 payment terms mean?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Net 30 means the invoice is due 30 days after the invoice date. Net 15 = 15 days, Net 60 = 60 days. 2/10 Net 30 means you get a 2% discount if you pay within 10 days, otherwise the full amount is due in 30 days. Due on Receipt means payment is expected immediately upon delivery." } },
+    { "@type": "Question", "name": "Does my business info get saved?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your company name, email, phone, address, and logo are stored locally in your browser and pre-fill every document you create. Nothing is sent to any server." } }
+  ]}
+]});
 ---
 <Layout
   title="Free Purchase Order Generator — Create Professional POs | FoxMargin"
   description="Create professional purchase orders online for free. Add vendor details, line items, delivery date, and an authorization block. Print or save as PDF. No signup."
+  schema={schema}
 >
 
   <!-- Hidden inputs: filled by fillDocFromBiz() (these are the BUYER / Bill To) -->

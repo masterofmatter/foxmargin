@@ -1,9 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Free Quote & Estimate Generator",
+    "url": "https://foxmargin.com/quote-generator/",
+    "description": "Create professional quotes and estimates online for free. Add your logo, line items, validity date, and convert to invoice in one click. No signup required.",
+    "applicationCategory": "BusinessApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Free quote creation", "Convert quote to invoice", "PDF export", "Logo upload", "Validity date", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "What is the difference between a quote and an estimate?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A quote is a fixed price offer — if accepted, you're bound to that price. An estimate is an approximation that can change based on actual work required. For most service businesses, quotes are preferred for clearly defined projects and estimates for open-ended ones." } },
+    { "@type": "Question", "name": "How does Convert to Invoice work?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When your quote is accepted, click the Invoice button above the live preview. All your business info, client details, tax lines, and line items are saved and you're taken directly to the invoice generator with everything pre-filled. Just update the invoice number and due date — no re-typing required." } },
+    { "@type": "Question", "name": "How long should a quote be valid for?",
+      "acceptedAnswer": { "@type": "Answer", "text": "30 days is standard for most industries. For projects involving materials with volatile prices (construction, manufacturing), 7–14 days is common. Service-only quotes can extend to 60–90 days. Always specify the validity period to protect yourself from being held to an old price." } },
+    { "@type": "Question", "name": "Can I add my logo to the quote?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your logo is stored in your browser and appears on every document automatically." } }
+  ]}
+]});
 ---
 <Layout
   title="Free Quote & Estimate Generator — Create Professional Quotes | FoxMargin"
   description="Create professional quotes and estimates online for free. Add your logo, line items, validity date, and convert to invoice in one click. No signup required."
+  schema={schema}
 >
 
   <!-- Hidden inputs: filled by fillDocFromBiz() -->

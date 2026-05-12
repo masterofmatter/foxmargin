@@ -1,9 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Break-Even Calculator",
+    "url": "https://foxmargin.com/break-even-calculator/",
+    "description": "Calculate your break-even point in units and revenue instantly. Enter fixed costs, variable costs, and price per unit. Free business calculator.",
+    "applicationCategory": "FinanceApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Break-even units", "Break-even revenue", "Contribution margin", "Live results", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "What if my contribution margin is zero or negative?",
+      "acceptedAnswer": { "@type": "Answer", "text": "If your selling price is at or below your variable cost per unit, you lose money on every sale regardless of volume — there is no break-even point. You must either raise your price or reduce variable costs." } },
+    { "@type": "Question", "name": "How do I use break-even analysis for a new product?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Before launching, estimate your fixed costs (what you'll pay regardless of sales) and variable costs per unit. Set a target price and run this calculator. If the break-even unit count is higher than realistic sales volume, the product won't be profitable at that price." } },
+    { "@type": "Question", "name": "Should I include my own salary in fixed costs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — if you're a business owner who draws a salary, include it as a fixed cost. This gives you a more realistic picture of what it takes to truly break even, not just cover operational costs." } },
+    { "@type": "Question", "name": "What is contribution margin ratio?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Contribution margin ratio = contribution margin divided by selling price. It tells you what percentage of each dollar of revenue contributes to covering fixed costs. A 60% ratio means $0.60 of every $1 goes toward fixed costs and profit." } }
+  ]}
+]});
 ---
 <Layout
   title="Break-Even Calculator — Free | FoxMargin"
   description="Calculate your break-even point in units and revenue instantly. Enter fixed costs, variable costs, and price per unit. Free business calculator."
+  schema={schema}
 >
   <!-- Hero -->
   <section class="calc-hero">

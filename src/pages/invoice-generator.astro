@@ -1,9 +1,31 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Free Invoice Generator",
+    "url": "https://foxmargin.com/invoice-generator/",
+    "description": "Create professional invoices online for free. Add line items, tax, and your logo. Print or save as PDF instantly. No signup required.",
+    "applicationCategory": "BusinessApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Free invoice creation", "PDF export", "Logo upload", "Tax line items", "Multiple currencies", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "Is this invoice generator really free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — completely free, no account required, no watermark. Print or use your browser's Save as PDF option to get a PDF copy." } },
+    { "@type": "Question", "name": "How do I save the invoice as a PDF?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog." } },
+    { "@type": "Question", "name": "What tax rate should I use?",
+      "acceptedAnswer": { "@type": "Answer", "text": "In the US there is no federal sales tax — rates are set by state and locality. Common rates range from 0% (Oregon, Montana) to over 10% in some cities. Leave at 0% if you're exempt or selling B2B with a resale certificate." } },
+    { "@type": "Question", "name": "Can I add my logo to the invoice?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your logo is stored in your browser and appears on every document automatically." } },
+    { "@type": "Question", "name": "Can I create an invoice from a quote?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — create your quote in the Quote Generator, then click Convert to Invoice. All your business info, client details, and line items transfer automatically." } }
+  ]}
+]});
 ---
 <Layout
   title="Free Invoice Generator — Create & Print Invoices | FoxMargin"
   description="Create professional invoices online for free. Add line items, tax, and your logo. Print or save as PDF instantly. No signup required."
+  schema={schema}
 >
 
   <!-- Hidden inputs: filled by fillDocFromBiz() and quote conversion -->
