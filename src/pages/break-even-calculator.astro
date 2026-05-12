@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 
 const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   { "@type": "WebApplication", "name": "Break-Even Calculator",
@@ -137,6 +138,16 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <summary>What is contribution margin ratio?</summary>
       <p>Contribution margin ratio = contribution margin ÷ selling price. It tells you what percentage of each dollar of revenue contributes to covering fixed costs. A 60% ratio means $0.60 of every $1 goes toward fixed costs and profit.</p>
     </details>
+  </div>
+
+  <!-- Related Tools -->
+  <div class="ws-card">
+    <RelatedTools tools={[
+      { href: '/profit-margin-calculator/', label: 'Profit Margin Calculator', description: 'Calculate gross and net margin from revenue and cost.' },
+      { href: '/markup-calculator/', label: 'Markup Calculator', description: 'Set the right selling price using markup percentage.' },
+      { href: '/hourly-rate-calculator/', label: 'Hourly Rate Calculator', description: 'Calculate your minimum billable rate as a freelancer.' },
+      { href: '/invoice-generator/', label: 'Invoice Generator', description: 'Create a professional invoice once you know your numbers.' },
+    ]} />
   </div>
 
   <!-- Embed -->

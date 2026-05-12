@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 
 const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   { "@type": "WebApplication", "name": "VAT Calculator",
@@ -122,6 +123,16 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <summary>Can I use this as a GST calculator?</summary>
       <p>Yes — GST (Goods and Services Tax) works identically to VAT mathematically. Just enter your GST rate (10% for Australia, 15% for New Zealand, 5% for Canada) and this calculator handles it the same way.</p>
     </details>
+  </div>
+
+  <!-- Related Tools -->
+  <div class="ws-card">
+    <RelatedTools tools={[
+      { href: '/invoice-generator/', label: 'Invoice Generator', description: 'Create tax-inclusive invoices with your VAT rate applied.' },
+      { href: '/markup-calculator/', label: 'Markup Calculator', description: 'Set the right selling price using markup percentage.' },
+      { href: '/profit-margin-calculator/', label: 'Profit Margin Calculator', description: 'Calculate gross and net margin from revenue and cost.' },
+      { href: '/hourly-rate-calculator/', label: 'Hourly Rate Calculator', description: 'Calculate your minimum billable rate as a freelancer.' },
+    ]} />
   </div>
 
   <!-- Embed -->

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 
 const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   { "@type": "WebApplication", "name": "Markup Calculator",
@@ -138,6 +139,16 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <summary>How do I convert a target margin to a markup?</summary>
       <p>Use this formula: Markup % = Margin % ÷ (1 − Margin %). So a 40% target margin = 40 ÷ 0.60 = 66.7% markup. The reverse: Margin % = Markup % ÷ (1 + Markup %).</p>
     </details>
+  </div>
+
+  <!-- Related Tools -->
+  <div class="ws-card">
+    <RelatedTools tools={[
+      { href: '/profit-margin-calculator/', label: 'Profit Margin Calculator', description: 'Calculate gross and net margin from revenue and cost.' },
+      { href: '/break-even-calculator/', label: 'Break-Even Calculator', description: 'Find the sales volume needed to cover all your costs.' },
+      { href: '/vat-calculator/', label: 'VAT / GST Calculator', description: 'Add or remove tax from any price — any rate.' },
+      { href: '/invoice-generator/', label: 'Invoice Generator', description: 'Create a professional invoice with your markup applied.' },
+    ]} />
   </div>
 
   <!-- Embed -->

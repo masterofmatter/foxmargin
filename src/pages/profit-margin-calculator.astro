@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 
 const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   { "@type": "WebApplication", "name": "Profit Margin Calculator",
@@ -127,6 +128,16 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <summary>Does this calculator include tax?</summary>
       <p>No — this calculates pre-tax margin. To get after-tax net margin, subtract your tax rate from the net profit figure before dividing by revenue.</p>
     </details>
+  </div>
+
+  <!-- Related Tools -->
+  <div class="ws-card">
+    <RelatedTools tools={[
+      { href: '/break-even-calculator/', label: 'Break-Even Calculator', description: 'Find how many units you need to sell to cover all your costs.' },
+      { href: '/markup-calculator/', label: 'Markup Calculator', description: 'Convert between markup percentage and profit margin.' },
+      { href: '/hourly-rate-calculator/', label: 'Hourly Rate Calculator', description: 'Calculate your minimum billable rate as a freelancer.' },
+      { href: '/invoice-generator/', label: 'Invoice Generator', description: 'Turn your margin into a professional invoice in seconds.' },
+    ]} />
   </div>
 
   <!-- Embed -->

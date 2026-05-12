@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 
 const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
   { "@type": "WebApplication", "name": "Hourly Rate Calculator",
@@ -130,6 +131,16 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <summary>How do taxes affect my hourly rate?</summary>
       <p>As a freelancer you pay self-employment tax on top of income tax — often 25–40% effective. You must gross up your rate to account for this. Use the tax rate field above to model your specific situation.</p>
     </details>
+  </div>
+
+  <!-- Related Tools -->
+  <div class="ws-card">
+    <RelatedTools tools={[
+      { href: '/invoice-generator/', label: 'Invoice Generator', description: 'Bill clients at your calculated rate with a professional invoice.' },
+      { href: '/profit-margin-calculator/', label: 'Profit Margin Calculator', description: 'Calculate gross and net margin from revenue and cost.' },
+      { href: '/break-even-calculator/', label: 'Break-Even Calculator', description: 'Find the sales volume needed to cover all your costs.' },
+      { href: '/vat-calculator/', label: 'VAT / GST Calculator', description: 'Add or remove tax from any price — any rate.' },
+    ]} />
   </div>
 
   <!-- Embed -->
