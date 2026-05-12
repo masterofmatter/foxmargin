@@ -1,0 +1,218 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "Hourly Rate Calculator",
+    "url": "https://foxmargin.com/hourly-rate-calculator/",
+    "description": "Calculate the right hourly rate for your freelance work or business. Factor in target income, hours worked, taxes, and expenses. Free calculator.",
+    "applicationCategory": "FinanceApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Minimum hourly rate", "Billable hours calculation", "Tax and expense buffer", "Annual income target", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "How do I calculate my freelance hourly rate?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Start with your target annual income, add business expenses and taxes, then divide by your billable hours per year. For example: ($80,000 income + $10,000 expenses) ÷ 0.7 tax buffer ÷ 1,000 billable hours = $128.57/hr minimum rate." } },
+    { "@type": "Question", "name": "What percentage of my hours are actually billable?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Most freelancers are only 50–70% billable. The rest goes to admin, marketing, sales, and learning. A common rule of thumb is to assume 1,000 billable hours per year (roughly 50% of a 40-hour work week, 48 weeks per year)." } },
+    { "@type": "Question", "name": "Should I charge more than my minimum rate?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — your minimum rate is the floor, not the target. Add a buffer of 20–50% for profit, scope creep, and to give yourself room to negotiate. The market rate for your skills may already be above your minimum." } },
+    { "@type": "Question", "name": "How do taxes affect my hourly rate?",
+      "acceptedAnswer": { "@type": "Answer", "text": "As a freelancer or self-employed person, you pay self-employment tax plus income tax — often 25–40% of your gross income. You must gross up your rate to account for this. If you need $60/hr after tax at a 35% effective rate, your pre-tax rate must be about $92/hr." } }
+  ]}
+]});
+---
+<Layout
+  title="Hourly Rate Calculator — Freelance & Business | FoxMargin"
+  description="Calculate the minimum hourly rate you need to charge. Factor in target income, billable hours, taxes, and expenses. Free freelance rate calculator."
+  schema={schema}
+>
+  <!-- Hero -->
+  <section class="calc-hero">
+    <h1>Hourly Rate Calculator</h1>
+    <p class="calc-hero-sub">Find the minimum hourly rate you need to charge to hit your income goal — factoring in billable hours, taxes, and expenses.</p>
+  </section>
+
+  <!-- Calculator workspace -->
+  <div class="calc-workspace">
+    <!-- Inputs -->
+    <div class="ws-card">
+      <div class="ws-card-label">Inputs</div>
+      <div class="calc-form" style="gap:0.75rem;">
+        <div class="field">
+          <label for="income">Target Annual Income (take-home)</label>
+          <input type="number" id="income" placeholder="e.g. 80000" min="0" step="100" oninput="recalc()" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="weeks">Weeks Worked per Year</label>
+            <input type="number" id="weeks" placeholder="e.g. 48" min="1" max="52" step="1" value="48" oninput="recalc()" />
+          </div>
+          <div class="field">
+            <label for="hours">Billable Hours per Week</label>
+            <input type="number" id="hours" placeholder="e.g. 20" min="1" max="80" step="1" value="20" oninput="recalc()" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="expenses">Annual Business Expenses</label>
+            <input type="number" id="expenses" placeholder="e.g. 5000" min="0" step="100" value="0" oninput="recalc()" />
+          </div>
+          <div class="field">
+            <label for="tax">Effective Tax Rate (%)</label>
+            <input type="number" id="tax" placeholder="e.g. 30" min="0" max="80" step="1" value="30" oninput="recalc()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="ws-card">
+      <div class="ws-card-label">Results</div>
+      <div class="calc-results-grid">
+        <div class="calc-result-item primary">
+          <div class="calc-result-value" id="min-rate">—</div>
+          <div class="calc-result-label">Minimum Hourly Rate</div>
+        </div>
+        <div class="calc-result-item primary">
+          <div class="calc-result-value" id="suggested-rate">—</div>
+          <div class="calc-result-label">Suggested Rate (+25%)</div>
+        </div>
+        <div class="calc-result-item">
+          <div class="calc-result-value" id="billable-hours">—</div>
+          <div class="calc-result-label">Billable Hours / Year</div>
+        </div>
+        <div class="calc-result-item">
+          <div class="calc-result-value" id="gross-needed">—</div>
+          <div class="calc-result-label">Gross Revenue Needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About / Formula -->
+  <div class="ws-card">
+    <div class="ws-card-label">How the Rate is Calculated</div>
+    <p class="ws-body">Your minimum rate covers your take-home income, business expenses, and taxes. It's the floor — not the ceiling. Most freelancers should add a 20–50% buffer on top for profit, scope creep, and negotiation room.</p>
+
+    <div class="ws-card-label" style="margin-top:1.5rem;">Formula</div>
+    <div class="formula-box">
+      <p><strong>Gross Revenue Needed</strong> = (Income + Expenses) ÷ (1 − Tax Rate)</p>
+      <p><strong>Billable Hours</strong> = Weeks × Hours per Week</p>
+      <p><strong>Minimum Rate</strong> = Gross Revenue ÷ Billable Hours</p>
+      <p><strong>Suggested Rate</strong> = Minimum Rate × 1.25</p>
+    </div>
+
+    <div class="ws-card-label" style="margin-top:1.5rem;">Common Benchmarks</div>
+    <div class="bench-grid">
+      <div class="bench-row"><span class="bench-label">Billable hours (full-time freelancer)</span><span class="bench-val">~1,000 / year</span></div>
+      <div class="bench-row"><span class="bench-label">Billable hours (part-time freelancer)</span><span class="bench-val">~500 / year</span></div>
+      <div class="bench-row"><span class="bench-label">Typical self-employment tax (US)</span><span class="bench-val">25–40%</span></div>
+      <div class="bench-row"><span class="bench-label">Typical scope-creep buffer</span><span class="bench-val">20–30%</span></div>
+      <div class="bench-row"><span class="bench-label">Suggested profit margin on rate</span><span class="bench-val">25–50%</span></div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="ws-card">
+    <div class="ws-card-label">Frequently Asked Questions</div>
+    <details>
+      <summary>How do I calculate my freelance hourly rate?</summary>
+      <p>Start with your target annual take-home income, add business expenses and gross up for taxes, then divide by your billable hours per year. This gives you your minimum viable rate — add a 20–50% buffer on top.</p>
+    </details>
+    <details>
+      <summary>What percentage of my hours are actually billable?</summary>
+      <p>Most freelancers are only 50–70% billable. The rest goes to admin, marketing, sales, and professional development. A common benchmark is 1,000 billable hours per year (roughly 20 hours/week × 48 weeks).</p>
+    </details>
+    <details>
+      <summary>Should I charge more than my minimum rate?</summary>
+      <p>Yes — the minimum rate is the floor, not the target. Add 20–50% for profit margin and negotiation room. The market rate for your skills may already be well above your minimum.</p>
+    </details>
+    <details>
+      <summary>How do taxes affect my hourly rate?</summary>
+      <p>As a freelancer you pay self-employment tax on top of income tax — often 25–40% effective. You must gross up your rate to account for this. Use the tax rate field above to model your specific situation.</p>
+    </details>
+  </div>
+
+  <!-- Embed -->
+  <div class="ws-card">
+    <div class="ws-card-label">Embed This Calculator</div>
+    <p class="ws-body">Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" class="embed-code"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
+</Layout>
+
+<style>
+  .calc-hero { background:#fff;border:1px solid var(--border);border-radius:14px;padding:1.85rem 2.25rem;margin-bottom:1.25rem; }
+  .calc-hero h1 { font-size:1.75rem;color:var(--navy);font-weight:800;margin-bottom:0.5rem;letter-spacing:-0.01em;line-height:1.2; }
+  .calc-hero-sub { font-size:0.95rem;color:var(--muted);line-height:1.55;margin:0; }
+  @media (max-width:600px){ .calc-hero{padding:1.5rem;} .calc-hero h1{font-size:1.45rem;} }
+
+  .calc-workspace { display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.5rem; }
+  @media (max-width:760px){ .calc-workspace{grid-template-columns:1fr;} }
+
+  .calc-results-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.75rem; }
+  .calc-result-item { background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:1.1rem 1rem;text-align:center; }
+  .calc-result-item.primary { background:#fff8f5;border-color:#f5d6c4; }
+  .calc-result-value { font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.15;margin-bottom:0.3rem; }
+  .calc-result-item.primary .calc-result-value { color:var(--fox); }
+  .calc-result-label { font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em; }
+
+  .ws-body { font-size:0.92rem;color:var(--muted);line-height:1.6;margin:0 0 0.85rem; }
+
+  .formula-box { background:#fff8f5;border-left:3px solid var(--fox);padding:0.85rem 1rem;border-radius:0 7px 7px 0;font-family:'SF Mono',Menlo,monospace;font-size:0.87rem;display:flex;flex-direction:column;gap:0.45rem;color:var(--text); }
+  .formula-box strong { color:var(--navy); }
+
+  .bench-grid { display:flex;flex-direction:column;gap:0;margin-top:0.75rem; }
+  .bench-row { display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.88rem; }
+  .bench-row:last-child { border-bottom:none; }
+  .bench-label { color:var(--muted); }
+  .bench-val { color:var(--fox);font-weight:700;white-space:nowrap;margin-left:1rem; }
+
+  .embed-code { background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:0.85rem 1rem;font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);line-height:1.6;margin-bottom:0.75rem; }
+</style>
+
+<script is:inline>
+function fmt(n, d) {
+  if (typeof d !== 'number') d = 0;
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+}
+
+function recalc() {
+  const income   = parseFloat(document.getElementById('income').value)   || 0;
+  const weeks    = parseFloat(document.getElementById('weeks').value)    || 48;
+  const hours    = parseFloat(document.getElementById('hours').value)    || 20;
+  const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+  const taxRate  = parseFloat(document.getElementById('tax').value)      || 30;
+  const set = (id, v) => document.getElementById(id).textContent = v;
+
+  if (income <= 0) {
+    set('min-rate','—'); set('suggested-rate','—'); set('billable-hours','—'); set('gross-needed','—');
+    return;
+  }
+
+  const billableHours = weeks * hours;
+  const grossNeeded   = (income + expenses) / (1 - taxRate / 100);
+  const minRate       = grossNeeded / billableHours;
+  const suggestedRate = minRate * 1.25;
+
+  set('min-rate',       fmt(minRate, 2) + '/hr');
+  set('suggested-rate', fmt(suggestedRate, 2) + '/hr');
+  set('billable-hours', billableHours.toLocaleString() + ' hrs');
+  set('gross-needed',   fmt(grossNeeded));
+}
+
+document.addEventListener('currencychange', recalc);
+recalc();
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/hourly-rate-calculator/" width="100%" height="500" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="Hourly Rate Calculator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
+</script>

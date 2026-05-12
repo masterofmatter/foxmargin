@@ -1,0 +1,85 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="Hourly Rate Calculator — FoxMargin"
+  fullUrl="https://foxmargin.com/hourly-rate-calculator/"
+  fullLabel="Hourly Rate Calculator"
+>
+  <div class="card">
+    <h2>Hourly Rate Calculator</h2>
+    <div class="calc-form">
+      <div class="field">
+        <label for="income">Target Annual Income (take-home)</label>
+        <input type="number" id="income" placeholder="e.g. 80000" min="0" step="100" oninput="recalc()" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="weeks">Weeks / Year</label>
+          <input type="number" id="weeks" value="48" min="1" max="52" step="1" oninput="recalc()" />
+        </div>
+        <div class="field">
+          <label for="hours">Billable Hrs / Week</label>
+          <input type="number" id="hours" value="20" min="1" max="80" step="1" oninput="recalc()" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="expenses">Annual Expenses</label>
+          <input type="number" id="expenses" placeholder="0" min="0" step="100" value="0" oninput="recalc()" />
+        </div>
+        <div class="field">
+          <label for="tax">Tax Rate (%)</label>
+          <input type="number" id="tax" value="30" min="0" max="80" step="1" oninput="recalc()" />
+        </div>
+      </div>
+    </div>
+    <div class="results show">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="min-rate">—</span>
+          <span class="result-label">Minimum Rate</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="suggested-rate">—</span>
+          <span class="result-label">Suggested (+25%)</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="billable-hours">—</span>
+          <span class="result-label">Billable Hrs / Year</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="gross-needed">—</span>
+          <span class="result-label">Gross Revenue Needed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</EmbedLayout>
+
+<script is:inline>
+function fmt(n, d) {
+  if (typeof d !== 'number') d = 2;
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+}
+function recalc() {
+  const income   = parseFloat(document.getElementById('income').value)   || 0;
+  const weeks    = parseFloat(document.getElementById('weeks').value)    || 48;
+  const hours    = parseFloat(document.getElementById('hours').value)    || 20;
+  const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+  const taxRate  = parseFloat(document.getElementById('tax').value)      || 30;
+  const set = (id, v) => document.getElementById(id).textContent = v;
+  if (income <= 0) { ['min-rate','suggested-rate','billable-hours','gross-needed'].forEach(id => set(id,'—')); return; }
+  const billableHours = weeks * hours;
+  const grossNeeded   = (income + expenses) / (1 - taxRate / 100);
+  const minRate       = grossNeeded / billableHours;
+  set('min-rate',       fmt(minRate) + '/hr');
+  set('suggested-rate', fmt(minRate * 1.25) + '/hr');
+  set('billable-hours', billableHours.toLocaleString() + ' hrs');
+  set('gross-needed',   fmt(grossNeeded, 0));
+}
+document.addEventListener('currencychange', recalc);
+recalc();
+</script>
