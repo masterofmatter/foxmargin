@@ -1,0 +1,250 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
+  { "@type": "WebApplication", "name": "VAT Calculator",
+    "url": "https://foxmargin.com/vat-calculator/",
+    "description": "Add or remove VAT from any amount instantly. Supports VAT rates from 5% to 25%. Free online VAT calculator — no signup, no ads.",
+    "applicationCategory": "FinanceApplication", "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": ["Add VAT", "Remove VAT", "VAT amount breakdown", "Net and gross totals", "No account required"] },
+  { "@type": "FAQPage", "mainEntity": [
+    { "@type": "Question", "name": "How do I calculate VAT?",
+      "acceptedAnswer": { "@type": "Answer", "text": "To add VAT: multiply the net price by (1 + VAT rate). For example, £100 at 20% VAT = £100 × 1.20 = £120 gross. To remove VAT from a gross price: divide by (1 + VAT rate). £120 ÷ 1.20 = £100 net." } },
+    { "@type": "Question", "name": "What is the difference between net and gross?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Net price is the amount before VAT is added. Gross price is the total amount including VAT. The VAT amount is the difference between the two. Businesses typically quote net prices to other businesses (B2B) and gross prices to consumers (B2C)." } },
+    { "@type": "Question", "name": "What VAT rate should I use?",
+      "acceptedAnswer": { "@type": "Answer", "text": "VAT rates vary by country and product type. The UK standard rate is 20%, the EU average is around 21%, Australia's GST is 10%, and Canada's GST is 5%. Always check with your local tax authority for the correct rate for your goods or services." } },
+    { "@type": "Question", "name": "Can I use this as a GST calculator?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — GST (Goods and Services Tax) works the same way as VAT. Just enter your GST rate (e.g. 10% for Australia, 15% for New Zealand, 5% for Canada) and this calculator handles it identically." } }
+  ]}
+]});
+---
+<Layout
+  title="VAT Calculator — Add or Remove VAT Free | FoxMargin"
+  description="Add or remove VAT from any amount instantly. Supports any VAT or GST rate. Free online calculator — no signup required."
+  schema={schema}
+>
+  <!-- Hero -->
+  <section class="calc-hero">
+    <h1>VAT Calculator</h1>
+    <p class="calc-hero-sub">Add VAT to a net price or strip VAT from a gross price — instantly. Works for any VAT or GST rate.</p>
+  </section>
+
+  <!-- Calculator workspace -->
+  <div class="calc-workspace">
+    <!-- Inputs -->
+    <div class="ws-card">
+      <div class="ws-card-label">Inputs</div>
+      <div class="calc-form" style="gap:0.75rem;">
+        <div class="field-row">
+          <div class="field">
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" placeholder="e.g. 100.00" min="0" step="0.01" oninput="recalc()" />
+          </div>
+          <div class="field">
+            <label for="rate">VAT / GST Rate (%)</label>
+            <input type="number" id="rate" placeholder="e.g. 20" min="0" max="100" step="0.1" value="20" oninput="recalc()" />
+          </div>
+        </div>
+
+        <!-- Mode toggle -->
+        <div class="mode-toggle">
+          <button id="btn-add" class="mode-btn active" onclick="setMode('add')">Add VAT to net price</button>
+          <button id="btn-remove" class="mode-btn" onclick="setMode('remove')">Remove VAT from gross</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="ws-card">
+      <div class="ws-card-label">Results</div>
+      <div class="calc-results-grid">
+        <div class="calc-result-item primary">
+          <div class="calc-result-value" id="result-net">—</div>
+          <div class="calc-result-label">Net (ex. VAT)</div>
+        </div>
+        <div class="calc-result-item primary">
+          <div class="calc-result-value" id="result-gross">—</div>
+          <div class="calc-result-label">Gross (inc. VAT)</div>
+        </div>
+        <div class="calc-result-item">
+          <div class="calc-result-value" id="result-vat">—</div>
+          <div class="calc-result-label">VAT Amount</div>
+        </div>
+        <div class="calc-result-item">
+          <div class="calc-result-value" id="result-rate-pct">—</div>
+          <div class="calc-result-label">Effective Rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About / Formula -->
+  <div class="ws-card">
+    <div class="ws-card-label">About VAT Calculations</div>
+    <p class="ws-body">VAT (Value Added Tax) is a consumption tax added at each stage of production or sale. Businesses collect it on behalf of the government. You either need to add VAT to a net price (for invoicing customers) or remove VAT from a gross amount (to find the pre-tax value of a purchase).</p>
+
+    <div class="ws-card-label" style="margin-top:1.5rem;">Formulas</div>
+    <div class="formula-box">
+      <p><strong>Adding VAT:</strong> Gross = Net × (1 + Rate ÷ 100)</p>
+      <p><strong>Removing VAT:</strong> Net = Gross ÷ (1 + Rate ÷ 100)</p>
+      <p><strong>VAT Amount:</strong> Gross − Net</p>
+    </div>
+
+    <div class="ws-card-label" style="margin-top:1.5rem;">Common VAT / GST Rates</div>
+    <div class="rates-grid">
+      <div class="rate-row"><span class="rate-country">UK</span><span class="rate-val">20%</span><span class="rate-note">standard rate</span></div>
+      <div class="rate-row"><span class="rate-country">EU (avg)</span><span class="rate-val">21%</span><span class="rate-note">varies by country</span></div>
+      <div class="rate-row"><span class="rate-country">Australia (GST)</span><span class="rate-val">10%</span><span class="rate-note">flat rate</span></div>
+      <div class="rate-row"><span class="rate-country">Canada (GST)</span><span class="rate-val">5%</span><span class="rate-note">federal only</span></div>
+      <div class="rate-row"><span class="rate-country">New Zealand (GST)</span><span class="rate-val">15%</span><span class="rate-note">flat rate</span></div>
+      <div class="rate-row"><span class="rate-country">India (GST)</span><span class="rate-val">18%</span><span class="rate-note">standard slab</span></div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="ws-card">
+    <div class="ws-card-label">Frequently Asked Questions</div>
+    <details>
+      <summary>How do I calculate VAT?</summary>
+      <p>To add VAT: multiply the net price by (1 + VAT rate). For example, £100 at 20% VAT = £100 × 1.20 = £120 gross. To remove VAT from a gross price: divide by (1 + VAT rate). £120 ÷ 1.20 = £100 net.</p>
+    </details>
+    <details>
+      <summary>What is the difference between net and gross?</summary>
+      <p>Net price is the amount before VAT is added. Gross price is the total including VAT. The VAT amount is the difference between the two. Businesses typically quote net prices to other businesses (B2B) and gross prices to consumers (B2C).</p>
+    </details>
+    <details>
+      <summary>What VAT rate should I use?</summary>
+      <p>VAT rates vary by country and product type. The UK standard rate is 20%, the EU average is around 21%, Australia's GST is 10%, and Canada's GST is 5%. Always check with your local tax authority for the correct rate for your goods or services.</p>
+    </details>
+    <details>
+      <summary>Can I use this as a GST calculator?</summary>
+      <p>Yes — GST (Goods and Services Tax) works identically to VAT mathematically. Just enter your GST rate (10% for Australia, 15% for New Zealand, 5% for Canada) and this calculator handles it the same way.</p>
+    </details>
+  </div>
+
+  <!-- Embed -->
+  <div class="ws-card">
+    <div class="ws-card-label">Embed This Calculator</div>
+    <p class="ws-body">Free to use on your website or blog. Paste one line of HTML — no account or backend needed.</p>
+    <pre id="embed-code" class="embed-code"></pre>
+    <button id="embed-copy-btn" onclick="copyEmbed()" class="btn" style="font-size:0.85rem;padding:0.5rem 1rem;">Copy Embed Code</button>
+  </div>
+</Layout>
+
+<style>
+  .calc-hero {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.85rem 2.25rem; margin-bottom: 1.25rem;
+  }
+  .calc-hero h1 { font-size: 1.75rem; color: var(--navy); font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.01em; line-height: 1.2; }
+  .calc-hero-sub { font-size: 0.95rem; color: var(--muted); line-height: 1.55; margin: 0; }
+  @media (max-width: 600px) { .calc-hero { padding: 1.5rem 1.5rem; } .calc-hero h1 { font-size: 1.45rem; } }
+
+  .calc-workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; margin-bottom: 1.5rem; }
+  @media (max-width: 760px) { .calc-workspace { grid-template-columns: 1fr; } }
+
+  .calc-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .calc-result-item { background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 1.1rem 1rem; text-align: center; }
+  .calc-result-item.primary { background: #fff8f5; border-color: #f5d6c4; }
+  .calc-result-value { font-size: 1.4rem; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.3rem; }
+  .calc-result-item.primary .calc-result-value { color: var(--fox); }
+  .calc-result-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+  /* Mode toggle */
+  .mode-toggle { display: flex; gap: 0.5rem; margin-top: 0.25rem; }
+  .mode-btn {
+    flex: 1; padding: 0.6rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted);
+    transition: all 0.15s;
+  }
+  .mode-btn.active { background: #fff8f5; border-color: var(--fox); color: var(--fox); }
+  @media (max-width: 500px) { .mode-toggle { flex-direction: column; } }
+
+  .ws-body { font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin: 0 0 0.85rem; }
+
+  .formula-box {
+    background: #fff8f5; border-left: 3px solid var(--fox); padding: 0.85rem 1rem;
+    border-radius: 0 7px 7px 0; font-family: 'SF Mono', Menlo, monospace; font-size: 0.87rem;
+    display: flex; flex-direction: column; gap: 0.45rem; color: var(--text);
+  }
+  .formula-box strong { color: var(--navy); }
+
+  /* Rates table */
+  .rates-grid { display: flex; flex-direction: column; gap: 0; margin-top: 0.75rem; }
+  .rate-row {
+    display: grid; grid-template-columns: 1fr 80px 1fr;
+    align-items: center; padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border); font-size: 0.88rem;
+  }
+  .rate-row:last-child { border-bottom: none; }
+  .rate-country { color: var(--text); font-weight: 600; }
+  .rate-val { color: var(--fox); font-weight: 800; font-size: 0.95rem; }
+  .rate-note { color: var(--muted); font-size: 0.8rem; }
+
+  .embed-code {
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 0.85rem 1rem; font-size: 0.78rem; overflow-x: auto;
+    white-space: pre-wrap; word-break: break-all; color: var(--muted);
+    line-height: 1.6; margin-bottom: 0.75rem;
+  }
+</style>
+
+<script is:inline>
+let mode = 'add'; // 'add' | 'remove'
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-add').classList.toggle('active', m === 'add');
+  document.getElementById('btn-remove').classList.toggle('active', m === 'remove');
+  recalc();
+}
+
+function fmt(n, d) {
+  if (typeof d !== 'number') d = 2;
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+}
+
+function recalc() {
+  const amount = parseFloat(document.getElementById('amount').value) || 0;
+  const rate   = parseFloat(document.getElementById('rate').value)   || 0;
+  const set = (id, v) => document.getElementById(id).textContent = v;
+
+  if (amount <= 0 || rate <= 0) {
+    set('result-net', '—'); set('result-gross', '—'); set('result-vat', '—'); set('result-rate-pct', '—');
+    return;
+  }
+
+  let net, gross;
+  if (mode === 'add') {
+    net   = amount;
+    gross = amount * (1 + rate / 100);
+  } else {
+    gross = amount;
+    net   = amount / (1 + rate / 100);
+  }
+  const vatAmt = gross - net;
+  const effectivePct = (vatAmt / net) * 100;
+
+  set('result-net',      fmt(net));
+  set('result-gross',    fmt(gross));
+  set('result-vat',      fmt(vatAmt));
+  set('result-rate-pct', effectivePct.toFixed(1) + '%');
+}
+
+document.addEventListener('currencychange', recalc);
+recalc();
+</script>
+
+<script is:inline>
+document.getElementById('embed-code').textContent = '<iframe src="https://foxmargin.com/embed/vat-calculator/" width="100%" height="420" frameborder="0" style="border-radius:8px;border:1px solid #e1e8ed;" title="VAT Calculator — FoxMargin"></iframe>';
+function copyEmbed() {
+  navigator.clipboard.writeText(document.getElementById('embed-code').textContent).then(() => {
+    const btn = document.getElementById('embed-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Embed Code', 2000);
+  });
+}
+</script>

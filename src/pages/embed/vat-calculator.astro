@@ -1,0 +1,92 @@
+---
+import EmbedLayout from '../../layouts/EmbedLayout.astro';
+---
+<EmbedLayout
+  title="VAT Calculator — FoxMargin"
+  fullUrl="https://foxmargin.com/vat-calculator/"
+  fullLabel="VAT Calculator"
+>
+  <div class="card">
+    <h2>VAT Calculator</h2>
+    <div class="calc-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="amount">Amount</label>
+          <input type="number" id="amount" placeholder="e.g. 100.00" min="0" step="0.01" oninput="recalc()" />
+        </div>
+        <div class="field">
+          <label for="rate">VAT / GST Rate (%)</label>
+          <input type="number" id="rate" placeholder="e.g. 20" min="0" max="100" step="0.1" value="20" oninput="recalc()" />
+        </div>
+      </div>
+      <div class="mode-toggle">
+        <button id="btn-add" class="mode-btn active" onclick="setMode('add')">Add VAT to net</button>
+        <button id="btn-remove" class="mode-btn" onclick="setMode('remove')">Remove VAT from gross</button>
+      </div>
+    </div>
+    <div class="results show">
+      <strong>Results</strong>
+      <div class="results-grid">
+        <div class="result-item result-highlight">
+          <span class="result-value" id="result-net">—</span>
+          <span class="result-label">Net (ex. VAT)</span>
+        </div>
+        <div class="result-item result-highlight">
+          <span class="result-value" id="result-gross">—</span>
+          <span class="result-label">Gross (inc. VAT)</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="result-vat">—</span>
+          <span class="result-label">VAT Amount</span>
+        </div>
+        <div class="result-item">
+          <span class="result-value" id="result-pct">—</span>
+          <span class="result-label">Effective Rate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</EmbedLayout>
+
+<style>
+  .mode-toggle { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+  .mode-btn {
+    flex: 1; padding: 0.5rem 0.5rem; border-radius: 7px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; border: 1.5px solid #e1e8ed; background: #f5f7fa; color: #6b7c93;
+    transition: all 0.15s;
+  }
+  .mode-btn.active { background: #fff8f5; border-color: #d4500a; color: #d4500a; }
+</style>
+
+<script is:inline>
+let mode = 'add';
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-add').classList.toggle('active', m === 'add');
+  document.getElementById('btn-remove').classList.toggle('active', m === 'remove');
+  recalc();
+}
+function fmt(n) {
+  const c = window.__currency || { locale: 'en-US', code: 'USD' };
+  return new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+function recalc() {
+  const amount = parseFloat(document.getElementById('amount').value) || 0;
+  const rate   = parseFloat(document.getElementById('rate').value)   || 0;
+  const set = (id, v) => document.getElementById(id).textContent = v;
+  if (amount <= 0 || rate <= 0) {
+    set('result-net','—'); set('result-gross','—'); set('result-vat','—'); set('result-pct','—');
+    return;
+  }
+  let net, gross;
+  if (mode === 'add') { net = amount; gross = amount * (1 + rate / 100); }
+  else                { gross = amount; net = amount / (1 + rate / 100); }
+  const vatAmt = gross - net;
+  set('result-net',   fmt(net));
+  set('result-gross', fmt(gross));
+  set('result-vat',   fmt(vatAmt));
+  set('result-pct',   (vatAmt / net * 100).toFixed(1) + '%');
+}
+document.addEventListener('currencychange', recalc);
+recalc();
+</script>
