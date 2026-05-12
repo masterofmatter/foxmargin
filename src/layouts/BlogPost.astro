@@ -1,0 +1,162 @@
+---
+import Layout from './Layout.astro';
+export interface Props {
+  title: string;
+  description: string;
+  publishDate: string;
+  readingTime: string;
+  schema?: string;
+}
+const { title, description, publishDate, readingTime, schema } = Astro.props;
+---
+<Layout title={title + ' | FoxMargin'} description={description} schema={schema}>
+  <article class="blog-post">
+    <header class="blog-header">
+      <div class="blog-meta">
+        <span class="blog-date">{publishDate}</span>
+        <span class="blog-sep">·</span>
+        <span class="blog-read">{readingTime} read</span>
+      </div>
+      <h1>{title}</h1>
+      <p class="blog-desc">{description}</p>
+    </header>
+    <div class="blog-body">
+      <slot />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .blog-post {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .blog-header {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem 2.25rem 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .blog-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.85rem;
+  }
+  .blog-sep { margin: 0 0.4rem; }
+  .blog-header h1 {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .blog-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+  @media (max-width: 600px) {
+    .blog-header { padding: 1.5rem; }
+    .blog-header h1 { font-size: 1.5rem; }
+  }
+
+  /* Body prose */
+  .blog-body {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem 2.25rem;
+  }
+  @media (max-width: 600px) { .blog-body { padding: 1.5rem; } }
+
+  :global(.blog-body h2) {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin: 2rem 0 0.65rem;
+    letter-spacing: -0.01em;
+  }
+  :global(.blog-body h3) {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 1.5rem 0 0.5rem;
+  }
+  :global(.blog-body p) {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.7;
+    margin: 0 0 1rem;
+  }
+  :global(.blog-body ul), :global(.blog-body ol) {
+    margin: 0.5rem 0 1rem 1.25rem;
+  }
+  :global(.blog-body li) {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.65;
+    margin-bottom: 0.35rem;
+  }
+  :global(.blog-body strong) { color: var(--navy); }
+  :global(.blog-body a) { color: var(--fox); }
+  :global(.blog-body a:hover) { text-decoration: underline; }
+
+  /* Call-out box */
+  :global(.blog-body .callout) {
+    background: #fff8f5;
+    border-left: 3px solid var(--fox);
+    border-radius: 0 8px 8px 0;
+    padding: 0.9rem 1.1rem;
+    margin: 1.25rem 0;
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  :global(.blog-body .callout strong) { color: var(--fox); }
+
+  /* Formula / code box */
+  :global(.blog-body .formula) {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 0.87rem;
+    color: var(--navy);
+    margin: 0.75rem 0 1rem;
+    line-height: 1.6;
+  }
+
+  /* CTA card */
+  :global(.blog-body .tool-cta) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #fff8f5;
+    border: 1.5px solid #f5d6c4;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+  :global(.blog-body .tool-cta:hover) { border-color: var(--fox); text-decoration: none; }
+  :global(.blog-body .tool-cta .cta-text) { font-size: 0.9rem; color: var(--navy); font-weight: 700; }
+  :global(.blog-body .tool-cta .cta-sub) { font-size: 0.8rem; color: var(--muted); }
+  :global(.blog-body .tool-cta .cta-btn) {
+    white-space: nowrap;
+    font-size: 0.83rem;
+    font-weight: 700;
+    color: var(--fox);
+    border: 1.5px solid var(--fox);
+    border-radius: 7px;
+    padding: 0.4rem 0.85rem;
+  }
+</style>

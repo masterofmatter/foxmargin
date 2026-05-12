@@ -1,0 +1,128 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+
+const schema = JSON.stringify({ "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Break-Even Analysis: A Simple Guide for Small Businesses",
+  "description": "Learn what break-even analysis is, how to calculate your break-even point, and how to use it to make better pricing and business decisions.",
+  "datePublished": "2025-05-12",
+  "author": { "@type": "Organization", "name": "FoxMargin" },
+  "publisher": { "@type": "Organization", "name": "FoxMargin", "url": "https://foxmargin.com" }
+});
+---
+<BlogPost
+  title="Break-Even Analysis: A Simple Guide for Small Businesses"
+  description="Learn what break-even analysis is, how to calculate your break-even point, and how to use it to make smarter pricing and business decisions."
+  publishDate="May 12, 2025"
+  readingTime="5 min"
+  schema={schema}
+>
+
+<p>Before you price a product, hire staff, or take on a lease, you need to answer one question: how much do I need to sell to at least not lose money? Break-even analysis answers that question with math instead of guesswork.</p>
+
+<a href="/break-even-calculator/" class="tool-cta">
+  <div><div class="cta-text">Free Break-Even Calculator</div><div class="cta-sub">Enter your costs and price — get your break-even point instantly</div></div>
+  <span class="cta-btn">Open Tool →</span>
+</a>
+
+<h2>What Is the Break-Even Point?</h2>
+
+<p>The break-even point is the exact sales volume at which your total revenue equals your total costs. Below it, you're losing money. Above it, every unit sold generates pure profit.</p>
+
+<p>It's not a goal — it's a threshold. Once you know where it is, you can set sales targets, evaluate pricing changes, and decide whether a business idea is viable before you invest in it.</p>
+
+<h2>Fixed Costs vs Variable Costs</h2>
+
+<p>Break-even analysis requires separating your costs into two categories:</p>
+
+<h3>Fixed costs</h3>
+<p>Costs that don't change with sales volume. You pay them whether you sell 1 unit or 10,000.</p>
+<ul>
+  <li>Rent and utilities</li>
+  <li>Salaries (your own or employees')</li>
+  <li>Insurance premiums</li>
+  <li>Software subscriptions</li>
+  <li>Loan repayments</li>
+</ul>
+
+<h3>Variable costs</h3>
+<p>Costs that increase directly with each unit sold.</p>
+<ul>
+  <li>Raw materials and components</li>
+  <li>Packaging and shipping per order</li>
+  <li>Payment processing fees (e.g. 2.9% per transaction)</li>
+  <li>Sales commissions</li>
+  <li>Direct labour per unit</li>
+</ul>
+
+<div class="callout">
+  <strong>Note:</strong> Your own salary belongs in fixed costs if you're a business owner drawing a regular wage. If you exclude it, your break-even figure will look better than reality — a common and dangerous mistake.
+</div>
+
+<h2>The Break-Even Formula</h2>
+
+<p>Once you know your fixed costs, variable cost per unit, and selling price, the calculation is straightforward:</p>
+
+<div class="formula">
+Contribution Margin = Selling Price − Variable Cost per Unit<br/>
+Break-Even Units = Fixed Costs ÷ Contribution Margin<br/>
+Break-Even Revenue = Break-Even Units × Selling Price
+</div>
+
+<h3>Example</h3>
+<p>Suppose you run an online store selling handmade candles:</p>
+<ul>
+  <li>Fixed costs: $3,000/month (rent, your salary, tools)</li>
+  <li>Variable cost per candle: $8 (wax, wick, jar, packaging, shipping)</li>
+  <li>Selling price: $28</li>
+</ul>
+<p>Contribution margin = $28 − $8 = <strong>$20 per candle</strong></p>
+<p>Break-even units = $3,000 ÷ $20 = <strong>150 candles per month</strong></p>
+<p>Break-even revenue = 150 × $28 = <strong>$4,200/month</strong></p>
+
+<p>If you can realistically sell 150 candles per month, the business is viable at this price. If not, you need to reduce costs or raise your price.</p>
+
+<a href="/break-even-calculator/" class="tool-cta">
+  <div><div class="cta-text">Try It With Your Numbers</div><div class="cta-sub">Free break-even calculator — instant results, no signup</div></div>
+  <span class="cta-btn">Calculate Now →</span>
+</a>
+
+<h2>Contribution Margin Ratio</h2>
+
+<p>The contribution margin ratio (CMR) expresses your contribution margin as a percentage of selling price:</p>
+
+<div class="formula">
+Contribution Margin Ratio = Contribution Margin ÷ Selling Price × 100
+</div>
+
+<p>In the candle example: $20 ÷ $28 = <strong>71.4%</strong>. This means 71.4 cents of every dollar of revenue goes toward covering fixed costs and profit.</p>
+
+<p>A higher CMR means you reach break-even faster and generate more profit above it. Low CMR businesses (e.g. grocery retail at 20–30%) need very high volume to be profitable.</p>
+
+<h2>How to Use Break-Even Analysis in Practice</h2>
+
+<h3>Before launching a product</h3>
+<p>Run the numbers before you invest. If the break-even volume is higher than what you can realistically sell in your market, revise the model — raise price, reduce costs, or don't launch.</p>
+
+<h3>When evaluating a price change</h3>
+<p>A price increase raises your contribution margin and lowers your break-even point. A price cut does the opposite. Use the calculator to model different pricing scenarios before deciding.</p>
+
+<h3>When considering a new fixed cost</h3>
+<p>Thinking about hiring, getting a larger space, or adding a tool subscription? Add that cost to your fixed costs and recalculate. By how many units does your break-even point increase? Is that achievable?</p>
+
+<h3>Setting sales targets</h3>
+<p>If your break-even is 150 units and you want 20% profit margin above that, you need to sell 150 + (fixed costs × 0.20 ÷ contribution margin) = 180 units. That's your target.</p>
+
+<h2>Limitations of Break-Even Analysis</h2>
+
+<p>Break-even analysis is a snapshot, not a forecast. It assumes:</p>
+<ul>
+  <li>Selling price is constant (no discounts or volume pricing)</li>
+  <li>Variable costs are truly linear (no bulk purchase savings)</li>
+  <li>All units produced are sold (no waste or unsold inventory)</li>
+  <li>Your fixed costs are stable (no step-changes as you scale)</li>
+</ul>
+
+<p>For most small businesses making day-to-day decisions, these assumptions are close enough to be useful. For major capital investments, use a full financial model alongside break-even analysis.</p>
+
+</BlogPost>
