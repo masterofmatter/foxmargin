@@ -213,7 +213,7 @@ import Layout from '../layouts/Layout.astro';
         <span class="inv-paper-label">Live Preview</span>
         <div style="display:flex;gap:0.4rem;">
           <button class="btn btn-green" onclick="convertToInvoice()" type="button" style="font-size:0.78rem;padding:0.4rem 0.8rem;">→ Invoice</button>
-          <button class="btn" onclick="window.print()" type="button" style="font-size:0.78rem;padding:0.4rem 0.8rem;">Print / PDF</button>
+          <button class="btn" onclick="track('print_quote');window.print()" type="button" style="font-size:0.78rem;padding:0.4rem 0.8rem;">Print / PDF</button>
         </div>
       </div>
       <div class="inv-paper" id="doc-paper"></div>

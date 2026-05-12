@@ -485,6 +485,35 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
     footer a { color: rgba(255,255,255,0.7); }
     footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .footer-email-bar { margin-bottom: 1.25rem; }
+    .footer-email-bar p { font-size: 0.8rem; color: rgba(255,255,255,0.55); margin-bottom: 0.5rem; }
+    .footer-email-form { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
+    .footer-email-form input[type="email"] {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.82rem;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      width: 220px;
+      outline: none;
+      font-family: inherit;
+    }
+    .footer-email-form input[type="email"]::placeholder { color: rgba(255,255,255,0.4); }
+    .footer-email-form input[type="email"]:focus { border-color: var(--fox-light); }
+    .footer-email-form button {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: var(--fox);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .footer-email-form button:hover { background: var(--fox-light); }
 
     @media print {
       header, footer, .ad-slot, .doc-builder, #ad-below,
@@ -578,6 +607,16 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       }
     });
 
+    // ── FoxMargin global utilities ──
+    window.isPro = function() { return localStorage.getItem('fm_pro') === '1'; };
+    window.setPro = function(v) { localStorage.setItem('fm_pro', v ? '1' : ''); };
+    // track(event, props) — fires Plausible if loaded, GA4 gtag if loaded, otherwise no-op.
+    // Wire up analytics by adding the Plausible <script> tag or gtag.js to <head>.
+    window.track = function(event, props) {
+      if (typeof window.plausible === 'function') window.plausible(event, { props: props || {} });
+      else if (typeof window.gtag === 'function') window.gtag('event', event, props || {});
+    };
+
     // ── Address Autocomplete (flip on: replace YOUR_MAPBOX_TOKEN with a real token) ──
     // When active, attaches a live dropdown to the street input and fills all four
     // structured fields (street / city / state / zip) on selection.
@@ -635,6 +674,17 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     }
   </script>
   <footer>
+    <div class="footer-email-bar">
+      <p>New tools and updates — no spam.</p>
+      <form class="footer-email-form"
+        action="https://buttondown.com/api/emails/embed-subscribe/foxmargin"
+        method="POST"
+        target="_blank"
+        onsubmit="track('email_signup')">
+        <input type="email" name="email" placeholder="your@email.com" required />
+        <button type="submit">Notify me</button>
+      </form>
+    </div>
     <div class="footer-links">
       <a href="/">Home</a>
       <a href="/invoice-generator/">Invoice</a>
