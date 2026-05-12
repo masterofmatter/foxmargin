@@ -479,6 +479,29 @@ function renderPreview() {
   const border = '#e8ecf2';
   const bg     = '#f5f7fa';
 
+  const paypal      = localStorage.getItem('biz_paypal')       || '';
+  const bankName    = localStorage.getItem('biz_bank_name')    || '';
+  const bankHolder  = localStorage.getItem('biz_bank_holder')  || '';
+  const bankAcct    = localStorage.getItem('biz_bank_acct')    || '';
+  const bankRouting = localStorage.getItem('biz_bank_routing') || '';
+  const bankIban    = localStorage.getItem('biz_bank_iban')    || '';
+  const hasBank     = bankName || bankHolder || bankAcct || bankRouting || bankIban;
+  let paymentHtml = '';
+  if (paypal || hasBank) {
+    let bankRows = '';
+    if (bankName)    bankRows += `<tr><td style="padding:.2em .65em .2em 0;width:40%;color:#999;">Bank</td><td style="padding:.2em 0;">${esc(bankName)}</td></tr>`;
+    if (bankHolder)  bankRows += `<tr><td style="padding:.2em .65em .2em 0;color:#999;">Account Holder</td><td style="padding:.2em 0;">${esc(bankHolder)}</td></tr>`;
+    if (bankAcct)    bankRows += `<tr><td style="padding:.2em .65em .2em 0;color:#999;">Account Number</td><td style="padding:.2em 0;font-family:monospace;">${esc(bankAcct)}</td></tr>`;
+    if (bankRouting) bankRows += `<tr><td style="padding:.2em .65em .2em 0;color:#999;">Routing / Sort Code</td><td style="padding:.2em 0;font-family:monospace;">${esc(bankRouting)}</td></tr>`;
+    if (bankIban)    bankRows += `<tr><td style="padding:.2em .65em .2em 0;color:#999;">IBAN</td><td style="padding:.2em 0;font-family:monospace;">${esc(bankIban)}</td></tr>`;
+    paymentHtml = `
+      <div style="margin-top:1.5rem;padding:1rem 1.1rem;background:${bg};border-radius:7px;border:1px solid ${border};">
+        <div style="font-size:.68em;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:${fox};margin-bottom:.65em;">How to Pay</div>
+        ${paypal ? `<div style="margin-bottom:${hasBank ? '0.85rem' : '0'};"><div style="font-size:.75em;font-weight:600;color:#1a2332;margin-bottom:.3em;">PayPal</div><a href="https://paypal.me/${esc(paypal)}/${total.toFixed(2)}" style="display:inline-block;background:#0070ba;color:#fff;font-size:.82em;font-weight:600;padding:.35em .9em;border-radius:5px;text-decoration:none;">Pay ${fmt(total)} via PayPal →</a></div>` : ''}
+        ${hasBank ? `<div><div style="font-size:.75em;font-weight:600;color:#1a2332;margin-bottom:.35em;">Bank Transfer</div><table style="font-size:.8em;color:${muted};border-collapse:collapse;width:100%;">${bankRows}</table></div>` : ''}
+      </div>`;
+  }
+
   const lineRows = items.length
     ? items.map((r, i) => `
         <tr style="background:${i % 2 === 0 ? '#fff' : '#fafbfd'};">
@@ -547,6 +570,7 @@ function renderPreview() {
       <div style="font-size:.68em;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:${fox};margin-bottom:.5em;">Notes &amp; Payment Terms</div>
       <div style="font-size:.84em;color:${muted};line-height:1.6;white-space:pre-wrap;">${esc(notes)}</div>
     </div>` : ''}
+    ${paymentHtml}
   `;
 }
 </script>

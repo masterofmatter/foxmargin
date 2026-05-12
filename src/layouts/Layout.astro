@@ -1058,6 +1058,33 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
                 <input type="color" id="biz-modal-accent" value="#d4500a" oninput="updateBizPreview()" />
               </div>
             </div>
+            <div class="section-label" style="margin:1rem 0 0.65rem;">Payment Options</div>
+            <div class="field">
+              <label for="biz-modal-paypal">PayPal.me Username</label>
+              <input type="text" id="biz-modal-paypal" placeholder="your-username" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="biz-modal-bank-name">Bank Name</label>
+              <input type="text" id="biz-modal-bank-name" placeholder="First National Bank" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="biz-modal-bank-holder">Account Holder</label>
+              <input type="text" id="biz-modal-bank-holder" placeholder="Acme Corp" autocomplete="off" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="biz-modal-bank-acct">Account Number</label>
+                <input type="text" id="biz-modal-bank-acct" placeholder="123456789" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="biz-modal-bank-routing">Routing / Sort Code</label>
+                <input type="text" id="biz-modal-bank-routing" placeholder="021000021" autocomplete="off" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="biz-modal-bank-iban">IBAN <span style="font-weight:400;color:var(--muted);font-size:0.85em;">(optional, international)</span></label>
+              <input type="text" id="biz-modal-bank-iban" placeholder="GB29 NWBK 6016 1331 9268 19" autocomplete="off" />
+            </div>
           </div>
           <div class="biz-modal-actions">
             <button type="button" class="btn" onclick="saveBizProfile()">Save Profile</button>
@@ -1281,6 +1308,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       var accentEl  = document.getElementById('biz-modal-accent');
       if (primaryEl) primaryEl.value = localStorage.getItem('biz_primary_color') || '#0f2d52';
       if (accentEl)  accentEl.value  = localStorage.getItem('biz_accent_color')  || '#d4500a';
+      var paypalEl = document.getElementById('biz-modal-paypal');
+      if (paypalEl) paypalEl.value = localStorage.getItem('biz_paypal') || '';
+      [['biz-modal-bank-name','biz_bank_name'],['biz-modal-bank-holder','biz_bank_holder'],
+       ['biz-modal-bank-acct','biz_bank_acct'],['biz-modal-bank-routing','biz_bank_routing'],
+       ['biz-modal-bank-iban','biz_bank_iban']].forEach(function(p) {
+        var el = document.getElementById(p[0]); if (el) el.value = localStorage.getItem(p[1]) || '';
+      });
       updateAddrLabels();
       updateBizPreview();
     }
@@ -1306,6 +1340,13 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       var accentEl  = document.getElementById('biz-modal-accent');
       if (primaryEl) localStorage.setItem('biz_primary_color', primaryEl.value);
       if (accentEl)  localStorage.setItem('biz_accent_color',  accentEl.value);
+      var paypalEl2 = document.getElementById('biz-modal-paypal');
+      if (paypalEl2) localStorage.setItem('biz_paypal', paypalEl2.value.trim().replace(/^@/, '').replace(/paypal\.me\//i, ''));
+      [['biz-modal-bank-name','biz_bank_name'],['biz-modal-bank-holder','biz_bank_holder'],
+       ['biz-modal-bank-acct','biz_bank_acct'],['biz-modal-bank-routing','biz_bank_routing'],
+       ['biz-modal-bank-iban','biz_bank_iban']].forEach(function(p) {
+        var el = document.getElementById(p[0]); if (el) localStorage.setItem(p[1], el.value.trim());
+      });
       localStorage.setItem('biz_setup_done', '1');
       closeBizModal();
       if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
