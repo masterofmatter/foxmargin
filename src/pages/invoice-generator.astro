@@ -233,7 +233,22 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <div class="inv-paper-col">
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
-        <button class="btn" onclick="track('print_invoice');window.print()" style="font-size:0.82rem;padding:0.45rem 1rem;">Print / Save PDF</button>
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <button onclick="exportInvoice()" style="font-size:0.82rem;padding:0.45rem 0.9rem;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:500;">Export CSV</button>
+          <button class="btn" onclick="track('print_invoice');window.print()" style="font-size:0.82rem;padding:0.45rem 1rem;">Print / Save PDF</button>
+        </div>
+      </div>
+      <div class="print-hide" style="margin-top:0.45rem;font-size:0.72rem;color:var(--muted);text-align:right;">
+        Export works with QuickBooks, Xero, Wave, Zoho.
+        <a href="#" onclick="event.preventDefault();var e=document.getElementById('export-help-body');e.style.display=e.style.display==='block'?'none':'block';return false;" style="color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted);margin-left:0.25rem;">Before importing →</a>
+      </div>
+      <div id="export-help-body" class="print-hide" style="display:none;margin-top:0.5rem;font-size:0.78rem;color:var(--text);background:var(--bg);padding:0.7rem 0.85rem;border-radius:7px;line-height:1.55;">
+        <ul style="margin:0;padding-left:1.15rem;">
+          <li>Add this customer to your accounting tool first — it will skip invoices for unknown customers.</li>
+          <li>You'll map our columns to theirs once on first import. The tool remembers the mapping for next time.</li>
+          <li>Tax codes get reassigned to your accounting tool's tax codes during the mapping step.</li>
+        </ul>
+        <div style="margin-top:0.5rem;color:var(--muted);font-size:0.72rem;">The download includes a JSON backup so you can re-export later if your accounting tool changes its CSV format.</div>
       </div>
       <div class="inv-paper" id="invoice-paper"></div>
     </div>
@@ -623,6 +638,165 @@ function renderPreview() {
     ${paymentHtml}
   `;
 }
+
+// ── Portable invoice export (CSV + JSON + IMPORT_GUIDE) ──
+// Works with QuickBooks, Xero, Wave, Zoho via their column-mapper UIs.
+// Uses descriptive headers so we don't break when any one tool changes its schema.
+
+function buildInvoiceData() {
+  const items    = getLineItems();
+  const taxes    = getTaxLines().filter(t => t.rate > 0);
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxTotal = taxes.reduce((s, t) => s + subtotal * (t.rate / 100), 0);
+  const total    = subtotal + taxTotal;
+  const apRaw    = document.getElementById('amount-paid')?.value || '';
+  const paid     = apRaw.trim() !== '' ? (parseFloat(apRaw) || 0) : 0;
+  const get = id => (document.getElementById(id)?.value || '').trim();
+
+  return {
+    invoice_number: get('inv-number'),
+    invoice_date:   get('inv-date'),
+    due_date:       get('due-date'),
+    currency:       (window.__currency && window.__currency.code) || 'USD',
+    from: {
+      name:   get('from-name'),  email:  get('from-email'), phone: get('from-phone'),
+      street: get('from-street'), city:  get('from-city'),
+      state:  get('from-state'),  zip:   get('from-zip')
+    },
+    customer: {
+      name:   get('to-name'),   email: get('to-email'),
+      street: get('to-street'), city:  get('to-city'),
+      state:  get('to-state'),  zip:   get('to-zip'),
+      country: get('to-country')
+    },
+    line_items: items.map(r => ({
+      description: r.desc, quantity: r.qty, rate: r.rate, amount: r.total
+    })),
+    taxes: taxes.map(t => ({ label: t.label, rate_percent: t.rate })),
+    subtotal: +subtotal.toFixed(2),
+    tax_total: +taxTotal.toFixed(2),
+    total: +total.toFixed(2),
+    amount_paid: +paid.toFixed(2),
+    balance_due: +(total - paid).toFixed(2),
+    notes: get('notes'),
+    exported_at: new Date().toISOString(),
+    exporter: 'FoxMargin v1'
+  };
+}
+
+function csvEscape(v) {
+  const s = (v === null || v === undefined) ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function csvFromInvoice(d) {
+  const headers = [
+    'InvoiceNumber','CustomerName','CustomerEmail','CustomerAddress',
+    'InvoiceDate','DueDate','Currency',
+    'LineDescription','LineQuantity','LineRate','LineAmount',
+    'TaxLabel','TaxRatePercent',
+    'Subtotal','TaxTotal','Total','AmountPaid','BalanceDue','Memo'
+  ];
+  const custAddr = [d.customer.street, d.customer.city, d.customer.state, d.customer.zip, d.customer.country]
+    .filter(Boolean).join(', ');
+  const taxLabel = d.taxes.map(t => t.label + ' ' + t.rate_percent + '%').join(' + ');
+  const taxRate  = d.taxes.reduce((s, t) => s + t.rate_percent, 0);
+
+  const lines = [headers.join(',')];
+  const rows = d.line_items.length ? d.line_items : [{ description: '', quantity: 0, rate: 0, amount: 0 }];
+  rows.forEach((it, i) => {
+    const last = i === rows.length - 1;
+    lines.push([
+      d.invoice_number, d.customer.name, d.customer.email, custAddr,
+      d.invoice_date, d.due_date, d.currency,
+      it.description, it.quantity, it.rate.toFixed(2), it.amount.toFixed(2),
+      last ? taxLabel : '',
+      last ? taxRate  : '',
+      last ? d.subtotal.toFixed(2)    : '',
+      last ? d.tax_total.toFixed(2)   : '',
+      last ? d.total.toFixed(2)       : '',
+      last ? d.amount_paid.toFixed(2) : '',
+      last ? d.balance_due.toFixed(2) : '',
+      last ? d.notes : ''
+    ].map(csvEscape).join(','));
+  });
+  return lines.join('\r\n');
+}
+
+const IMPORT_GUIDE_TEXT =
+  'FoxMargin Invoice Export\r\n' +
+  '========================\r\n\r\n' +
+  'This ZIP contains:\r\n' +
+  '  invoice.csv      Line-item CSV. Imports into QuickBooks, Xero, Wave, Zoho.\r\n' +
+  '  invoice.json     Tool-agnostic backup of the invoice data.\r\n' +
+  '  IMPORT_GUIDE.txt This file.\r\n\r\n' +
+  'Importing into QuickBooks Online\r\n' +
+  '--------------------------------\r\n' +
+  '1. Open QuickBooks Online. Click the Gear icon (top-right) -> Import Data -> Invoices.\r\n' +
+  '2. Upload invoice.csv.\r\n' +
+  '3. Map the columns (one-time setup; QuickBooks remembers your mapping):\r\n' +
+  '     InvoiceNumber   -> Invoice No.\r\n' +
+  '     CustomerName    -> Customer\r\n' +
+  '     InvoiceDate     -> Invoice Date\r\n' +
+  '     DueDate         -> Due Date\r\n' +
+  '     LineDescription -> Product/Service Description\r\n' +
+  '     LineQuantity    -> Quantity\r\n' +
+  '     LineRate        -> Rate\r\n' +
+  '     LineAmount      -> Amount\r\n' +
+  '     TaxLabel        -> Tax Code (pick your own QuickBooks tax code here)\r\n' +
+  '4. Click Next, then Import.\r\n\r\n' +
+  'Also works with Xero, Wave, Zoho Books, Sage\r\n' +
+  '--------------------------------------------\r\n' +
+  'Same CSV, same one-time column mapping step in their import wizards.\r\n\r\n' +
+  'Heads up\r\n' +
+  '--------\r\n' +
+  '- The customer must already exist in your accounting tool, or it will skip the import.\r\n' +
+  "- Tax codes get reassigned during import (we use a generic label; you assign your tool's tax code).\r\n" +
+  '- Multi-currency only works if your accounting tool has multi-currency enabled.\r\n\r\n' +
+  'The JSON file\r\n' +
+  '-------------\r\n' +
+  'invoice.json is a tool-agnostic record. Keep it as a backup.\r\n' +
+  "If your accounting tool changes its CSV format later, the JSON is still readable\r\n" +
+  'and you can regenerate the CSV from it.\r\n\r\n' +
+  'More info: https://foxmargin.com\r\n';
+
+function loadJSZip() {
+  if (typeof window.JSZip !== 'undefined') return Promise.resolve(window.JSZip);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.integrity = 'sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==';
+    s.crossOrigin = 'anonymous';
+    s.referrerPolicy = 'no-referrer';
+    s.onload  = () => resolve(window.JSZip);
+    s.onerror = () => reject(new Error('Failed to load JSZip'));
+    document.head.appendChild(s);
+  });
+}
+
+async function exportInvoice() {
+  try {
+    if (typeof window.track === 'function') window.track('export_invoice');
+    const data = buildInvoiceData();
+    const invNum = data.invoice_number || 'invoice';
+    const safe   = invNum.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const JSZip  = await loadJSZip();
+    const zip = new JSZip();
+    zip.file('invoice.csv',      csvFromInvoice(data));
+    zip.file('invoice.json',     JSON.stringify(data, null, 2));
+    zip.file('IMPORT_GUIDE.txt', IMPORT_GUIDE_TEXT);
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = safe + '_export.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (err) {
+    console.error('Export failed:', err);
+    alert("Couldn't generate the export. Check your connection and try again.");
+  }
+}
+window.exportInvoice = exportInvoice;
 </script>
 
 <script is:inline>
