@@ -16,7 +16,9 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     { "@type": "Question", "name": "What does Net 30 payment terms mean?",
       "acceptedAnswer": { "@type": "Answer", "text": "Net 30 means the invoice is due 30 days after the invoice date. Net 15 = 15 days, Net 60 = 60 days. 2/10 Net 30 means you get a 2% discount if you pay within 10 days, otherwise the full amount is due in 30 days. Due on Receipt means payment is expected immediately upon delivery." } },
     { "@type": "Question", "name": "Does my business info get saved?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your company name, email, phone, address, and logo are stored locally in your browser and pre-fill every document you create. Nothing is sent to any server." } }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your company name, email, phone, address, and logo are stored locally in your browser and pre-fill every document you create. Nothing is sent to any server." } },
+    { "@type": "Question", "name": "How do I save the purchase order as a PDF?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog. Tip: open More settings and turn off Headers and footers so the date and foxmargin.com URL do not appear on your saved PO." } }
   ]}
 ]});
 ---
@@ -303,6 +305,11 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <details>
       <summary>Does my business info get saved?</summary>
       <p>Yes — click "Edit ›" next to your business name, or click "My Business" in the nav. Your company name, email, phone, address, and logo are stored locally in your browser and pre-fill every document you create. Nothing is sent to any server.</p>
+    </details>
+    <details>
+      <summary>How do I save the purchase order as a PDF?</summary>
+      <p>Click "Print / Save PDF," then in the print dialog choose "Save as PDF" as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog.</p>
+      <p><strong>Tip:</strong> open <em>More settings</em> in the print dialog and turn off "Headers and footers" — otherwise the date and foxmargin.com URL will appear at the top/bottom of your saved PO.</p>
     </details>
   </div>
 

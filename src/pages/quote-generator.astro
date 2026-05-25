@@ -16,7 +16,9 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     { "@type": "Question", "name": "How long should a quote be valid for?",
       "acceptedAnswer": { "@type": "Answer", "text": "30 days is standard for most industries. For projects involving materials with volatile prices (construction, manufacturing), 7–14 days is common. Service-only quotes can extend to 60–90 days. Always specify the validity period to protect yourself from being held to an old price." } },
     { "@type": "Question", "name": "Can I add my logo to the quote?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your logo is stored in your browser and appears on every document automatically." } }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your logo is stored in your browser and appears on every document automatically." } },
+    { "@type": "Question", "name": "How do I save the quote as a PDF?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / PDF, then in the print dialog choose Save as PDF as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog. Tip: open More settings and turn off Headers and footers so the date and foxmargin.com URL do not appear on your saved quote." } }
   ]}
 ]});
 ---
@@ -267,6 +269,11 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <details>
       <summary>Can I add my logo?</summary>
       <p>Yes — click "Edit ›" next to your business name, or click "My Business" in the nav. Your logo is stored in your browser and appears on every document automatically.</p>
+    </details>
+    <details>
+      <summary>How do I save the quote as a PDF?</summary>
+      <p>Click "Print / PDF," then in the print dialog choose "Save as PDF" as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog.</p>
+      <p><strong>Tip:</strong> open <em>More settings</em> in the print dialog and turn off "Headers and footers" — otherwise the date and foxmargin.com URL will appear at the top/bottom of your saved quote.</p>
     </details>
   </div>
 
