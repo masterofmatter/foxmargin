@@ -142,30 +142,49 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
     // opts: { kind: 'Invoice'|'Receipt'|'Quote'|'Purchase Order',
     //         numberId: 'inv-number'|'rec-number'|'qte-number'|'po-number',
     //         eventName: 'email_invoice' (optional, for analytics) }
-    // Opens the user's default mail client with subject + body prefilled.
-    // Falls back to a copy-to-clipboard helper if mailto: produces no response
-    // (e.g. Gmail-web users without a mailto: handler).
+    //
+    // Opens the user's default mail client (or webmail handler) with subject and
+    // a plain-text rendering of the live preview already in the body, so the
+    // recipient sees the whole document inline — no PDF attachment workflow
+    // required. Recipient defaults to the Bill To "Email" field if filled, but
+    // the button no longer requires it — empty leaves the To: blank for the
+    // user to fill in their mail app.
     window.emailDoc = function(opts) {
       opts = opts || {};
-      var toEmailEl = document.getElementById('to-email');
-      var toEmail   = (toEmailEl && toEmailEl.value || '').trim();
-      if (!toEmail) {
-        if (toEmailEl) { toEmailEl.focus(); toEmailEl.style.borderColor = '#dc2626'; setTimeout(function(){ toEmailEl.style.borderColor=''; }, 1500); }
-        return;
-      }
-      var toName  = (document.getElementById('to-name') && document.getElementById('to-name').value || '').trim() || 'there';
+      var toEmail = (document.getElementById('to-email') && document.getElementById('to-email').value || '').trim();
+      var toName  = (document.getElementById('to-name')  && document.getElementById('to-name').value  || '').trim() || 'there';
       var docNum  = (document.getElementById(opts.numberId) && document.getElementById(opts.numberId).value || '').trim();
       var bizName = (localStorage.getItem('biz_name') || '').trim();
       var kind    = opts.kind || 'Document';
+
+      // Pull rendered document text from the live preview. Invoice page uses
+      // id="invoice-paper"; receipt/quote/PO use id="doc-paper".
+      var paper = document.getElementById('doc-paper') || document.getElementById('invoice-paper');
+      var docText = '';
+      if (paper) {
+        var clone = paper.cloneNode(true);
+        var imgs = clone.querySelectorAll('img');
+        for (var i = 0; i < imgs.length; i++) imgs[i].remove();
+        docText = (clone.innerText || clone.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+      }
+
       var subject = encodeURIComponent(kind + (docNum ? ' ' + docNum : '') + (bizName ? ' from ' + bizName : ''));
-      var body    = encodeURIComponent(
+      var bodyText =
         'Hi ' + toName + ',\n\n' +
-        'Please find ' + kind.toLowerCase() + (docNum ? ' ' + docNum : '') + ' attached.\n\n' +
+        'Please find ' + kind.toLowerCase() + (docNum ? ' ' + docNum : '') + ' below.\n\n' +
+        '────────────────────────\n' +
+        docText + '\n' +
+        '────────────────────────\n\n' +
         'Let me know if you have any questions.\n\n' +
-        'Thanks,\n' + (bizName || '')
-      );
+        'Thanks,\n' + (bizName || '');
+      // Guard against unusually long invoices blowing past mailto: body limits.
+      if (bodyText.length > 7500) {
+        bodyText = bodyText.slice(0, 7500) + '\n\n[Document truncated — use Print / Save PDF to send the full version as an attachment.]';
+      }
+      var body = encodeURIComponent(bodyText);
+
       if (opts.eventName && typeof window.track === 'function') window.track(opts.eventName);
-      window.location.href = 'mailto:' + encodeURIComponent(toEmail) + '?subject=' + subject + '&body=' + body;
+      window.location.href = 'mailto:' + (toEmail ? encodeURIComponent(toEmail) : '') + '?subject=' + subject + '&body=' + body;
     };
 
     // ── Saved recipients (clients/customers/vendors) — free: 1 slot, Pro: unlimited ──
