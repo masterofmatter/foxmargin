@@ -138,17 +138,22 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       else if (typeof window.gtag === 'function') window.gtag('event', event, props || {});
     };
 
-    // ── Email a document via mailto: ──
+    // ── Email a document — two paths: Web Share (mobile) or Print + mailto (desktop) ──
     // opts: { kind: 'Invoice'|'Receipt'|'Quote'|'Purchase Order',
     //         numberId: 'inv-number'|'rec-number'|'qte-number'|'po-number',
     //         eventName: 'email_invoice' (optional, for analytics) }
     //
-    // Opens the user's default mail client (or webmail handler) with subject and
-    // a plain-text rendering of the live preview already in the body, so the
-    // recipient sees the whole document inline — no PDF attachment workflow
-    // required. Recipient defaults to the Bill To "Email" field if filled, but
-    // the button no longer requires it — empty leaves the To: blank for the
-    // user to fill in their mail app.
+    // Why two paths? mailto: URLs cannot carry attachments (RFC 6068 — no mail
+    // client honors it), so we can't just open a mail draft with a PDF inside.
+    // Workarounds:
+    //   - Path C (mobile / iOS Safari / Android Chrome): navigator.share({files})
+    //     lets the OS share sheet attach an image directly to whichever app the
+    //     user picks (Mail / Messages / WhatsApp). We render the preview to a
+    //     high-DPI PNG via html2canvas, loaded on demand from cdnjs.
+    //   - Path A (everything else): trigger window.print() so the user saves the
+    //     PDF via the browser's print engine (high fidelity, all styling intact),
+    //     then open mailto with subject + short body. User drags the saved PDF
+    //     onto the draft. Same two-step workflow Stripe / Wave / FreshBooks use.
     window.emailDoc = function(opts) {
       opts = opts || {};
       var toEmail = (document.getElementById('to-email') && document.getElementById('to-email').value || '').trim();
@@ -157,35 +162,87 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
       var bizName = (localStorage.getItem('biz_name') || '').trim();
       var kind    = opts.kind || 'Document';
 
-      // Pull rendered document text from the live preview. Invoice page uses
-      // id="invoice-paper"; receipt/quote/PO use id="doc-paper".
-      var paper = document.getElementById('doc-paper') || document.getElementById('invoice-paper');
-      var docText = '';
-      if (paper) {
-        var clone = paper.cloneNode(true);
-        var imgs = clone.querySelectorAll('img');
-        for (var i = 0; i < imgs.length; i++) imgs[i].remove();
-        docText = (clone.innerText || clone.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
-      }
-
-      var subject = encodeURIComponent(kind + (docNum ? ' ' + docNum : '') + (bizName ? ' from ' + bizName : ''));
+      var subject  = kind + (docNum ? ' ' + docNum : '') + (bizName ? ' from ' + bizName : '');
       var bodyText =
         'Hi ' + toName + ',\n\n' +
-        'Please find ' + kind.toLowerCase() + (docNum ? ' ' + docNum : '') + ' below.\n\n' +
-        '────────────────────────\n' +
-        docText + '\n' +
-        '────────────────────────\n\n' +
+        'Please find ' + kind.toLowerCase() + (docNum ? ' ' + docNum : '') + ' attached.\n\n' +
         'Let me know if you have any questions.\n\n' +
         'Thanks,\n' + (bizName || '');
-      // Guard against unusually long invoices blowing past mailto: body limits.
-      if (bodyText.length > 7500) {
-        bodyText = bodyText.slice(0, 7500) + '\n\n[Document truncated — use Print / Save PDF to send the full version as an attachment.]';
-      }
-      var body = encodeURIComponent(bodyText);
 
       if (opts.eventName && typeof window.track === 'function') window.track(opts.eventName);
-      window.location.href = 'mailto:' + (toEmail ? encodeURIComponent(toEmail) : '') + '?subject=' + subject + '&body=' + body;
+
+      var safe = (docNum || kind).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      // Path C feature-detect — needs File constructor + canShare({files}) returning true.
+      var canShareFile = false;
+      try {
+        canShareFile = !!(navigator.canShare && navigator.canShare({
+          files: [new File(['probe'], 'probe.png', { type: 'image/png' })]
+        }));
+      } catch (e) { canShareFile = false; }
+
+      if (canShareFile) {
+        shareViaImage().catch(function(err) {
+          // User-cancelled share sheet → don't barge into the print dialog.
+          if (err && err.name === 'AbortError') return;
+          openMailAfterPrint();
+        });
+        return;
+      }
+
+      openMailAfterPrint();
+
+      function openMailAfterPrint() {
+        try { window.print(); } catch (e) {}
+        // The print dialog blocks on most browsers; once it closes the timeout
+        // resolves and the mail client opens. 300ms gives Safari/Firefox time
+        // to finish their async print teardown before the navigation.
+        setTimeout(function() {
+          var body = encodeURIComponent(
+            bodyText + '\n\n[Attach the PDF you just saved to this email before sending.]'
+          );
+          window.location.href = 'mailto:' + (toEmail ? encodeURIComponent(toEmail) : '')
+            + '?subject=' + encodeURIComponent(subject)
+            + '&body=' + body;
+        }, 300);
+      }
+
+      function shareViaImage() {
+        return loadHtml2Canvas().then(function(h2c) {
+          var paper = document.getElementById('doc-paper') || document.getElementById('invoice-paper');
+          if (!paper) throw new Error('preview element missing');
+          return h2c(paper, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+        }).then(function(canvas) {
+          return new Promise(function(resolve, reject) {
+            canvas.toBlob(function(blob) {
+              if (!blob) return reject(new Error('blob conversion failed'));
+              var file = new File([blob], safe + '.png', { type: 'image/png' });
+              if (!navigator.canShare({ files: [file] })) {
+                return reject(new Error('cannot share file'));
+              }
+              navigator.share({ title: subject, text: bodyText, files: [file] })
+                .then(resolve, reject);
+            }, 'image/png');
+          });
+        });
+      }
     };
+
+    // html2canvas loaded on demand from cdnjs the first time mobile share fires.
+    // No SRI hash — this is a no-PII static site and the cdnjs HTTPS endpoint is
+    // the same source pattern used for JSZip elsewhere in the codebase.
+    function loadHtml2Canvas() {
+      if (window.html2canvas) return Promise.resolve(window.html2canvas);
+      return new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.crossOrigin = 'anonymous';
+        s.referrerPolicy = 'no-referrer';
+        s.onload  = function() { resolve(window.html2canvas); };
+        s.onerror = function() { reject(new Error('Failed to load html2canvas')); };
+        document.head.appendChild(s);
+      });
+    }
 
     // ── Saved recipients (clients/customers/vendors) — free: 1 slot, Pro: unlimited ──
     window.fmClients = {
