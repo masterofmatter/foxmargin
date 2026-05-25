@@ -159,6 +159,25 @@ import { ADDR_CONFIG, ADDR_DEFAULT } from '../data/address-config';
     padding: 0.4rem 0;
   }
   .btn-skip:hover { color: var(--text); }
+  .biz-actions-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .biz-link {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.4rem 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .biz-link:hover { color: var(--text); }
+  .biz-link-sep { color: var(--border); font-size: 0.8rem; user-select: none; }
+  .biz-import-msg { font-size: 0.74rem; color: var(--muted); margin-left: 0.25rem; }
 </style>
 
 <!-- Business Profile Modal -->
@@ -360,7 +379,15 @@ import { ADDR_CONFIG, ADDR_DEFAULT } from '../data/address-config';
         </div>
         <div class="biz-modal-actions">
           <button type="button" class="btn" onclick="saveBizProfile()">Save Profile</button>
-          <button type="button" class="btn-skip" onclick="closeBizModal()">Skip for now</button>
+          <div class="biz-actions-secondary">
+            <button type="button" class="biz-link" onclick="exportBizSettings()" title="Download a JSON backup of your business profile, logo, and saved clients">Export backup</button>
+            <span class="biz-link-sep">·</span>
+            <button type="button" class="biz-link" onclick="document.getElementById('biz-import-input').click()" title="Restore settings from a backup file">Restore</button>
+            <span class="biz-link-sep">·</span>
+            <button type="button" class="btn-skip" onclick="closeBizModal()">Skip for now</button>
+            <input type="file" id="biz-import-input" accept="application/json,.json" style="display:none;" onchange="importBizSettings(this.files[0]); this.value='';" />
+            <span id="biz-import-msg" class="biz-import-msg"></span>
+          </div>
         </div>
       </div>
       <!-- RIGHT: live paper preview -->
@@ -517,6 +544,69 @@ import { ADDR_CONFIG, ADDR_DEFAULT } from '../data/address-config';
     localStorage.setItem('biz_setup_done', '1');
     closeBizModal();
     if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
+  }
+  // ── Backup / Restore ──
+  // Exports all browser-local settings (biz_*, preferred_currency, fm_clients)
+  // to a JSON file. Restores from the same file format. Excludes fm_pro
+  // (Pro gate is intentionally not transferable).
+  var FM_BACKUP_KEYS = [
+    'biz_name','biz_email','biz_phone','biz_street','biz_city','biz_state','biz_zip',
+    'biz_country','biz_country_name','biz_show_country','biz_logo',
+    'biz_primary_color','biz_accent_color','biz_paypal',
+    'biz_bank_name','biz_bank_holder','biz_bank_acct','biz_bank_routing','biz_bank_iban',
+    'biz_setup_done','preferred_currency','fm_clients'
+  ];
+  function exportBizSettings() {
+    var data = { foxmargin_settings: 1, exported_at: new Date().toISOString() };
+    FM_BACKUP_KEYS.forEach(function(k) {
+      var v = localStorage.getItem(k);
+      if (v !== null) data[k] = v;
+    });
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'foxmargin-settings.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 100);
+    if (typeof window.track === 'function') window.track('settings_exported');
+    var msg = document.getElementById('biz-import-msg');
+    if (msg) {
+      msg.textContent = '✓ Downloaded';
+      msg.style.color = '#16a34a';
+      setTimeout(function() { msg.textContent = ''; }, 3000);
+    }
+  }
+  function importBizSettings(file) {
+    if (!file) return;
+    var msg = document.getElementById('biz-import-msg');
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var data;
+      try { data = JSON.parse(e.target.result); }
+      catch (err) {
+        if (msg) { msg.textContent = '✗ Not a valid JSON file'; msg.style.color = '#dc2626'; }
+        return;
+      }
+      if (!data || data.foxmargin_settings !== 1) {
+        if (msg) { msg.textContent = '✗ Not a FoxMargin backup'; msg.style.color = '#dc2626'; }
+        return;
+      }
+      if (!window.confirm('Replace your current FoxMargin settings with this backup? This cannot be undone.')) return;
+      FM_BACKUP_KEYS.forEach(function(k) {
+        if (typeof data[k] === 'string') localStorage.setItem(k, data[k]);
+      });
+      if (typeof _loadBizToModal === 'function') _loadBizToModal();
+      if (typeof fillDocFromBiz === 'function') fillDocFromBiz();
+      if (typeof window.refreshClientPicker === 'function') window.refreshClientPicker();
+      if (typeof window.track === 'function') window.track('settings_imported');
+      if (msg) {
+        msg.textContent = '✓ Settings restored';
+        msg.style.color = '#16a34a';
+        setTimeout(function() { msg.textContent = ''; }, 4000);
+      }
+    };
+    reader.readAsText(file);
   }
   function updateBizPreview() {
     var name   = (document.getElementById('biz-modal-name')?.value   || '').trim();
