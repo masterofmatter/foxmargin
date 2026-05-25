@@ -12,7 +12,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     { "@type": "Question", "name": "Is this receipt generator free?",
       "acceptedAnswer": { "@type": "Answer", "text": "Yes — completely free, no account needed, no watermark. Your logo and data stay in your browser." } },
     { "@type": "Question", "name": "How do I get a PDF receipt?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, look for the PDF dropdown in the bottom-left of the print dialog. All modern browsers support this natively." } },
+      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, look for the PDF dropdown in the bottom-left of the print dialog. All modern browsers support this natively. Tip: open More settings and turn off Headers and footers so the date and foxmargin.com URL do not appear on your saved receipt." } },
     { "@type": "Question", "name": "Can I add my logo to the receipt?",
       "acceptedAnswer": { "@type": "Answer", "text": "Yes — click Edit next to your business name, or click My Business in the nav. Your logo is stored in your browser and appears on every document automatically." } },
     { "@type": "Question", "name": "What if a customer partially paid?",
@@ -266,6 +266,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <details>
       <summary>How do I get a PDF receipt?</summary>
       <p>Click "Print / Save PDF," then in the print dialog choose "Save as PDF" as the destination. On Mac, look for the PDF dropdown in the bottom-left of the print dialog. All modern browsers support this natively.</p>
+      <p><strong>Tip:</strong> open <em>More settings</em> in the print dialog and turn off "Headers and footers" — otherwise the date and foxmargin.com URL will appear at the top/bottom of your saved receipt.</p>
     </details>
     <details>
       <summary>Can I add my logo?</summary>

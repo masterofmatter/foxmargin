@@ -12,7 +12,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     { "@type": "Question", "name": "Is this invoice generator really free?",
       "acceptedAnswer": { "@type": "Answer", "text": "Yes — completely free, no account required, no watermark. Print or use your browser's Save as PDF option to get a PDF copy." } },
     { "@type": "Question", "name": "How do I save the invoice as a PDF?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog." } },
+      "acceptedAnswer": { "@type": "Answer", "text": "Click Print / Save PDF, then in the print dialog choose Save as PDF as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog. Tip: open More settings and turn off Headers and footers so the date and foxmargin.com URL do not appear on your saved invoice." } },
     { "@type": "Question", "name": "What tax rate should I use?",
       "acceptedAnswer": { "@type": "Answer", "text": "In the US there is no federal sales tax — rates are set by state and locality. Common rates range from 0% (Oregon, Montana) to over 10% in some cities. Leave at 0% if you're exempt or selling B2B with a resale certificate." } },
     { "@type": "Question", "name": "Can I add my logo to the invoice?",
@@ -273,6 +273,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <details>
       <summary>How do I save the invoice as a PDF?</summary>
       <p>Click "Print / Save PDF," then in the print dialog choose "Save as PDF" as the destination. On Mac, click the PDF dropdown in the bottom-left of the print dialog.</p>
+      <p><strong>Tip:</strong> open <em>More settings</em> in the print dialog and turn off "Headers and footers" — otherwise the date and foxmargin.com URL will appear at the top/bottom of your saved invoice.</p>
     </details>
     <details>
       <summary>What tax rate should I use?</summary>
