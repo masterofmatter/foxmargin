@@ -228,6 +228,46 @@ main { min-width: 0; }
 }
 .btn-green:hover { background: #047857; }
 
+/* Live-preview action row buttons — shared across all generator pages.
+   Compact, consistent sizing so Export / Email / Print align identically. */
+.preview-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.action-btn,
+.action-btn-primary,
+.action-btn-green {
+  font-size: 0.82rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  align-self: auto;
+}
+.action-btn {
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.action-btn:hover { border-color: var(--text); }
+.action-btn-primary {
+  background: var(--fox);
+  color: #fff;
+  border: 1px solid var(--fox);
+}
+.action-btn-primary:hover { background: var(--fox-light); border-color: var(--fox-light); }
+.action-btn-green {
+  background: #059669;
+  color: #fff;
+  border: 1px solid #059669;
+}
+.action-btn-green:hover { background: #047857; border-color: #047857; }
+
 /* Results */
 .results {
   display: none;

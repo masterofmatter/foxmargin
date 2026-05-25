@@ -240,10 +240,10 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <div class="inv-paper-col">
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
-        <div style="display:flex;gap:0.4rem;">
-          <button class="btn btn-green" onclick="convertToInvoice()" type="button" style="font-size:0.78rem;padding:0.4rem 0.8rem;">→ Invoice</button>
-          <button onclick="emailDoc({kind:'Quote',numberId:'qte-number',eventName:'email_quote'})" type="button" style="font-size:0.78rem;padding:0.4rem 0.8rem;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:500;">📧 Email</button>
-          <button class="btn" onclick="track('print_quote');window.print()" type="button" style="font-size:0.78rem;padding:0.4rem 0.8rem;">Print / PDF</button>
+        <div class="preview-actions">
+          <button type="button" class="action-btn-green" onclick="convertToInvoice()">→ Invoice</button>
+          <button type="button" class="action-btn" onclick="emailDoc({kind:'Quote',numberId:'qte-number',eventName:'email_quote'})">Email</button>
+          <button type="button" class="action-btn-primary" onclick="track('print_quote');window.print()">Print / Save PDF</button>
         </div>
       </div>
       <div class="inv-paper" id="doc-paper"></div>

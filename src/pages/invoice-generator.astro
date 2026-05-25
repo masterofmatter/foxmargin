@@ -240,10 +240,10 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <div class="inv-paper-col">
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
-        <div style="display:flex;gap:0.4rem;align-items:center;">
-          <button onclick="exportInvoice()" style="font-size:0.82rem;padding:0.45rem 0.9rem;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:500;">Export CSV</button>
-          <button onclick="emailDoc({kind:'Invoice',numberId:'inv-number',eventName:'email_invoice'})" style="font-size:0.82rem;padding:0.45rem 0.9rem;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:500;">📧 Email</button>
-          <button class="btn" onclick="track('print_invoice');window.print()" style="font-size:0.82rem;padding:0.45rem 1rem;">Print / Save PDF</button>
+        <div class="preview-actions">
+          <button type="button" class="action-btn" onclick="exportInvoice()">Export CSV</button>
+          <button type="button" class="action-btn" onclick="emailDoc({kind:'Invoice',numberId:'inv-number',eventName:'email_invoice'})">Email</button>
+          <button type="button" class="action-btn-primary" onclick="track('print_invoice');window.print()">Print / Save PDF</button>
         </div>
       </div>
       <div class="print-hide" style="margin-top:0.45rem;font-size:0.72rem;color:var(--muted);text-align:right;">
