@@ -151,7 +151,7 @@ These all require creating a vendor/seller account. Copy below is ready to paste
 
 ---
 
-## AlternativeTo (submit May 19, 2026)
+## AlternativeTo (ready to submit — account exists)
 
 Account already created. Log in and submit at:
 https://alternativeto.net/software/new/

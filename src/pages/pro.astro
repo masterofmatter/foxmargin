@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="FoxMargin Pro — Coming Soon | FoxMargin"
+  description="FoxMargin Pro is a planned upgrade with unlimited saved clients, advanced templates, and more. Everything will continue to run in your browser — no data sent to a server."
+>
+  <section class="calc-hero">
+    <h1>FoxMargin Pro</h1>
+    <p class="calc-hero-sub">An optional upgrade — same browser-only, no-signup philosophy, more power for repeat use.</p>
+  </section>
+
+  <div class="pro-wrap">
+    <div class="ws-card">
+      <div class="ws-card-label">Status</div>
+      <p class="pro-text">
+        FoxMargin Pro is <strong>not available yet</strong>. We're gauging interest before building it.
+        Every free feature on the site stays free — Pro will be a strict addition for people who use FoxMargin daily.
+      </p>
+      <p class="pro-text">
+        <strong>How we're measuring interest:</strong> visits to this page (counted anonymously via Plausible),
+        not email collection. We don't have a signup list because we don't have a database. Same site policy applies:
+        <em>no signup, no data collection, no watermarks.</em>
+      </p>
+    </div>
+
+    <div class="ws-card">
+      <div class="ws-card-label">Planned Pro Features</div>
+      <ul class="pro-features">
+        <li><strong>Unlimited saved clients / customers / vendors</strong> — free tier saves 1, Pro saves as many as you need</li>
+        <li><strong>Document templates</strong> — save full invoice/quote/PO setups (line items, terms, notes) and reuse with one click</li>
+        <li><strong>Recurring invoice presets</strong> — for clients you bill on the same cadence</li>
+        <li><strong>Custom document numbering schemes</strong> — prefixes, year-based reset, multi-series</li>
+        <li><strong>Extended history</strong> — keep a longer local log of generated documents</li>
+      </ul>
+      <p class="pro-text" style="margin-top:0.8rem;">
+        Features ship as we hear what you actually need. The free tools you use today won't move behind a paywall.
+      </p>
+    </div>
+
+    <div class="ws-card">
+      <div class="ws-card-label">Pricing</div>
+      <p class="pro-text">
+        To be announced. The free version covers most small-business needs and will keep doing so.
+        Pro will be priced for solo operators and small teams, not enterprises.
+      </p>
+    </div>
+
+    <div class="ws-card">
+      <div class="ws-card-label">Tell us what you'd actually pay for</div>
+      <p class="pro-text">
+        Have a feature above (or one not listed) that you'd genuinely pay for? Drop us a line:
+        <a href="mailto:foxmargin@protonmail.com?subject=FoxMargin Pro interest" onclick="if(typeof window.track==='function')window.track('pro_contact_clicked');" style="color:var(--fox);font-weight:600;">foxmargin@protonmail.com</a>
+      </p>
+      <p class="pro-text" style="font-size:0.85rem;color:var(--muted);">
+        No list, no auto-reply, no follow-up sequence. Just a person reading email.
+      </p>
+    </div>
+
+    <div class="ws-card" style="text-align:center;">
+      <a href="/" class="btn">← Back to free tools</a>
+    </div>
+  </div>
+
+  <script>
+    if (typeof window !== 'undefined' && typeof window.track === 'function') {
+      window.track('pro_page_view');
+    }
+  </script>
+</Layout>
+
+<style>
+  .pro-wrap { max-width: 720px; margin: 0 auto; padding: 0 1rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .pro-text { font-size: 0.95rem; line-height: 1.6; color: var(--text); margin: 0 0 0.6rem; }
+  .pro-text:last-child { margin-bottom: 0; }
+  .pro-features { margin: 0; padding-left: 1.25rem; font-size: 0.92rem; line-height: 1.65; color: var(--text); }
+  .pro-features li { margin-bottom: 0.5rem; }
+  .pro-features li:last-child { margin-bottom: 0; }
+</style>

@@ -193,6 +193,13 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
             <div class="field" id="field-to-state"><label id="lbl-to-state" for="to-state">State</label><input type="text" id="to-state" placeholder="TX" autocomplete="off" oninput="renderPreview()" /></div>
             <div class="field" id="field-to-zip"><label id="lbl-to-zip" for="to-zip">ZIP Code</label><input type="text" id="to-zip" placeholder="10001" autocomplete="off" oninput="renderPreview()" /></div>
           </div>
+          <div style="display:flex;gap:.4rem;align-items:center;margin-top:.25rem;flex-wrap:wrap;">
+            <button type="button" onclick="saveRecipient()" style="font-size:.78rem;padding:.35rem .7rem;background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;">💾 Save customer</button>
+            <select id="client-picker" onchange="loadRecipient(this.value)" style="font-size:.78rem;padding:.35rem .5rem;border:1px solid var(--border);border-radius:6px;">
+              <option value="">Recent customers…</option>
+            </select>
+            <span id="client-msg" style="font-size:.74rem;color:var(--muted);"></span>
+          </div>
         </div>
       </div>
 
@@ -239,7 +246,10 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <div class="inv-paper-col">
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
-        <button class="btn" onclick="track('print_receipt');window.print()" type="button" style="font-size:0.82rem;padding:0.45rem 1rem;">Print / Save PDF</button>
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <button onclick="emailDoc({kind:'Receipt',numberId:'rec-number',eventName:'email_receipt'})" type="button" style="font-size:0.82rem;padding:0.45rem 0.9rem;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:500;">📧 Email</button>
+          <button class="btn" onclick="track('print_receipt');window.print()" type="button" style="font-size:0.82rem;padding:0.45rem 1rem;">Print / Save PDF</button>
+        </div>
       </div>
       <div class="inv-paper" id="doc-paper"></div>
     </div>
