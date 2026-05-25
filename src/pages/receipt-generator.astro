@@ -247,6 +247,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
         <div class="preview-actions">
+          <button type="button" class="action-btn" onclick="exportReceipt()">Export CSV</button>
           <button type="button" class="action-btn" onclick="emailDoc({kind:'Receipt',numberId:'rec-number',eventName:'email_receipt'})">Email</button>
           <button type="button" class="action-btn-primary" onclick="track('print_receipt');window.print()">Print / Save PDF</button>
         </div>
@@ -582,6 +583,164 @@ function renderPreview() {
     </div>` : ''}
   `;
 }
+
+// ── Portable receipt export (CSV + JSON + IMPORT_GUIDE) ──
+// Works with QuickBooks "Sales Receipts", Xero, Wave, Zoho via column-mapper UIs.
+function buildReceiptData() {
+  const items    = getLineItems();
+  const taxes    = getTaxLines().filter(t => t.rate > 0);
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxTotal = taxes.reduce((s, t) => s + subtotal * (t.rate / 100), 0);
+  const total    = subtotal + taxTotal;
+  const apRaw    = document.getElementById('amount-paid')?.value || '';
+  const paid     = apRaw.trim() !== '' ? (parseFloat(apRaw) || 0) : total;
+  const balance  = total - paid;
+  const status   = total > 0 && balance <= 0.005 ? 'PAID' : (paid > 0 ? 'PARTIAL' : 'UNPAID');
+  const get      = id => (document.getElementById(id)?.value || '').trim();
+
+  return {
+    receipt_number: get('rec-number'),
+    receipt_date:   get('rec-date'),
+    payment_method: get('payment-method'),
+    currency:       (window.__currency && window.__currency.code) || 'USD',
+    from: {
+      name:   get('from-name'),  email: get('from-email'), phone: get('from-phone'),
+      street: get('from-street'), city: get('from-city'),
+      state:  get('from-state'),  zip:  get('from-zip')
+    },
+    customer: {
+      name:   get('to-name'),   email: get('to-email'),
+      street: get('to-street'), city:  get('to-city'),
+      state:  get('to-state'),  zip:   get('to-zip'),
+      country: get('to-country')
+    },
+    line_items: items.map(r => ({ description: r.desc, quantity: r.qty, rate: r.rate, amount: r.total })),
+    taxes: taxes.map(t => ({ label: t.label, rate_percent: t.rate })),
+    subtotal: +subtotal.toFixed(2),
+    tax_total: +taxTotal.toFixed(2),
+    total: +total.toFixed(2),
+    amount_paid: +paid.toFixed(2),
+    balance_due: +Math.max(0, balance).toFixed(2),
+    status: status,
+    notes: get('notes'),
+    exported_at: new Date().toISOString(),
+    exporter: 'FoxMargin v1'
+  };
+}
+
+function csvEscape(v) {
+  const s = (v === null || v === undefined) ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function csvFromReceipt(d) {
+  const headers = [
+    'ReceiptNumber','CustomerName','CustomerEmail','CustomerAddress',
+    'ReceiptDate','PaymentMethod','Currency',
+    'LineDescription','LineQuantity','LineRate','LineAmount',
+    'TaxLabel','TaxRatePercent',
+    'Subtotal','TaxTotal','Total','AmountPaid','BalanceDue','Status','Memo'
+  ];
+  const custAddr = [d.customer.street, d.customer.city, d.customer.state, d.customer.zip, d.customer.country]
+    .filter(Boolean).join(', ');
+  const taxLabel = d.taxes.map(t => t.label + ' ' + t.rate_percent + '%').join(' + ');
+  const taxRate  = d.taxes.reduce((s, t) => s + t.rate_percent, 0);
+
+  const lines = [headers.join(',')];
+  const rows = d.line_items.length ? d.line_items : [{ description: '', quantity: 0, rate: 0, amount: 0 }];
+  rows.forEach((it, i) => {
+    const last = i === rows.length - 1;
+    lines.push([
+      d.receipt_number, d.customer.name, d.customer.email, custAddr,
+      d.receipt_date, d.payment_method, d.currency,
+      it.description, it.quantity, it.rate.toFixed(2), it.amount.toFixed(2),
+      last ? taxLabel : '',
+      last ? taxRate  : '',
+      last ? d.subtotal.toFixed(2)    : '',
+      last ? d.tax_total.toFixed(2)   : '',
+      last ? d.total.toFixed(2)       : '',
+      last ? d.amount_paid.toFixed(2) : '',
+      last ? d.balance_due.toFixed(2) : '',
+      last ? d.status : '',
+      last ? d.notes  : ''
+    ].map(csvEscape).join(','));
+  });
+  return lines.join('\r\n');
+}
+
+const IMPORT_GUIDE_TEXT =
+  'FoxMargin Receipt Export\r\n' +
+  '========================\r\n\r\n' +
+  'This ZIP contains:\r\n' +
+  '  receipt.csv      Line-item CSV. Imports as a sales receipt into QuickBooks, Xero, Wave, Zoho.\r\n' +
+  '  receipt.json     Tool-agnostic backup of the receipt data.\r\n' +
+  '  IMPORT_GUIDE.txt This file.\r\n\r\n' +
+  'Importing into QuickBooks Online (as a Sales Receipt)\r\n' +
+  '-----------------------------------------------------\r\n' +
+  '1. QuickBooks does not import sales receipts via CSV directly. To bring this into QBO:\r\n' +
+  '     a. Open QuickBooks Online -> + New -> Sales Receipt.\r\n' +
+  '     b. Manually copy the fields from receipt.csv into the form, OR\r\n' +
+  '     c. Use a third-party connector (SaasAnt, Transaction Pro) that DOES support sales-receipt CSV import.\r\n' +
+  '2. The CSV is structured so a connector can map columns one-to-one:\r\n' +
+  '     ReceiptNumber   -> Sales Receipt No.\r\n' +
+  '     CustomerName    -> Customer\r\n' +
+  '     ReceiptDate     -> Date\r\n' +
+  '     PaymentMethod   -> Payment Method\r\n' +
+  '     LineDescription -> Product/Service Description\r\n' +
+  '     LineQuantity    -> Quantity\r\n' +
+  '     LineRate        -> Rate\r\n' +
+  '     LineAmount      -> Amount\r\n\r\n' +
+  'Xero, Wave, Zoho Books, Sage\r\n' +
+  '----------------------------\r\n' +
+  'Xero imports receipts via Bank Statement upload + reconciliation, or via the "Receive Money" form.\r\n' +
+  'Wave and Zoho accept the same CSV columns with their own one-time column-mapping step.\r\n\r\n' +
+  'Heads up\r\n' +
+  '--------\r\n' +
+  '- The customer must already exist in your accounting tool, or it will skip the import.\r\n' +
+  "- Tax codes get reassigned during import (we use a generic label; you assign your tool's tax code).\r\n" +
+  '- The Status column tells you whether this receipt is PAID, PARTIAL, or UNPAID.\r\n\r\n' +
+  'The JSON file\r\n' +
+  '-------------\r\n' +
+  'receipt.json is a tool-agnostic record. Keep it as a backup.\r\n\r\n' +
+  'More info: https://foxmargin.com\r\n';
+
+function loadJSZip() {
+  if (typeof window.JSZip !== 'undefined') return Promise.resolve(window.JSZip);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.integrity = 'sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==';
+    s.crossOrigin = 'anonymous';
+    s.referrerPolicy = 'no-referrer';
+    s.onload  = () => resolve(window.JSZip);
+    s.onerror = () => reject(new Error('Failed to load JSZip'));
+    document.head.appendChild(s);
+  });
+}
+
+async function exportReceipt() {
+  try {
+    if (typeof window.track === 'function') window.track('export_receipt');
+    const data = buildReceiptData();
+    const recNum = data.receipt_number || 'receipt';
+    const safe   = recNum.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const JSZip  = await loadJSZip();
+    const zip = new JSZip();
+    zip.file('receipt.csv',      csvFromReceipt(data));
+    zip.file('receipt.json',     JSON.stringify(data, null, 2));
+    zip.file('IMPORT_GUIDE.txt', IMPORT_GUIDE_TEXT);
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = safe + '_export.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (err) {
+    console.error('Export failed:', err);
+    alert("Couldn't generate the export. Check your connection and try again.");
+  }
+}
+window.exportReceipt = exportReceipt;
 </script>
 
 <script is:inline>

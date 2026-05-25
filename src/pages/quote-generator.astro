@@ -242,6 +242,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
         <span class="inv-paper-label">Live Preview</span>
         <div class="preview-actions">
           <button type="button" class="action-btn-green" onclick="convertToInvoice()">→ Invoice</button>
+          <button type="button" class="action-btn" onclick="exportQuote()">Export CSV</button>
           <button type="button" class="action-btn" onclick="emailDoc({kind:'Quote',numberId:'qte-number',eventName:'email_quote'})">Email</button>
           <button type="button" class="action-btn-primary" onclick="track('print_quote');window.print()">Print / Save PDF</button>
         </div>
@@ -601,6 +602,155 @@ function convertToInvoice() {
   sessionStorage.setItem('fm_quote_data', JSON.stringify(data));
   window.location.href = '/invoice-generator/';
 }
+
+// ── Portable quote export (CSV + JSON + IMPORT_GUIDE) ──
+// Works with QuickBooks "Estimates", Xero "Quotes", Zoho "Estimates" via column-mapper UIs.
+function buildQuoteData() {
+  const items    = getLineItems();
+  const taxes    = getTaxLines().filter(t => t.rate > 0);
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxTotal = taxes.reduce((s, t) => s + subtotal * (t.rate / 100), 0);
+  const total    = subtotal + taxTotal;
+  const get      = id => (document.getElementById(id)?.value || '').trim();
+
+  return {
+    quote_number: get('qte-number'),
+    quote_date:   get('qte-date'),
+    valid_until:  get('valid-until'),
+    currency:     (window.__currency && window.__currency.code) || 'USD',
+    from: {
+      name:   get('from-name'),  email: get('from-email'), phone: get('from-phone'),
+      street: get('from-street'), city: get('from-city'),
+      state:  get('from-state'),  zip:  get('from-zip')
+    },
+    customer: {
+      name:   get('to-name'),   email: get('to-email'),
+      street: get('to-street'), city:  get('to-city'),
+      state:  get('to-state'),  zip:   get('to-zip'),
+      country: get('to-country')
+    },
+    line_items: items.map(r => ({ description: r.desc, quantity: r.qty, rate: r.rate, amount: r.total })),
+    taxes: taxes.map(t => ({ label: t.label, rate_percent: t.rate })),
+    subtotal: +subtotal.toFixed(2),
+    tax_total: +taxTotal.toFixed(2),
+    total: +total.toFixed(2),
+    notes: get('notes'),
+    exported_at: new Date().toISOString(),
+    exporter: 'FoxMargin v1'
+  };
+}
+
+function csvEscape(v) {
+  const s = (v === null || v === undefined) ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function csvFromQuote(d) {
+  const headers = [
+    'QuoteNumber','CustomerName','CustomerEmail','CustomerAddress',
+    'QuoteDate','ValidUntil','Currency',
+    'LineDescription','LineQuantity','LineRate','LineAmount',
+    'TaxLabel','TaxRatePercent',
+    'Subtotal','TaxTotal','Total','Memo'
+  ];
+  const custAddr = [d.customer.street, d.customer.city, d.customer.state, d.customer.zip, d.customer.country]
+    .filter(Boolean).join(', ');
+  const taxLabel = d.taxes.map(t => t.label + ' ' + t.rate_percent + '%').join(' + ');
+  const taxRate  = d.taxes.reduce((s, t) => s + t.rate_percent, 0);
+
+  const lines = [headers.join(',')];
+  const rows = d.line_items.length ? d.line_items : [{ description: '', quantity: 0, rate: 0, amount: 0 }];
+  rows.forEach((it, i) => {
+    const last = i === rows.length - 1;
+    lines.push([
+      d.quote_number, d.customer.name, d.customer.email, custAddr,
+      d.quote_date, d.valid_until, d.currency,
+      it.description, it.quantity, it.rate.toFixed(2), it.amount.toFixed(2),
+      last ? taxLabel : '',
+      last ? taxRate  : '',
+      last ? d.subtotal.toFixed(2)  : '',
+      last ? d.tax_total.toFixed(2) : '',
+      last ? d.total.toFixed(2)     : '',
+      last ? d.notes : ''
+    ].map(csvEscape).join(','));
+  });
+  return lines.join('\r\n');
+}
+
+const IMPORT_GUIDE_TEXT =
+  'FoxMargin Quote Export\r\n' +
+  '======================\r\n\r\n' +
+  'This ZIP contains:\r\n' +
+  '  quote.csv        Line-item CSV. Imports as an estimate/quote into QuickBooks, Xero, Zoho.\r\n' +
+  '  quote.json       Tool-agnostic backup of the quote data.\r\n' +
+  '  IMPORT_GUIDE.txt This file.\r\n\r\n' +
+  'Importing into QuickBooks Online (as an Estimate)\r\n' +
+  '-------------------------------------------------\r\n' +
+  '1. Open QuickBooks Online. Click the Gear icon (top-right) -> Import Data -> Estimates.\r\n' +
+  '   (If "Estimates" is not listed, use a connector like SaasAnt or Transaction Pro.)\r\n' +
+  '2. Upload quote.csv.\r\n' +
+  '3. Map the columns (one-time setup; QuickBooks remembers your mapping):\r\n' +
+  '     QuoteNumber     -> Estimate No.\r\n' +
+  '     CustomerName    -> Customer\r\n' +
+  '     QuoteDate       -> Estimate Date\r\n' +
+  '     ValidUntil      -> Expiration Date\r\n' +
+  '     LineDescription -> Product/Service Description\r\n' +
+  '     LineQuantity    -> Quantity\r\n' +
+  '     LineRate        -> Rate\r\n' +
+  '     LineAmount      -> Amount\r\n' +
+  '     TaxLabel        -> Tax Code (pick your QuickBooks tax code here)\r\n' +
+  '4. Click Next, then Import.\r\n\r\n' +
+  'Xero (Quotes), Zoho Books (Estimates)\r\n' +
+  '-------------------------------------\r\n' +
+  'Same CSV, same one-time column-mapping step in their import wizards.\r\n' +
+  'In Xero: Business -> Quotes -> Import. In Zoho: Estimates -> + New -> Import.\r\n\r\n' +
+  'Heads up\r\n' +
+  '--------\r\n' +
+  '- The customer must already exist in your accounting tool, or it will skip the import.\r\n' +
+  "- Tax codes get reassigned during import (we use a generic label; you assign your tool's tax code).\r\n" +
+  '- Multi-currency only works if your accounting tool has multi-currency enabled.\r\n\r\n' +
+  'The JSON file\r\n' +
+  '-------------\r\n' +
+  'quote.json is a tool-agnostic record. Keep it as a backup.\r\n\r\n' +
+  'More info: https://foxmargin.com\r\n';
+
+function loadJSZip() {
+  if (typeof window.JSZip !== 'undefined') return Promise.resolve(window.JSZip);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.integrity = 'sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==';
+    s.crossOrigin = 'anonymous';
+    s.referrerPolicy = 'no-referrer';
+    s.onload  = () => resolve(window.JSZip);
+    s.onerror = () => reject(new Error('Failed to load JSZip'));
+    document.head.appendChild(s);
+  });
+}
+
+async function exportQuote() {
+  try {
+    if (typeof window.track === 'function') window.track('export_quote');
+    const data = buildQuoteData();
+    const qteNum = data.quote_number || 'quote';
+    const safe   = qteNum.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const JSZip  = await loadJSZip();
+    const zip = new JSZip();
+    zip.file('quote.csv',        csvFromQuote(data));
+    zip.file('quote.json',       JSON.stringify(data, null, 2));
+    zip.file('IMPORT_GUIDE.txt', IMPORT_GUIDE_TEXT);
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = safe + '_export.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (err) {
+    console.error('Export failed:', err);
+    alert("Couldn't generate the export. Check your connection and try again.");
+  }
+}
+window.exportQuote = exportQuote;
 </script>
 
 <script is:inline>

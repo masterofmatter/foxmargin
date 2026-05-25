@@ -278,6 +278,7 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
         <div class="preview-actions">
+          <button type="button" class="action-btn" onclick="exportPO()">Export CSV</button>
           <button type="button" class="action-btn" onclick="emailDoc({kind:'Purchase Order',numberId:'po-number',eventName:'email_po'})">Email</button>
           <button type="button" class="action-btn-primary" onclick="track('print_po');window.print()">Print / Save PDF</button>
         </div>
@@ -648,6 +649,174 @@ function renderPreview() {
     </div>
   `;
 }
+
+// ── Portable PO export (CSV + JSON + IMPORT_GUIDE) ──
+// Works with QuickBooks "Purchase Orders", Xero "Bills/POs", Zoho via column-mapper UIs.
+function buildPOData() {
+  const items    = getLineItems();
+  const taxes    = getTaxLines().filter(t => t.rate > 0);
+  const subtotal = items.reduce((s, r) => s + r.total, 0);
+  const taxTotal = taxes.reduce((s, t) => s + subtotal * (t.rate / 100), 0);
+  const shipRaw  = document.getElementById('shipping-cost')?.value || '';
+  const shipping = shipRaw.trim() !== '' ? (parseFloat(shipRaw) || 0) : 0;
+  const total    = subtotal + taxTotal + shipping;
+  const get      = id => (document.getElementById(id)?.value || '').trim();
+
+  return {
+    po_number:      get('po-number'),
+    po_date:        get('po-date'),
+    delivery_date:  get('delivery-date'),
+    payment_terms:  get('payment-terms'),
+    authorized_by:  get('authorized-by'),
+    currency:       (window.__currency && window.__currency.code) || 'USD',
+    from: {
+      name:   get('from-name'),  email: get('from-email'), phone: get('from-phone'),
+      street: get('from-street'), city: get('from-city'),
+      state:  get('from-state'),  zip:  get('from-zip')
+    },
+    vendor: {
+      name:   get('to-name'),   email: get('to-email'),
+      street: get('to-street'), city:  get('to-city'),
+      state:  get('to-state'),  zip:   get('to-zip'),
+      country: get('to-country')
+    },
+    ship_to: {
+      name:   get('ship-name'),
+      street: get('ship-street'),
+      city:   get('ship-city'),
+      state:  get('ship-state'),
+      zip:    get('ship-zip')
+    },
+    line_items: items.map(r => ({ description: r.desc, quantity: r.qty, rate: r.rate, amount: r.total })),
+    taxes: taxes.map(t => ({ label: t.label, rate_percent: t.rate })),
+    subtotal:  +subtotal.toFixed(2),
+    tax_total: +taxTotal.toFixed(2),
+    shipping:  +shipping.toFixed(2),
+    total:     +total.toFixed(2),
+    notes: get('notes'),
+    exported_at: new Date().toISOString(),
+    exporter: 'FoxMargin v1'
+  };
+}
+
+function csvEscape(v) {
+  const s = (v === null || v === undefined) ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function csvFromPO(d) {
+  const headers = [
+    'PONumber','VendorName','VendorEmail','VendorAddress',
+    'PODate','DeliveryDate','PaymentTerms','ShipToName','ShipToAddress','Currency',
+    'LineDescription','LineQuantity','LineRate','LineAmount',
+    'TaxLabel','TaxRatePercent',
+    'Subtotal','TaxTotal','Shipping','Total','AuthorizedBy','Memo'
+  ];
+  const vendAddr = [d.vendor.street, d.vendor.city, d.vendor.state, d.vendor.zip, d.vendor.country]
+    .filter(Boolean).join(', ');
+  const shipAddr = [d.ship_to.street, d.ship_to.city, d.ship_to.state, d.ship_to.zip]
+    .filter(Boolean).join(', ');
+  const taxLabel = d.taxes.map(t => t.label + ' ' + t.rate_percent + '%').join(' + ');
+  const taxRate  = d.taxes.reduce((s, t) => s + t.rate_percent, 0);
+
+  const lines = [headers.join(',')];
+  const rows = d.line_items.length ? d.line_items : [{ description: '', quantity: 0, rate: 0, amount: 0 }];
+  rows.forEach((it, i) => {
+    const last = i === rows.length - 1;
+    lines.push([
+      d.po_number, d.vendor.name, d.vendor.email, vendAddr,
+      d.po_date, d.delivery_date, d.payment_terms,
+      d.ship_to.name, shipAddr, d.currency,
+      it.description, it.quantity, it.rate.toFixed(2), it.amount.toFixed(2),
+      last ? taxLabel : '',
+      last ? taxRate  : '',
+      last ? d.subtotal.toFixed(2)  : '',
+      last ? d.tax_total.toFixed(2) : '',
+      last ? d.shipping.toFixed(2)  : '',
+      last ? d.total.toFixed(2)     : '',
+      last ? d.authorized_by        : '',
+      last ? d.notes                : ''
+    ].map(csvEscape).join(','));
+  });
+  return lines.join('\r\n');
+}
+
+const IMPORT_GUIDE_TEXT =
+  'FoxMargin Purchase Order Export\r\n' +
+  '===============================\r\n\r\n' +
+  'This ZIP contains:\r\n' +
+  '  purchase_order.csv  Line-item CSV. Imports as a PO into QuickBooks, Xero, Zoho.\r\n' +
+  '  purchase_order.json Tool-agnostic backup of the PO data.\r\n' +
+  '  IMPORT_GUIDE.txt    This file.\r\n\r\n' +
+  'Importing into QuickBooks Online (as a Purchase Order)\r\n' +
+  '------------------------------------------------------\r\n' +
+  '1. QuickBooks Online does not natively import POs via CSV. Two options:\r\n' +
+  '     a. Use a connector (SaasAnt, Transaction Pro) that DOES support PO CSV import.\r\n' +
+  '     b. Open QuickBooks -> + New -> Purchase Order and copy fields from purchase_order.csv.\r\n' +
+  '2. Column mapping for connectors:\r\n' +
+  '     PONumber        -> PO No.\r\n' +
+  '     VendorName      -> Vendor\r\n' +
+  '     PODate          -> PO Date\r\n' +
+  '     DeliveryDate    -> Expected Delivery\r\n' +
+  '     PaymentTerms    -> Terms\r\n' +
+  '     ShipToName      -> Ship To\r\n' +
+  '     LineDescription -> Product/Service Description\r\n' +
+  '     LineQuantity    -> Quantity\r\n' +
+  '     LineRate        -> Rate\r\n' +
+  '     LineAmount      -> Amount\r\n' +
+  '     Shipping        -> Shipping (or add as a separate line item)\r\n\r\n' +
+  'Xero (Purchase Orders), Zoho Books, Sage\r\n' +
+  '----------------------------------------\r\n' +
+  'Xero: Business -> Purchase Orders -> Import. Same CSV, one-time column-mapping step.\r\n' +
+  'Zoho: Purchase Orders -> + New -> Import.\r\n\r\n' +
+  'Heads up\r\n' +
+  '--------\r\n' +
+  '- The vendor must already exist in your accounting tool, or it will skip the import.\r\n' +
+  "- Tax codes get reassigned during import (we use a generic label; you assign your tool's tax code).\r\n" +
+  '- Shipping is a separate column; if your tool does not have a Shipping field, add a line item for it.\r\n' +
+  '- Multi-currency only works if your accounting tool has multi-currency enabled.\r\n\r\n' +
+  'The JSON file\r\n' +
+  '-------------\r\n' +
+  'purchase_order.json is a tool-agnostic record. Keep it as a backup.\r\n\r\n' +
+  'More info: https://foxmargin.com\r\n';
+
+function loadJSZip() {
+  if (typeof window.JSZip !== 'undefined') return Promise.resolve(window.JSZip);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.integrity = 'sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==';
+    s.crossOrigin = 'anonymous';
+    s.referrerPolicy = 'no-referrer';
+    s.onload  = () => resolve(window.JSZip);
+    s.onerror = () => reject(new Error('Failed to load JSZip'));
+    document.head.appendChild(s);
+  });
+}
+
+async function exportPO() {
+  try {
+    if (typeof window.track === 'function') window.track('export_po');
+    const data = buildPOData();
+    const poNum = data.po_number || 'purchase_order';
+    const safe  = poNum.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const JSZip = await loadJSZip();
+    const zip = new JSZip();
+    zip.file('purchase_order.csv',  csvFromPO(data));
+    zip.file('purchase_order.json', JSON.stringify(data, null, 2));
+    zip.file('IMPORT_GUIDE.txt',    IMPORT_GUIDE_TEXT);
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = safe + '_export.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (err) {
+    console.error('Export failed:', err);
+    alert("Couldn't generate the export. Check your connection and try again.");
+  }
+}
+window.exportPO = exportPO;
 </script>
 
 <script is:inline>
