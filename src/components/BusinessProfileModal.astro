@@ -150,33 +150,12 @@ import { ADDR_CONFIG, ADDR_DEFAULT } from '../data/address-config';
     padding-top: 1rem;
     border-top: 1px solid var(--border);
   }
-  .btn-skip {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 0.85rem;
-    cursor: pointer;
-    padding: 0.4rem 0;
-  }
-  .btn-skip:hover { color: var(--text); }
   .biz-actions-secondary {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
   }
-  .biz-link {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 0.8rem;
-    cursor: pointer;
-    padding: 0.4rem 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .biz-link:hover { color: var(--text); }
-  .biz-link-sep { color: var(--border); font-size: 0.8rem; user-select: none; }
   .biz-import-msg { font-size: 0.74rem; color: var(--muted); margin-left: 0.25rem; }
 </style>
 
@@ -380,11 +359,8 @@ import { ADDR_CONFIG, ADDR_DEFAULT } from '../data/address-config';
         <div class="biz-modal-actions">
           <button type="button" class="btn" onclick="saveBizProfile()">Save Profile</button>
           <div class="biz-actions-secondary">
-            <button type="button" class="biz-link" onclick="exportBizSettings()" title="Download a JSON backup of your business profile, logo, and saved clients">Export backup</button>
-            <span class="biz-link-sep">·</span>
-            <button type="button" class="biz-link" onclick="document.getElementById('biz-import-input').click()" title="Restore settings from a backup file">Restore</button>
-            <span class="biz-link-sep">·</span>
-            <button type="button" class="btn-skip" onclick="closeBizModal()">Skip for now</button>
+            <button type="button" class="action-btn has-tooltip" data-tooltip="Download a JSON backup of your profile, logo, and saved clients" onclick="exportBizSettings()">Export backup</button>
+            <button type="button" class="action-btn has-tooltip" data-tooltip="Restore settings from a backup file" onclick="document.getElementById('biz-import-input').click()">Restore</button>
             <input type="file" id="biz-import-input" accept="application/json,.json" style="display:none;" onchange="importBizSettings(this.files[0]); this.value='';" />
             <span id="biz-import-msg" class="biz-import-msg"></span>
           </div>
