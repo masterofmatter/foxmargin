@@ -242,12 +242,12 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
         <span class="inv-paper-label">Live Preview</span>
         <div class="preview-actions">
           <button type="button" class="action-btn" onclick="exportInvoice()">Export CSV</button>
-          <button type="button" class="action-btn" title="Saves a PDF first, then opens your mail draft to attach it" onclick="emailDoc({kind:'Invoice',numberId:'inv-number',eventName:'email_invoice'})">Email</button>
+          <button type="button" class="action-btn has-tooltip" data-tooltip="Saves a PDF first, then opens your mail draft" onclick="emailDoc({kind:'Invoice',numberId:'inv-number',eventName:'email_invoice'})">Email</button>
           <button type="button" class="action-btn-primary" onclick="track('print_invoice');window.print()">Print / Save PDF</button>
         </div>
       </div>
       <div class="print-hide" style="margin-top:0.45rem;font-size:0.72rem;color:var(--muted);text-align:right;">
-        Email saves a PDF first → attach it to the mail draft that opens.
+        Email saves a PDF first → attach to the mail draft that opens.
       </div>
       <div class="print-hide" style="margin-top:0.25rem;font-size:0.72rem;color:var(--muted);text-align:right;">
         Export works with QuickBooks, Xero, Wave, Zoho.

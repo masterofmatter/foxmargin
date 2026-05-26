@@ -268,6 +268,53 @@ main { min-width: 0; }
 }
 .action-btn-green:hover { background: #047857; border-color: #047857; }
 
+/* ── Themed tooltip — replaces browser title= for instant, on-brand hover ── */
+.has-tooltip { position: relative; }
+.has-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--text);
+  color: #fff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.35;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+}
+.has-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  border: 5px solid transparent;
+  border-top-color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 50;
+}
+.has-tooltip:hover::after,
+.has-tooltip:hover::before,
+.has-tooltip:focus-visible::after,
+.has-tooltip:focus-visible::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media print {
+  .has-tooltip::after, .has-tooltip::before { display: none !important; }
+}
+
 /* Results */
 .results {
   display: none;
