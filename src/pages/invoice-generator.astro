@@ -246,17 +246,6 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
           <button type="button" class="action-btn-primary" onclick="track('print_invoice');window.print()">Print / Save PDF</button>
         </div>
       </div>
-      <div class="print-hide" style="margin-top:0.45rem;font-size:0.72rem;color:var(--muted);text-align:right;">
-        <a href="#" onclick="event.preventDefault();var e=document.getElementById('export-help-body');e.style.display=e.style.display==='block'?'none':'block';return false;" style="color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted);">Before importing →</a>
-      </div>
-      <div id="export-help-body" class="print-hide" style="display:none;margin-top:0.5rem;font-size:0.78rem;color:var(--text);background:var(--bg);padding:0.7rem 0.85rem;border-radius:7px;line-height:1.55;">
-        <ul style="margin:0;padding-left:1.15rem;">
-          <li>Add this customer to your accounting tool first — it will skip invoices for unknown customers.</li>
-          <li>You'll map our columns to theirs once on first import. The tool remembers the mapping for next time.</li>
-          <li>Tax codes get reassigned to your accounting tool's tax codes during the mapping step.</li>
-        </ul>
-        <div style="margin-top:0.5rem;color:var(--muted);font-size:0.72rem;">The download includes a JSON backup so you can re-export later if your accounting tool changes its CSV format.</div>
-      </div>
       <div class="inv-paper" id="invoice-paper"></div>
     </div>
 
@@ -285,6 +274,16 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
     <details>
       <summary>Can I create an invoice from a quote?</summary>
       <p>Yes — create your quote in the <a href="/quote-generator/">Quote Generator</a>, then click "Convert to Invoice." All your business info, client details, and line items transfer automatically.</p>
+    </details>
+    <details>
+      <summary>How do I import the CSV into QuickBooks, Xero, Wave, or Zoho?</summary>
+      <p>The Export CSV button gives you a ZIP with a line-item CSV that imports into all four. A few things to know before you import:</p>
+      <ul style="margin:0.5rem 0 0.5rem 1.2rem;padding:0;line-height:1.6;">
+        <li>Add the customer to your accounting tool first — most tools skip invoices for unknown customers.</li>
+        <li>You'll map our columns to theirs once on first import. The tool remembers the mapping for next time.</li>
+        <li>Tax codes get reassigned to your accounting tool's tax codes during the mapping step.</li>
+      </ul>
+      <p style="color:var(--muted);font-size:0.92rem;">The download also includes a JSON backup so you can re-export later if your accounting tool changes its CSV format.</p>
     </details>
   </div>
 
