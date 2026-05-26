@@ -144,19 +144,36 @@ import { ADDR_CONFIG, ADDR_DEFAULT } from '../data/address-config';
   .biz-country-flag span { font-size:.8rem; color:var(--muted); user-select:none; }
   .biz-modal-actions {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
-    margin-top: 1.25rem;
-    padding-top: 1rem;
+    justify-content: space-between;
+    gap: 0.6rem 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.1rem;
     border-top: 1px solid var(--border);
+  }
+  /* Match Save Profile to the secondary action-btn scale so the row reads
+     as one cohesive control strip, and keep the label on one line. */
+  .biz-modal-actions .btn {
+    align-self: auto;
+    white-space: nowrap;
+    padding: 0.55rem 1.15rem;
+    font-size: 0.88rem;
+    border-radius: 6px;
+    flex-shrink: 0;
   }
   .biz-actions-secondary {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
     flex-wrap: wrap;
   }
   .biz-import-msg { font-size: 0.74rem; color: var(--muted); margin-left: 0.25rem; }
+  @media (max-width: 480px) {
+    .biz-modal-actions { flex-direction: column-reverse; align-items: stretch; }
+    .biz-modal-actions .btn { width: 100%; text-align: center; }
+    .biz-actions-secondary { justify-content: flex-start; }
+  }
 </style>
 
 <!-- Business Profile Modal -->
