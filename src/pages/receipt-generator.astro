@@ -247,13 +247,10 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
         <div class="preview-actions">
-          <button type="button" class="action-btn" onclick="exportReceipt()">Export CSV</button>
+          <button type="button" class="action-btn has-tooltip" data-tooltip="Export works with QuickBooks, Xero, Wave, Zoho" onclick="exportReceipt()">Export CSV</button>
           <button type="button" class="action-btn has-tooltip" data-tooltip="Saves a PDF first, then opens your mail draft" onclick="emailDoc({kind:'Receipt',numberId:'rec-number',eventName:'email_receipt'})">Email</button>
           <button type="button" class="action-btn-primary" onclick="track('print_receipt');window.print()">Print / Save PDF</button>
         </div>
-      </div>
-      <div class="print-hide" style="margin-top:0.45rem;font-size:0.72rem;color:var(--muted);text-align:right;">
-        Email saves a PDF first → attach to the mail draft that opens.
       </div>
       <div class="inv-paper" id="doc-paper"></div>
     </div>

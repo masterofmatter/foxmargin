@@ -241,17 +241,13 @@ const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": [
       <div class="inv-paper-actions">
         <span class="inv-paper-label">Live Preview</span>
         <div class="preview-actions">
-          <button type="button" class="action-btn" onclick="exportInvoice()">Export CSV</button>
+          <button type="button" class="action-btn has-tooltip" data-tooltip="Export works with QuickBooks, Xero, Wave, Zoho" onclick="exportInvoice()">Export CSV</button>
           <button type="button" class="action-btn has-tooltip" data-tooltip="Saves a PDF first, then opens your mail draft" onclick="emailDoc({kind:'Invoice',numberId:'inv-number',eventName:'email_invoice'})">Email</button>
           <button type="button" class="action-btn-primary" onclick="track('print_invoice');window.print()">Print / Save PDF</button>
         </div>
       </div>
       <div class="print-hide" style="margin-top:0.45rem;font-size:0.72rem;color:var(--muted);text-align:right;">
-        Email saves a PDF first → attach to the mail draft that opens.
-      </div>
-      <div class="print-hide" style="margin-top:0.25rem;font-size:0.72rem;color:var(--muted);text-align:right;">
-        Export works with QuickBooks, Xero, Wave, Zoho.
-        <a href="#" onclick="event.preventDefault();var e=document.getElementById('export-help-body');e.style.display=e.style.display==='block'?'none':'block';return false;" style="color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted);margin-left:0.25rem;">Before importing →</a>
+        <a href="#" onclick="event.preventDefault();var e=document.getElementById('export-help-body');e.style.display=e.style.display==='block'?'none':'block';return false;" style="color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted);">Before importing →</a>
       </div>
       <div id="export-help-body" class="print-hide" style="display:none;margin-top:0.5rem;font-size:0.78rem;color:var(--text);background:var(--bg);padding:0.7rem 0.85rem;border-radius:7px;line-height:1.55;">
         <ul style="margin:0;padding-left:1.15rem;">
